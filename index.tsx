@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import React, { useState, createContext } from 'react'
 import Web3 from 'web3'
 
@@ -210,7 +212,9 @@ const Wallet = (props) => {
     }
     const provider_ = window.ethereum
     const chainIdHex_ = provider_.chainId
-    let chainId_ = parseInt(chainIdHex_)
+    let chainId_ = typeof chainIdHex_ === 'string'
+      ? parseInt(chainIdHex_)
+      : null
 
     let accounts
 
@@ -238,7 +242,7 @@ const Wallet = (props) => {
       const isNeedToChangeNetwork = chainId_ !== network.chain_id
       if (isNeedToChangeNetwork) {
         await metamaskChangeNetwork(network.data.params)
-        chainId_  = network.chain_id
+        chainId_ = network.chain_id
       }
     }
 
@@ -253,6 +257,7 @@ const Wallet = (props) => {
       isConnected: true,
       name: 'MetaMask',
       provider: provider_,
+      //@ts-ignore
       web3: new Web3(provider_),
       chainId: chainId_,
       address: address_,
@@ -512,8 +517,6 @@ const Wallet = (props) => {
 
       try {
         await ethereum.request({
-          "id": 1,
-          "jsonrpc": "2.0",
           "method": "wallet_switchEthereumChain",
           "params": [
             {
