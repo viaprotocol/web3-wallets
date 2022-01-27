@@ -9,6 +9,16 @@ import QRCodeModal from '@walletconnect/qrcode-modal'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
+import { MetaMaskInpageProvider } from '@metamask/providers'
+
+
+declare global {
+  interface Window {
+    ethereum: MetaMaskInpageProvider
+  }
+}
+
+
 interface WalletInterface {
   isLoading: boolean
   isConnected: boolean
