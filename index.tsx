@@ -25,7 +25,7 @@ declare global {
 interface WalletInterface {
   isLoading: boolean
   isConnected: boolean
-  name: null | 'WalletConnect' | 'MetaMask'
+  name: null | 'WalletConnect' | 'MetaMask' | 'Phantom'
   chainId: null | number
   address: string | null
   addressDomain: null | string
@@ -58,6 +58,7 @@ export const WalletContext = createContext<WalletInterface>({
 const names = {
   'WalletConnect': 'WalletConnect',
   'MetaMask': 'MetaMask',
+  'Phantom': 'Phantom',
 }
 
 /*
@@ -109,7 +110,7 @@ const goPhantom = () => {
 interface StateProps {
   isLoading: boolean
   isConnected: boolean
-  name: null | 'WalletConnect' | 'MetaMask'
+  name: null | 'WalletConnect' | 'MetaMask' | 'Phantom'
   provider: any
   web3: Web3 | null
   chainId: number | null
@@ -467,6 +468,30 @@ const Wallet = (props) => {
     })
   }
 
+  const connectPhantom = async () => {
+    try {
+      const resp = await window.solana.connect()
+      //console.log('resp', resp)
+      const address_ = resp.publicKey.toString()
+
+      setState(prev => ({...prev, ...{
+        isConnected: true,
+        name: 'Phantom',
+        provider: null,
+        web3: null,
+        chainId: null,
+        address: address_,
+        addressDomain: null
+      }}))
+    } catch (err: any) {
+      if (err.code === 4001) {
+        console.warn('[Wallet] User rejected the request.')
+        return false
+      }
+      console.error('[Wallet]', err)
+    }
+  }
+
   const dropWC = () => {
     return connectWC({ showQR: false, network: [] })
   }
@@ -523,6 +548,7 @@ const Wallet = (props) => {
         goPhantom()
         return false
       }
+      return await connectPhantom()
     }
   }
 
@@ -615,6 +641,10 @@ const Wallet = (props) => {
 
     if (state.name === 'WalletConnect') {
       connector.killSession()
+    }
+
+    if (state.name === 'Phantom') {
+      window.solana.disconnect()
     }
 
     setState(prev => ({...prev, ...{
