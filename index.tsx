@@ -17,6 +17,7 @@ import { MetaMaskInpageProvider } from '@metamask/providers'
 declare global {
   interface Window {
     ethereum: MetaMaskInpageProvider
+    solana: any
   }
 }
 
@@ -98,6 +99,12 @@ const goMetamask = () => {
   }
 }
 
+const goPhantom = () => {
+  const url = 'https://chrome.google.com/webstore/detail/phantom/bfnaelmomeimhlpmgjnjophhpkkoljpa'
+  if (window) {
+    window.open(url, '_blank')
+  }
+}
 
 interface StateProps {
   isLoading: boolean
@@ -508,6 +515,14 @@ const Wallet = (props) => {
         throw new Error(`Unknown network.rpc_url ${network.rpc_url}`)
       }
       return connectWC({ showQR: true, network })
+    }
+
+    if (name === 'Phantom') {
+      const isPhantomInstalled = window.solana && window.solana.isPhantom
+      if (!isPhantomInstalled) {
+        goPhantom()
+        return false
+      }
     }
   }
 
