@@ -37,6 +37,7 @@ interface WalletInterface {
   name: null | 'WalletConnect' | 'MetaMask' | 'Phantom'
   chainId: null | number
   address: string | null
+  addressShort: string | null
   addressDomain: null | string
   web3: Web3 | null // todo: types
   provider: any // 📌 TODO: add interface
@@ -53,6 +54,7 @@ export const WalletContext = createContext<WalletInterface>({
   name: null,
   chainId: null,
   address: '',
+  addressShort: '',
   addressDomain: null,
   web3: null,
   provider: null,
@@ -124,6 +126,7 @@ interface StateProps {
   web3: Web3 | null
   chainId: number | null
   address: string | null
+  addressShort: string | null
   addressDomain: string | null
 }
 
@@ -137,6 +140,7 @@ const Wallet = (props) => {
     web3: null,
     chainId: null,
     address: null,
+    addressShort: null,
     addressDomain: null
   })
 
@@ -154,6 +158,13 @@ const Wallet = (props) => {
       console.warn(`Can't get domain, ${e}`)
     }
     return null
+  }
+
+  const shortify = (address) => {
+    const result = typeof address === 'string'
+      ? `${address.slice(0, 6)}...${address.slice(address.length - 4)}`
+      : null
+    return result
   }
 
   /*
@@ -278,6 +289,7 @@ const Wallet = (props) => {
       web3: new Web3(provider_),
       chainId: chainId_,
       address: address_,
+      addressShort: shortify(address_),
       addressDomain: addressDomain_
     }}))
     return true
@@ -343,6 +355,7 @@ const Wallet = (props) => {
           web3: web3_,
           chainId: connector.session.chainId,
           address: connector.session.accounts[0],
+          addressShort: shortify(connector.session.accounts[0]),
           addressDomain
         }}))
 
@@ -395,6 +408,7 @@ const Wallet = (props) => {
           web3: web3_,
           chainId: walletChainId,
           address: address_,
+          addressShort: shortify(address_),
           addressDomain: addressDomain_
         }}))
 
@@ -471,6 +485,7 @@ const Wallet = (props) => {
           web3: null,
           chainId: null,
           address: null,
+          addressShort: null,
           addressDomain: null
         }}))
       })
@@ -490,6 +505,7 @@ const Wallet = (props) => {
         web3: null,
         chainId: null,
         address: address_,
+        addressShort: shortify(address_),
         addressDomain: null
       }}))
     } catch (err: any) {
@@ -711,6 +727,7 @@ const Wallet = (props) => {
       web3: null,
       chainId: null,
       address: null,
+      addressShort: null,
       addressDomain: null
     }}))
   }
@@ -722,6 +739,7 @@ const Wallet = (props) => {
       name: state.name,
       chainId: state.chainId,
       address: state.address,
+      addressShort: state.addressShort,
       addressDomain: state.addressDomain,
       web3: state.web3,
       provider: state.provider,
