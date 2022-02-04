@@ -21,6 +21,8 @@ import {
   SystemProgram,
 } from '@solana/web3.js'
 
+import { getNetworkById } from './networks'
+
 const SOLANA_NETWORK = clusterApiUrl('testnet'/*'mainnet-beta'*/)
 
 declare global {
