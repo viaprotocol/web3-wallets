@@ -101,7 +101,7 @@ const networks = networksRaw.map((item) => ({
 }))
 
 export const getNetworkById = (chainId: string | number) => {
-  const network = networksRaw.find(net => net.chain_id === chainId)
+  const network = networks.find(net => net.chain_id === chainId)
   if (network) {
     return network
   }

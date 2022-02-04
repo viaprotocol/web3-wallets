@@ -236,7 +236,7 @@ const Wallet = (props) => {
     return await connectMetamask()
   }
 
-  const connectMetamask = async (network?: { data: { params: any }; chain_id: number }) => {
+  const connectMetamask = async (chainId?: string | number) => {
     if (!window.ethereum || !window.ethereum.isMetaMask) {
       return false
     }
@@ -265,7 +265,8 @@ const Wallet = (props) => {
     const address_ = accounts[0]
     const addressDomain_ = await getDomain(getDomain)
 
-    if (network) { // go change network
+    if (chainId) { // go change network
+      const network = getNetworkById(chainId)
       if (!network.data.params) {
         throw new Error('Missing network params')
       }
@@ -297,7 +298,7 @@ const Wallet = (props) => {
     return true
   }
 
-  const connectWC = ({ showQR = false, network }) => {
+  const connectWC = ({ showQR = false, chainId = '' }) => {
     /*
       showQR === false | only reconnect
       showQR === true  | try to connect + show QR
@@ -387,6 +388,7 @@ const Wallet = (props) => {
         // Get provided accounts and chainId
         const { accounts, chainId: walletChainId } = payload.params[0]
 
+        const network = getNetworkById(chainId)
         const dappChainId = network.chain_id
         if (walletChainId !== dappChainId) {
           toast.warn('Wrong wallet network — disconnected')
@@ -520,7 +522,7 @@ const Wallet = (props) => {
   }
 
   const dropWC = () => {
-    return connectWC({ showQR: false, network: [] })
+    return connectWC({ showQR: false })
   }
 
   const metamaskChainChangeHandler = (chainIdHex) => {
@@ -547,8 +549,8 @@ const Wallet = (props) => {
     }
   }
 
-  const connect = async ({ name, network }) => {
-    console.log('Wallet.connect()', name, network)
+  const connect = async ({ name, chainId }) => {
+    console.log('Wallet.connect()', name, chainId)
     if (!names[name]) {
       console.error(`Unknown wallet name: ${name}`)
       return
@@ -559,14 +561,11 @@ const Wallet = (props) => {
         goMetamask()
         return false
       }
-      return await connectMetamask(network)
+      return await connectMetamask(chainId)
     }
 
     if (name === 'WalletConnect') {
-      if (!network || !network.rpc_url) {
-        throw new Error(`Unknown network.rpc_url ${network.rpc_url}`)
-      }
-      return connectWC({ showQR: true, network })
+      return connectWC({ showQR: true, chainId })
     }
 
     if (name === 'Phantom') {
@@ -615,11 +614,11 @@ const Wallet = (props) => {
       return false
   }
 
-  const changeNetwork = async (name, params) => {
-    console.log('Wallet.changeNetwork()', params)
+  const changeNetwork = async (name, chainId) => {
+    console.log('Wallet.changeNetwork()', chainId)
 
-    const newChainIdHex = params[0].chainId
-    const newChainId = parseInt(newChainIdHex)
+    const network = getNetworkById(chainId)
+    const params = network.data.params
     // console.log('state.name', state.name)
     /*if (state.name === 'MetaMask') {*/
     // todo: stale state
@@ -627,7 +626,7 @@ const Wallet = (props) => {
       const isChanged = await metamaskChangeNetwork(params)
       if (isChanged) {
         setState(prev => ({...prev, ...{
-          chainId: newChainId
+          chainId: chainId
         }}))
         return true
       }
