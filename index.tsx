@@ -388,8 +388,10 @@ const Wallet = (props) => {
         // Get provided accounts and chainId
         const { accounts, chainId: walletChainId } = payload.params[0]
 
-        const network = getNetworkById(chainId)
-        const dappChainId = network.chain_id
+        const dappChainId = chainId
+        console.info('dappChainId', dappChainId)
+        console.info('walletChainId', walletChainId)
+
         if (walletChainId !== dappChainId) {
           toast.warn('Wrong wallet network — disconnected')
           /*console.warn('(Rejected) Select the correct network in your wallet')*/
@@ -400,6 +402,7 @@ const Wallet = (props) => {
         const address_ = accounts[0]
         const addressDomain_ = await getDomain(address_)
 
+        const network = getNetworkById(chainId)
         const rpcUrl = network.rpc_url
         console.log('rpcUrl', rpcUrl)
         const provider_ = new Web3.providers.HttpProvider(rpcUrl)
