@@ -2,6 +2,7 @@
 
 import React, { useState, createContext } from 'react'
 import Web3 from 'web3'
+import { ethers } from 'ethers'
 
 import isMobile from 'ismobilejs'
 
@@ -15,7 +16,6 @@ import { MetaMaskInpageProvider } from '@metamask/providers'
 
 import {
   Connection,
-  PublicKey,
   Transaction,
   clusterApiUrl,
   SystemProgram,
@@ -73,17 +73,6 @@ const names = {
   'MetaMask': 'MetaMask',
   'Phantom': 'Phantom',
 }
-
-/*
-const { ethereum } = window
-*/
-
-/*const web3 = new Web3(window.ethereum)
-web3.eth.getAccounts((err, accounts) => {
-  if (err != null) console.error("An error occurred: " + err)
-  else if (accounts.length === 0) console.log("User is not logged in to MetaMask");
-  else connect();
-});*/
 
 let isMetamaskHandler = false
 
@@ -169,68 +158,8 @@ const Wallet = (props) => {
     return result
   }
 
-  /*
-  setState(prev => {
-    // Object.assign would also work
-    return {...prev, ...updates};
-  })
-
-  setState(prev => ({...prev, ...{
-
-  }}))
-  */
-
-  /*
-  useEffect(() => {
-    // todo: check
-    if (window?.ethereum?.chainId) {
-      const metamaskChainId = parseInt(window.ethereum.chainId)
-      console.log('setMetamaskChainId', metamaskChainId)
-      setMetamaskChainId(metamaskChainId)
-    }
-
-    const metamaskChainChangeHandler = (chainIdHex) => {
-      const chainId = parseInt(chainIdHex)
-      console.log('chainChanged / setMetamaskChainId', chainId)
-      setMetamaskChainId(chainId)
-    }
-
-    if (!isMetamaskHandler) {
-      if (window.ethereum) {
-       window.ethereum.on('chainChanged', metamaskChainChangeHandler)
-       isMetamaskHandler = true
-      }
-    }
-  }, [metamaskChainId])
-  */
-
-
   const restore = async () => {
     console.log('Wallet.restore()')
-    /*
-    if (!ethereum) {
-      console.warn('connectAuto failed: no window.ethereum')
-      return
-    }
-
-    //
-
-    try {
-      const accounts = await ethereum.request({
-        method: 'eth_requestAccounts'
-      })
-
-      console.log('setAccount', accounts[0])
-      setAddress(accounts[0])
-
-      parseInt(ethereum.networkVersion)
-
-    } catch (error) {
-      console.error('Cannot connect:', error)
-    }
-    */
-
-
     await dropWC()
 
     return await connectMetamask()
@@ -335,35 +264,6 @@ const Wallet = (props) => {
           console.warn(e)
         }
         resolve(false)
-        /* todo later:
-        const dappChainId = network.chain_id
-        const walletChainId = connector.session.chainId
-
-        if (walletChainId !== dappChainId) {
-          toast.warn('(Rejected) Select the correct network in your wallet')
-          //console.warn('(Rejected) Select the correct network in your wallet')
-          resolve(false)
-          connector.killSession()
-        }
-
-        const rpcUrl = network.rpc_url
-        console.log('rpcUrl', rpcUrl)
-        const provider_ = new Web3.providers.HttpProvider(rpcUrl)
-        const web3_ = new Web3(provider_)
-
-        setState(prev => ({...prev, ...{
-          isConnected: connector.session.connected,
-          name: 'WalletConnect',
-          provider: provider_,
-          web3: web3_,
-          chainId: connector.session.chainId,
-          address: connector.session.accounts[0],
-          addressShort: shortify(connector.session.accounts[0]),
-          addressDomain
-        }}))
-
-        resolve(true)
-        */
       }
 
         /*
