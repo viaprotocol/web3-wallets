@@ -1,13 +1,11 @@
 /* eslint-disable */
 
-import React, { useState, createContext } from 'react'
-import Web3 from 'web3'
+import React, { useState, createContext, useEffect } from 'react'
 import { ethers } from 'ethers'
 
 import isMobile from 'ismobilejs'
 
-import WalletConnect from '@walletconnect/client'
-import QRCodeModal from '@walletconnect/qrcode-modal'
+import WalletConnectProvider from '@walletconnect/web3-provider'
 
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -21,13 +19,14 @@ import {
   SystemProgram,
 } from '@solana/web3.js'
 
-import { getNetworkById } from './networks'
+import { getNetworkById, rpcMapping } from './networks'
+import { TransactionRequest, Web3Provider } from '@ethersproject/providers'
 
 const SOLANA_NETWORK = clusterApiUrl('testnet'/*'mainnet-beta'*/)
 
 declare global {
   interface Window {
-    ethereum: MetaMaskInpageProvider
+    ethereum: any
     solana: any
   }
 }
@@ -41,7 +40,6 @@ interface WalletInterface {
   address: string | null
   addressShort: string | null
   addressDomain: null | string
-  web3: Web3 | null // todo: types
   provider: any // 📌 TODO: add interface
   restore: Function
   connect: Function
@@ -58,7 +56,6 @@ export const WalletContext = createContext<WalletInterface>({
   address: '',
   addressShort: '',
   addressDomain: null,
-  web3: null,
   provider: null,
   restore: () => {},
   connect: () => {},
@@ -81,20 +78,9 @@ let connector // wc
 
 
 const goMetamask = () => {
-  //if (isMobile(window.navigator).apple.device) {
   if (isMobile(window.navigator).any) {
-    /*
-      open app in mobile metamask
-      info: https://docs.metamask.io/guide/mobile-best-practices.html#deeplinking
-
-      `https://checkout.webill.io/nft/bb811382-1f1b-4376-8884-5f74bd808f83/`
-      ->
-      `https://metamask.app.link/dapp/checkout.webill.io/nft/bb811382-1f1b-4376-8884-5f74bd808f83/`
-    */
-    const locationHref = window.location.href
-    let locationHrefNoProtocol = locationHref.replace('http://', '')
-    locationHrefNoProtocol = locationHrefNoProtocol.replace('https://', '')
-    const deepLink = `https://metamask.app.link/dapp/${locationHrefNoProtocol}`
+    const url = window.location.host + window.location.pathname
+    const deepLink = `https://metamask.app.link/dapp/${url}`
     window.location.href = deepLink
   }
   if (!isMobile(window.navigator).any) {
@@ -113,8 +99,7 @@ interface StateProps {
   isLoading: boolean
   isConnected: boolean
   name: null | 'WalletConnect' | 'MetaMask' | 'Phantom'
-  provider: any
-  web3: Web3 | null
+  provider: null | Web3Provider
   chainId: number | null
   address: string | null
   addressShort: string | null
@@ -128,28 +113,11 @@ const Wallet = (props) => {
     isConnected: false,
     name: null,
     provider: null,
-    web3: null,
     chainId: null,
     address: null,
     addressShort: null,
     addressDomain: null
   })
-
-  const getDomain = async (address) => {
-    if (!address) {
-      return null
-    }
-    try {
-      // ENS test
-      //const address = '0xd8da6bf26964af9d7eed9e03e53415d37aa96045'
-      const answer = await (await fetch(`https://domains.1inch.io/reverse-lookup?address=${address}`)).json()
-      const domain = answer.domain
-      return domain
-    } catch (e) {
-      console.warn(`Can't get domain, ${e}`)
-    }
-    return null
-  }
 
   const shortify = (address) => {
     const result = typeof address === 'string'
@@ -160,243 +128,38 @@ const Wallet = (props) => {
 
   const restore = async () => {
     console.log('Wallet.restore()')
-    await dropWC()
 
-    return await connectMetamask()
+    return connectMetamask()
   }
 
-  const connectMetamask = async (chainId?: string | number) => {
+  const connectMetamask = (chainId?: string | number) => {
     if (!window.ethereum || !window.ethereum.isMetaMask) {
-      return false
-    }
-    const provider_ = window.ethereum
-    const chainIdHex_ = provider_.chainId
-    let chainId_ = typeof chainIdHex_ === 'string'
-      ? parseInt(chainIdHex_)
-      : null
-
-    let accounts
-
-    try {
-      accounts = await provider_.request({
-        method: 'eth_requestAccounts'
-      })
-    } catch (e: any) {
-      if (e.code === 4001) {
-        console.warn('User rejected the request', e)
-        return false
-      } else {
-        throw e
-      }
+      return
     }
 
-    console.log('accounts = ', accounts)
-    const address_ = accounts[0]
-    const addressDomain_ = await getDomain(getDomain)
-
-    if (chainId) { // go change network
-      const network = getNetworkById(chainId)
-      if (!network.data.params) {
-        throw new Error('Missing network params')
-      }
-      const isNeedToChangeNetwork = chainId_ !== network.chain_id
-      if (isNeedToChangeNetwork) {
-        await metamaskChangeNetwork(network.data.params)
-        chainId_ = network.chain_id
-      }
-    }
-
-
-    if (!isMetamaskHandler) {
-      provider_.on('chainChanged', metamaskChainChangeHandler)
-      provider_.on('accountsChanged', metamaskAccountChangeHandler)
-      isMetamaskHandler = true
-    }
+    const provider_ = new ethers.providers.Web3Provider(window.ethereum)
 
     setState(prev => ({...prev, ...{
       isConnected: true,
       name: 'MetaMask',
       provider: provider_,
-      //@ts-ignore
-      web3: new Web3(provider_),
-      chainId: chainId_,
-      address: address_,
-      addressShort: shortify(address_),
-      addressDomain: addressDomain_
     }}))
-    return true
   }
 
-  const connectWC = ({ showQR = false, chainId = '' }) => {
-    /*
-      showQR === false | only reconnect
-      showQR === true  | try to connect + show QR
-    */
-
-    console.log('connectWC()', showQR ? '(connect+QR)' : '(reconnect)')
-
-    return new Promise((resolve) => {
-      connector = new WalletConnect({
-        bridge: 'https://bridge.walletconnect.org',
-        qrcodeModal: QRCodeModal,
-      })
-
-      console.log('connector: ', connector)
-
-      if (
-        (connector.connected && showQR) ||
-        (!connector.connected && !showQR)
-      ) {
-        resolve(false)
-      }
-
-      if (!connector.connected && showQR) {
-        console.log('no session, create')
-        connector.createSession()
-      }
-
-      if (connector.connected && !showQR) {
-        console.log('restore session: ', connector.session)
-        console.log('WC reconnect not implemented, drop session')
-        try {
-          connector.killSession()
-        } catch (e) {
-          console.warn(e)
-        }
-        resolve(false)
-      }
-
-        /*
-        Events:
-          - connect
-          - disconnect
-          - session_request
-          - session_update
-          - call_request
-          - wc_sessionRequest
-          - wc_sessionUpdate
-        */
-
-      connector.on('connect', async (error, payload) => { // only after QR scan
-        console.log('* connected', payload)
-        //toast.success('[dapp ⮀ wallet] Connected')
-
-        if (error) {
-          throw error
-        }
-
-        // Get provided accounts and chainId
-        const { accounts, chainId: walletChainId } = payload.params[0]
-
-        const dappChainId = chainId
-        console.info('dappChainId', dappChainId)
-        console.info('walletChainId', walletChainId)
-
-        if (walletChainId !== dappChainId) {
-          toast.warn('Wrong wallet network — disconnected')
-          /*console.warn('(Rejected) Select the correct network in your wallet')*/
-          resolve(true) // to close modalbox
-          connector.killSession()
-        }
-
-        const address_ = accounts[0]
-        const addressDomain_ = await getDomain(address_)
-
-        const network = getNetworkById(chainId)
-        const rpcUrl = network.rpc_url
-        console.log('rpcUrl', rpcUrl)
-        const provider_ = new Web3.providers.HttpProvider(rpcUrl)
-        const web3_ = new Web3(provider_)
-
-        setState(prev => ({...prev, ...{
-          isConnected: true,
-          name: 'WalletConnect',
-          provider: provider_,
-          web3: web3_,
-          chainId: walletChainId,
-          address: address_,
-          addressShort: shortify(address_),
-          addressDomain: addressDomain_
-        }}))
-
-        resolve(true)
-      })
-
-
-      connector.on('session_request', (error, payload) => { console.log('* session_request', error, payload) })
-
-
-      connector.on('session_update', (error, payload) => {
-        console.log('* session_update', payload)
-
-        if (error) {
-          throw error
-        }
-
-        console.log('chainId', state.chainId)
-
-        // Get updated accounts and chainId
-        const { /*accounts,*/ chainId: newChainId } = payload.params[0]
-        //console.log(accounts, newChainId)
-
-        //const account = accounts[0] // todo: account
-
-        if (newChainId !== state.chainId) {
-          //toast.info(`[wallet] chainId changed to ${newChainId}`)
-          setState(prev => ({...prev, ...{
-            chainId: newChainId
-          }}))
-        }
-      });
-
-
-      connector.on('call_request', (error, payload) => {
-        console.log('* call_request', error, payload)
-      })
-
-
-      connector.on('disconnect', (error, payload) => {
-        console.log('* disconnect', payload)
-
-        /*
-          "Session Rejected" = reject after QR scan
-          "Session Disconnected" = disconnected by dapp
-          "Session disconnected" = disconnected by wallet
-        */
-
-        if (payload.params[0]?.message === 'Session Rejected') {
-          //toast.warn('[wallet] Connection rejected')
-          console.log('[Wallet] Session rejected')
-          resolve(false)
-        }
-
-        if (payload.params[0]?.message === 'Session disconnected') {
-          //toast.info('[wallet] Disconnected')
-          console.log('[Wallet] Disconnected (by wallet)')
-        }
-
-        if (payload.params[0]?.message === 'Session Disconnected') {
-          //toast.info('[dapp] Disconnected')
-          console.log('[Wallet] Disconnected (by dapp)')
-        }
-
-
-        if (error) {
-          throw error
-        }
-
-        setState(prev => ({...prev, ...{
-          isConnected: false,
-          name: null,
-          provider: null,
-          web3: null,
-          chainId: null,
-          address: null,
-          addressShort: null,
-          addressDomain: null
-        }}))
-      })
+  const connectWC = async (chainId_: number) => {
+    const walletConnectProvider = new WalletConnectProvider({
+      rpc: rpcMapping
     })
+
+    await walletConnectProvider.enable()
+
+    const web3Provider = new ethers.providers.Web3Provider(walletConnectProvider);
+
+    setState(prev => ({...prev, ...{
+      isConnected: true,
+      name: 'WalletConnect',
+      provider: web3Provider,
+    }}))
   }
 
   const connectPhantom = async () => {
@@ -409,7 +172,6 @@ const Wallet = (props) => {
         isConnected: true,
         name: 'Phantom',
         provider: null,
-        web3: null,
         chainId: null,
         address: address_,
         addressShort: shortify(address_),
@@ -422,10 +184,6 @@ const Wallet = (props) => {
       }
       console.error('[Wallet]', err)
     }
-  }
-
-  const dropWC = () => {
-    return connectWC({ showQR: false })
   }
 
   const metamaskChainChangeHandler = (chainIdHex) => {
@@ -452,7 +210,7 @@ const Wallet = (props) => {
     }
   }
 
-  const connect = async ({ name, chainId }) => {
+  const connect = async (name, chainId = 1) => {
     console.log('Wallet.connect()', name, chainId)
     if (!names[name]) {
       console.error(`Unknown wallet name: ${name}`)
@@ -464,11 +222,11 @@ const Wallet = (props) => {
         goMetamask()
         return false
       }
-      return await connectMetamask(chainId)
+      connectMetamask(chainId)
     }
 
     if (name === 'WalletConnect') {
-      return connectWC({ showQR: true, chainId })
+      await connectWC(chainId)
     }
 
     if (name === 'Phantom') {
@@ -477,8 +235,10 @@ const Wallet = (props) => {
         goPhantom()
         return false
       }
-      return await connectPhantom()
+      await connectPhantom()
     }
+
+    return true
   }
 
   const metamaskChangeNetwork = async (params) => {
@@ -541,21 +301,27 @@ const Wallet = (props) => {
     }
   }
 
-  const sendTx = async (rawTx) => {
+  const sendTx = async (rawTx: TransactionRequest) => {
     console.log('[Wallet] sendTx', rawTx)
 
-    if (state.name === 'MetaMask') {
-      return await state.provider.request({
-        method: 'eth_sendTransaction',
-        params: [rawTx]
-      })
-    }
+    if (state.name !== 'Phantom' && state.provider) {
+      const signer = state.provider.getSigner()
+      // @ts-ignore
+      window.signer = signer
 
-    if (state.name === 'WalletConnect') {
-      return await connector.sendTransaction(rawTx)
-    }
+      rawTx.chainId = await signer.getChainId()
+      // rawTx.nonce = await signer.getTransactionCount()
+      rawTx.from = await signer.getAddress()
+      // rawTx.gasPrice = await signer.getGasPrice()
+      // rawTx.gasLimit = 90000
 
-    if (state.name === 'Phantom') {
+
+
+      // console.log(rawTx)
+      // const estimateGas = await signer.estimateGas(rawTx)
+      // console.log(estimateGas)
+      const tx = await signer.sendTransaction(rawTx)
+    } else {
       const connection = new Connection(SOLANA_NETWORK)
       const provider = window.solana
 
@@ -574,8 +340,8 @@ const Wallet = (props) => {
         anyTransaction.recentBlockhash = (
           await connection.getRecentBlockhash()
         ).blockhash;
-        return transaction;
-      }
+        return transaction
+    }
 
       const sendTransaction = async () => {
         try {
@@ -601,10 +367,6 @@ const Wallet = (props) => {
     }
   }
 
-  /*const request = async (params) => {
-    // from provider
-  }*/
-
   const disconnect = () => {
     console.log('Wallet.disconnect()')
 
@@ -628,13 +390,44 @@ const Wallet = (props) => {
       isConnected: false,
       name: null,
       provider: null,
-      web3: null,
       chainId: null,
       address: null,
       addressShort: null,
       addressDomain: null
     }}))
   }
+
+  const getDomainAddress = async (address: string) => {
+    try {
+      if (state.provider) {
+        const addressDomain = await state.provider.lookupAddress(address)
+        return addressDomain
+      }
+    } catch (err) {}
+    return null
+  }
+
+  const fetchWalletInfo = async () => {
+    if (state.provider) {
+      const address = await state.provider.getSigner().getAddress()
+
+      const addressDomain = await getDomainAddress(address)
+
+      const addressShort = shortify(address)
+      const chainId = (await state.provider.getNetwork()).chainId
+
+      setState(prev => ({...prev, ...{
+        chainId,
+        address,
+        addressShort,
+        addressDomain
+      }}))
+    }
+  }
+
+  useEffect(() => {
+    fetchWalletInfo()
+  }, [state.provider])
 
   return (
     <WalletContext.Provider value={{
@@ -645,7 +438,6 @@ const Wallet = (props) => {
       address: state.address,
       addressShort: state.addressShort,
       addressDomain: state.addressDomain,
-      web3: state.web3,
       provider: state.provider,
       restore,
       connect,
