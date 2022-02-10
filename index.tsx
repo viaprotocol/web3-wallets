@@ -71,12 +71,6 @@ const names = {
   'Phantom': 'Phantom',
 }
 
-let isMetamaskHandler = false
-
-let connector // wc
-//window.getConnector = () => connector
-
-
 const goMetamask = () => {
   if (isMobile(window.navigator).any) {
     const url = window.location.host + window.location.pathname
@@ -100,6 +94,7 @@ interface StateProps {
   isConnected: boolean
   name: null | 'WalletConnect' | 'MetaMask' | 'Phantom'
   provider: null | Web3Provider
+  walletProvider: any
   chainId: number | null
   address: string | null
   addressShort: string | null
@@ -116,7 +111,8 @@ const Wallet = (props) => {
     chainId: null,
     address: null,
     addressShort: null,
-    addressDomain: null
+    addressDomain: null,
+    walletProvider: null,
   })
 
   const shortify = (address) => {
@@ -132,17 +128,25 @@ const Wallet = (props) => {
     return connectMetamask()
   }
 
-  const connectMetamask = (chainId?: string | number) => {
+  const connectMetamask = async (chainId?: string | number) => {
     if (!window.ethereum || !window.ethereum.isMetaMask) {
       return
     }
 
-    const provider_ = new ethers.providers.Web3Provider(window.ethereum)
+    const walletProvider = window.ethereum
 
-    setState(prev => ({...prev, ...{
+    await walletProvider.enable()
+    const web3Provider = new ethers.providers.Web3Provider(walletProvider)
+
+
+    walletProvider.on('chainChanged', сhainChangeHandler)
+    walletProvider.on('accountsChanged', accountChangeHandler)
+
+    await setState(prev => ({...prev, ...{
       isConnected: true,
       name: 'MetaMask',
-      provider: provider_,
+      walletProvider: walletProvider,
+      provider: web3Provider,
     }}))
   }
 
@@ -152,13 +156,18 @@ const Wallet = (props) => {
     })
 
     await walletConnectProvider.enable()
-
     const web3Provider = new ethers.providers.Web3Provider(walletConnectProvider);
 
-    setState(prev => ({...prev, ...{
+    walletConnectProvider.on('chainChanged', сhainChangeHandler)
+    walletConnectProvider.on('accountsChanged', accountChangeHandler)
+    web3Provider.on('chainChanged', сhainChangeHandler)
+    web3Provider.on('accountsChanged', accountChangeHandler)
+
+    await setState(prev => ({...prev, ...{
       isConnected: true,
       name: 'WalletConnect',
       provider: web3Provider,
+      walletProvider: walletConnectProvider
     }}))
   }
 
@@ -172,6 +181,7 @@ const Wallet = (props) => {
         isConnected: true,
         name: 'Phantom',
         provider: null,
+        walletProvider: window.solana,
         chainId: null,
         address: address_,
         addressShort: shortify(address_),
@@ -186,11 +196,7 @@ const Wallet = (props) => {
     }
   }
 
-  const metamaskChainChangeHandler = (chainIdHex) => {
-    // todo: fix state
-    /*if (!state.isConnected) {
-      return
-    }*/
+  const сhainChangeHandler = (chainIdHex) => {
     const chainId_ = parseInt(chainIdHex)
     console.log('* chainChanged', chainIdHex, chainId_)
     setState(prev => ({...prev, ...{
@@ -198,15 +204,11 @@ const Wallet = (props) => {
     }}))
   }
 
-  const metamaskAccountChangeHandler = (accounts) => {
-    console.log('* accountsChanged', accounts)
-
-    // todo: fix state
-    /*if (!state.isConnected) {
-      return
-    }*/
+  const accountChangeHandler = (accounts) => {
     if (!accounts.length) { // metamask disconnect
       disconnect()
+    } else {
+      fetchWalletInfo()
     }
   }
 
@@ -222,7 +224,7 @@ const Wallet = (props) => {
         goMetamask()
         return false
       }
-      connectMetamask(chainId)
+      await connectMetamask(chainId)
     }
 
     if (name === 'WalletConnect') {
@@ -243,10 +245,10 @@ const Wallet = (props) => {
 
   const metamaskChangeNetwork = async (params) => {
       const newChainIdHex = params[0].chainId
-      const { ethereum } = window
 
       try {
-        await ethereum.request({
+        console.log('trying 😡')
+        await state.walletProvider.request({
           "method": "wallet_switchEthereumChain",
           "params": [
             {
@@ -261,7 +263,7 @@ const Wallet = (props) => {
         if (error.code === 4902) { // the chain has not been added to MetaMask
           try {
             console.log('Try to add the network...', params)
-            await ethereum.request({
+            await state.walletProvider.request({
               method: 'wallet_addEthereumChain',
               params: params
             })
@@ -285,7 +287,7 @@ const Wallet = (props) => {
     // console.log('state.name', state.name)
     /*if (state.name === 'MetaMask') {*/
     // todo: stale state
-    if (name === 'MetaMask') {
+    if (name !== 'Phantom') {
       const isChanged = await metamaskChangeNetwork(params)
       if (isChanged) {
         setState(prev => ({...prev, ...{
@@ -294,10 +296,6 @@ const Wallet = (props) => {
         return true
       }
       return false
-    }
-
-    if (state.name === 'WalletConnect') {
-      // todo (show new QR)
     }
   }
 
@@ -367,23 +365,11 @@ const Wallet = (props) => {
     }
   }
 
-  const disconnect = () => {
+  const disconnect = async () => {
     console.log('Wallet.disconnect()')
 
-    if (state.name === 'MetaMask') {
-      if (state.provider) {
-        state.provider.removeListener('chainChanged', metamaskChainChangeHandler)
-        state.provider.removeListener('accountsChanged', metamaskAccountChangeHandler)
-        isMetamaskHandler = false
-      }
-    }
-
-    if (state.name === 'WalletConnect') {
-      connector.killSession()
-    }
-
-    if (state.name === 'Phantom') {
-      window.solana.disconnect()
+    if (state.walletProvider.disconnect) {
+      state.walletProvider.disconnect()
     }
 
     setState(prev => ({...prev, ...{
