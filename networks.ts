@@ -61,7 +61,7 @@ const networksRaw = [
     'short_name': 'Polygon',
     'logo_url': 'https://cryptologos.cc/logos/polygon-matic-logo.png',
     'explorer_url': 'https://polygonscan.com/',
-    'rpc_url': 'https://rpc-mainnet.matic.network',
+    'rpc_url': 'https://polygon-rpc.com/',
     'currency_name': 'MATIC',
     'currency_symbol': 'MATIC',
     'currency_decimals': 18,
@@ -101,6 +101,11 @@ const networks = networksRaw.map((item) => ({
     }]
   }
 }))
+
+export const rpcMapping = networksRaw.reduce((mapper, network) => {
+  mapper[network.chain_id] = network.rpc_url
+  return mapper
+}, {})
 
 export const getNetworkById = (chainId: string | number) => {
   const network = networks.find(net => net.chain_id === chainId)
