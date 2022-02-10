@@ -41,6 +41,7 @@ interface WalletInterface {
   addressShort: string | null
   addressDomain: null | string
   provider: any // 📌 TODO: add interface
+  walletProvider: any
   restore: Function
   connect: Function
   changeNetwork: Function
@@ -57,6 +58,7 @@ export const WalletContext = createContext<WalletInterface>({
   addressShort: '',
   addressDomain: null,
   provider: null,
+  walletProvider: null,
   restore: () => {},
   connect: () => {},
   changeNetwork: () => {},
@@ -425,6 +427,7 @@ const Wallet = (props) => {
       addressShort: state.addressShort,
       addressDomain: state.addressDomain,
       provider: state.provider,
+      walletProvider: state.walletProvider,
       restore,
       connect,
       changeNetwork,
