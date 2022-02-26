@@ -7,6 +7,7 @@ if (!infuraKey) {
 }
 
 const networksRaw = [
+  // Ethereum
   {
     'chain_id': 1,
     'name': 'Ethereum Mainnet',
@@ -31,6 +32,34 @@ const networksRaw = [
     'currency_decimals': 18,
     'is_testnet': true
   },
+
+  // Optimism
+  {
+    'chain_id': 10,
+    'name': 'Optimism Mainnet',
+    'short_name': 'Optimism',
+    'logo_url': 'https://optimistic.etherscan.io/images/svg/brands/optimism.svg',
+    'explorer_url': 'https://optimistic.etherscan.io/',
+    'rpc_url': `https://mainnet.optimism.io`,
+    'currency_name': 'OP Ethereum',
+    'currency_symbol': 'ETH',
+    'currency_decimals': 18,
+    'is_testnet': false
+  },
+  {
+    'chain_id': 69,
+    'name': 'Optimism Testnet',
+    'short_name': 'Optimism Testnet',
+    'logo_url': 'https://optimistic.etherscan.io/images/svg/brands/optimism.svg',
+    'explorer_url': 'https://kovan-optimistic.etherscan.io',
+    'rpc_url': `https://kovan.optimism.io`,
+    'currency_name': 'OP Ethereum',
+    'currency_symbol': 'ETH',
+    'currency_decimals': 18,
+    'is_testnet': true
+  },
+
+  // Binance Smart Chain
   {
     'chain_id': 56,
     'name': 'Binance Smart Chain',
@@ -55,6 +84,8 @@ const networksRaw = [
     'currency_decimals': 18,
     'is_testnet': true
   },
+
+  // Polygon
   {
     'chain_id': 137,
     'name': 'Polygon Mainnet',
