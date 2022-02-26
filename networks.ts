@@ -110,6 +110,32 @@ const networksRaw = [
     'currency_decimals': 18,
     'is_testnet': true
   }
+
+  // Arbitrum
+  {
+    'chain_id': 42161,
+    'name': 'Arbitrum One',
+    'short_name': 'Arbitrum',
+    'logo_url': 'https://arbiscan.io/images/svg/brands/arbitrum.svg',
+    'explorer_url': 'https://arbiscan.io/',
+    'rpc_url': 'https://arb1.arbitrum.io/rpc',
+    'currency_name': 'Arb Ethereum',
+    'currency_symbol': 'ETH',
+    'currency_decimals': 18,
+    'is_testnet': false
+  },
+  {
+    'chain_id': 421611,
+    'name': 'Arbitrum Rinkeby',
+    'short_name': 'Arbitrum Rinkeby',
+    'logo_url': 'https://arbiscan.io/images/svg/brands/arbitrum.svg',
+    'explorer_url': 'https://testnet.arbiscan.io/',
+    'rpc_url': 'https://rinkeby.arbitrum.io/rpc',
+    'currency_name': 'Arb Ethereum',
+    'currency_symbol': 'ETH',
+    'currency_decimals': 18,
+    'is_testnet': true
+  }
 ]
 
 const networks = networksRaw.map((item) => ({
