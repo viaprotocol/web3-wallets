@@ -109,7 +109,7 @@ const networksRaw = [
     currency_symbol: 'MATIC',
     currency_decimals: 18,
     is_testnet: true
-  }
+  },
 
   // Arbitrum
   {
