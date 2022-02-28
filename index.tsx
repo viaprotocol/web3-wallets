@@ -13,17 +13,11 @@ import 'react-toastify/dist/ReactToastify.css'
 
 import { MetaMaskInpageProvider } from '@metamask/providers'
 
-import {
-  Connection,
-  PublicKey,
-  Transaction,
-  clusterApiUrl,
-  SystemProgram,
-} from '@solana/web3.js'
+import { Connection, PublicKey, Transaction, clusterApiUrl, SystemProgram } from '@solana/web3.js'
 
 import { getNetworkById } from './networks'
 
-const SOLANA_NETWORK = clusterApiUrl('testnet'/*'mainnet-beta'*/)
+const SOLANA_NETWORK = clusterApiUrl('testnet' /*'mainnet-beta'*/)
 
 declare global {
   interface Window {
@@ -31,7 +25,6 @@ declare global {
     solana: any
   }
 }
-
 
 interface WalletInterface {
   isLoading: boolean
@@ -64,14 +57,13 @@ export const WalletContext = createContext<WalletInterface>({
   connect: () => {},
   changeNetwork: () => {},
   sendTx: () => {},
-  disconnect: () => {},
+  disconnect: () => {}
 })
 
-
 const names = {
-  'WalletConnect': 'WalletConnect',
-  'MetaMask': 'MetaMask',
-  'Phantom': 'Phantom',
+  WalletConnect: 'WalletConnect',
+  MetaMask: 'MetaMask',
+  Phantom: 'Phantom'
 }
 
 /*
@@ -89,7 +81,6 @@ let isMetamaskHandler = false
 
 let connector // wc
 //window.getConnector = () => connector
-
 
 const goMetamask = () => {
   //if (isMobile(window.navigator).apple.device) {
@@ -132,8 +123,7 @@ interface StateProps {
   addressDomain: string | null
 }
 
-const Wallet = (props) => {
-
+const Wallet = props => {
   const [state, setState] = useState<StateProps>({
     isLoading: false,
     isConnected: false,
@@ -146,7 +136,7 @@ const Wallet = (props) => {
     addressDomain: null
   })
 
-  const getDomain = async (address) => {
+  const getDomain = async address => {
     if (!address) {
       return null
     }
@@ -162,10 +152,8 @@ const Wallet = (props) => {
     return null
   }
 
-  const shortify = (address) => {
-    const result = typeof address === 'string'
-      ? `${address.slice(0, 6)}...${address.slice(address.length - 4)}`
-      : null
+  const shortify = address => {
+    const result = typeof address === 'string' ? `${address.slice(0, 6)}...${address.slice(address.length - 4)}` : null
     return result
   }
 
@@ -204,7 +192,6 @@ const Wallet = (props) => {
   }, [metamaskChainId])
   */
 
-
   const restore = async () => {
     console.log('Wallet.restore()')
     /*
@@ -230,7 +217,6 @@ const Wallet = (props) => {
     }
     */
 
-
     await dropWC()
 
     return await connectMetamask()
@@ -242,9 +228,7 @@ const Wallet = (props) => {
     }
     const provider_ = window.ethereum
     const chainIdHex_ = provider_.chainId
-    let chainId_ = typeof chainIdHex_ === 'string'
-      ? parseInt(chainIdHex_)
-      : null
+    let chainId_ = typeof chainIdHex_ === 'string' ? parseInt(chainIdHex_) : null
 
     let accounts
 
@@ -265,7 +249,8 @@ const Wallet = (props) => {
     const address_ = accounts[0]
     const addressDomain_ = await getDomain(getDomain)
 
-    if (chainId) { // go change network
+    if (chainId) {
+      // go change network
       const network = getNetworkById(chainId)
       if (!network.data.params) {
         throw new Error('Missing network params')
@@ -277,24 +262,26 @@ const Wallet = (props) => {
       }
     }
 
-
     if (!isMetamaskHandler) {
       provider_.on('chainChanged', metamaskChainChangeHandler)
       provider_.on('accountsChanged', metamaskAccountChangeHandler)
       isMetamaskHandler = true
     }
 
-    setState(prev => ({...prev, ...{
-      isConnected: true,
-      name: 'MetaMask',
-      provider: provider_,
-      //@ts-ignore
-      web3: new Web3(provider_),
-      chainId: chainId_,
-      address: address_,
-      addressShort: shortify(address_),
-      addressDomain: addressDomain_
-    }}))
+    setState(prev => ({
+      ...prev,
+      ...{
+        isConnected: true,
+        name: 'MetaMask',
+        provider: provider_,
+        //@ts-ignore
+        web3: new Web3(provider_),
+        chainId: chainId_,
+        address: address_,
+        addressShort: shortify(address_),
+        addressDomain: addressDomain_
+      }
+    }))
     return true
   }
 
@@ -306,18 +293,15 @@ const Wallet = (props) => {
 
     console.log('connectWC()', showQR ? '(connect+QR)' : '(reconnect)')
 
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       connector = new WalletConnect({
         bridge: 'https://bridge.walletconnect.org',
-        qrcodeModal: QRCodeModal,
+        qrcodeModal: QRCodeModal
       })
 
       console.log('connector: ', connector)
 
-      if (
-        (connector.connected && showQR) ||
-        (!connector.connected && !showQR)
-      ) {
+      if ((connector.connected && showQR) || (!connector.connected && !showQR)) {
         resolve(false)
       }
 
@@ -366,7 +350,7 @@ const Wallet = (props) => {
         */
       }
 
-        /*
+      /*
         Events:
           - connect
           - disconnect
@@ -377,7 +361,8 @@ const Wallet = (props) => {
           - wc_sessionUpdate
         */
 
-      connector.on('connect', async (error, payload) => { // only after QR scan
+      connector.on('connect', async (error, payload) => {
+        // only after QR scan
         console.log('* connected', payload)
         //toast.success('[dapp ⮀ wallet] Connected')
 
@@ -408,23 +393,26 @@ const Wallet = (props) => {
         const provider_ = new Web3.providers.HttpProvider(rpcUrl)
         const web3_ = new Web3(provider_)
 
-        setState(prev => ({...prev, ...{
-          isConnected: true,
-          name: 'WalletConnect',
-          provider: provider_,
-          web3: web3_,
-          chainId: walletChainId,
-          address: address_,
-          addressShort: shortify(address_),
-          addressDomain: addressDomain_
-        }}))
+        setState(prev => ({
+          ...prev,
+          ...{
+            isConnected: true,
+            name: 'WalletConnect',
+            provider: provider_,
+            web3: web3_,
+            chainId: walletChainId,
+            address: address_,
+            addressShort: shortify(address_),
+            addressDomain: addressDomain_
+          }
+        }))
 
         resolve(true)
       })
 
-
-      connector.on('session_request', (error, payload) => { console.log('* session_request', error, payload) })
-
+      connector.on('session_request', (error, payload) => {
+        console.log('* session_request', error, payload)
+      })
 
       connector.on('session_update', (error, payload) => {
         console.log('* session_update', payload)
@@ -443,17 +431,18 @@ const Wallet = (props) => {
 
         if (newChainId !== state.chainId) {
           //toast.info(`[wallet] chainId changed to ${newChainId}`)
-          setState(prev => ({...prev, ...{
-            chainId: newChainId
-          }}))
+          setState(prev => ({
+            ...prev,
+            ...{
+              chainId: newChainId
+            }
+          }))
         }
-      });
-
+      })
 
       connector.on('call_request', (error, payload) => {
         console.log('* call_request', error, payload)
       })
-
 
       connector.on('disconnect', (error, payload) => {
         console.log('* disconnect', payload)
@@ -480,21 +469,23 @@ const Wallet = (props) => {
           console.log('[Wallet] Disconnected (by dapp)')
         }
 
-
         if (error) {
           throw error
         }
 
-        setState(prev => ({...prev, ...{
-          isConnected: false,
-          name: null,
-          provider: null,
-          web3: null,
-          chainId: null,
-          address: null,
-          addressShort: null,
-          addressDomain: null
-        }}))
+        setState(prev => ({
+          ...prev,
+          ...{
+            isConnected: false,
+            name: null,
+            provider: null,
+            web3: null,
+            chainId: null,
+            address: null,
+            addressShort: null,
+            addressDomain: null
+          }
+        }))
       })
     })
   }
@@ -505,16 +496,19 @@ const Wallet = (props) => {
       //console.log('resp', resp)
       const address_ = resp.publicKey.toString()
 
-      setState(prev => ({...prev, ...{
-        isConnected: true,
-        name: 'Phantom',
-        provider: null,
-        web3: null,
-        chainId: null,
-        address: address_,
-        addressShort: shortify(address_),
-        addressDomain: null
-      }}))
+      setState(prev => ({
+        ...prev,
+        ...{
+          isConnected: true,
+          name: 'Phantom',
+          provider: null,
+          web3: null,
+          chainId: null,
+          address: address_,
+          addressShort: shortify(address_),
+          addressDomain: null
+        }
+      }))
     } catch (err: any) {
       if (err.code === 4001) {
         console.warn('[Wallet] User rejected the request.')
@@ -528,26 +522,30 @@ const Wallet = (props) => {
     return connectWC({ showQR: false })
   }
 
-  const metamaskChainChangeHandler = (chainIdHex) => {
+  const metamaskChainChangeHandler = chainIdHex => {
     // todo: fix state
     /*if (!state.isConnected) {
       return
     }*/
     const chainId_ = parseInt(chainIdHex)
     console.log('* chainChanged', chainIdHex, chainId_)
-    setState(prev => ({...prev, ...{
-      chainId: chainId_
-    }}))
+    setState(prev => ({
+      ...prev,
+      ...{
+        chainId: chainId_
+      }
+    }))
   }
 
-  const metamaskAccountChangeHandler = (accounts) => {
+  const metamaskAccountChangeHandler = accounts => {
     console.log('* accountsChanged', accounts)
 
     // todo: fix state
     /*if (!state.isConnected) {
       return
     }*/
-    if (!accounts.length) { // metamask disconnect
+    if (!accounts.length) {
+      // metamask disconnect
       disconnect()
     }
   }
@@ -581,40 +579,41 @@ const Wallet = (props) => {
     }
   }
 
-  const metamaskChangeNetwork = async (params) => {
-      const newChainIdHex = params[0].chainId
-      const { ethereum } = window
+  const metamaskChangeNetwork = async params => {
+    const newChainIdHex = params[0].chainId
+    const { ethereum } = window
 
-      try {
-        await ethereum.request({
-          "method": "wallet_switchEthereumChain",
-          "params": [
-            {
-              "chainId": newChainIdHex,
-            }
-          ]
-        })
-        return true
-      } catch (error: any) {
-        console.warn('Cant change network:', error)
-
-        if (error.code === 4902) { // the chain has not been added to MetaMask
-          try {
-            console.log('Try to add the network...', params)
-            await ethereum.request({
-              method: 'wallet_addEthereumChain',
-              params: params
-            })
-            // todo:
-            // Users can allow adding, but not allowing switching
-            return true
-          } catch (error) {
-            console.warn('Cant add the network:', error)
-            return false
+    try {
+      await ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [
+          {
+            chainId: newChainIdHex
           }
+        ]
+      })
+      return true
+    } catch (error: any) {
+      console.warn('Cant change network:', error)
+
+      if (error.code === 4902) {
+        // the chain has not been added to MetaMask
+        try {
+          console.log('Try to add the network...', params)
+          await ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: params
+          })
+          // todo:
+          // Users can allow adding, but not allowing switching
+          return true
+        } catch (error) {
+          console.warn('Cant add the network:', error)
+          return false
         }
       }
-      return false
+    }
+    return false
   }
 
   const changeNetwork = async (name, chainId) => {
@@ -628,9 +627,12 @@ const Wallet = (props) => {
     if (name === 'MetaMask') {
       const isChanged = await metamaskChangeNetwork(params)
       if (isChanged) {
-        setState(prev => ({...prev, ...{
-          chainId: chainId
-        }}))
+        setState(prev => ({
+          ...prev,
+          ...{
+            chainId: chainId
+          }
+        }))
         return true
       }
       return false
@@ -641,7 +643,7 @@ const Wallet = (props) => {
     }
   }
 
-  const sendTx = async (rawTx) => {
+  const sendTx = async rawTx => {
     console.log('[Wallet] sendTx', rawTx)
 
     if (state.name === 'MetaMask') {
@@ -660,39 +662,37 @@ const Wallet = (props) => {
       const provider = window.solana
 
       const createTransferTransaction = async () => {
-        if (!provider.publicKey) return;
+        if (!provider.publicKey) return
         let transaction = new Transaction().add(
           SystemProgram.transfer({
             fromPubkey: provider.publicKey,
             toPubkey: provider.publicKey,
-            lamports: 1000000,
+            lamports: 1000000
           })
-        );
-        transaction.feePayer = provider.publicKey;
+        )
+        transaction.feePayer = provider.publicKey
         console.log('Getting recent blockhash')
-        const anyTransaction: any = transaction;
-        anyTransaction.recentBlockhash = (
-          await connection.getRecentBlockhash()
-        ).blockhash;
-        return transaction;
+        const anyTransaction: any = transaction
+        anyTransaction.recentBlockhash = (await connection.getRecentBlockhash()).blockhash
+        return transaction
       }
 
       const sendTransaction = async () => {
         try {
-          const transaction = await createTransferTransaction();
-          if (!transaction) return;
-          let signed = await provider.signTransaction(transaction);
+          const transaction = await createTransferTransaction()
+          if (!transaction) return
+          let signed = await provider.signTransaction(transaction)
           console.log('Got signature, submitting transaction...')
-          let signature = await connection.sendRawTransaction(signed.serialize());
+          let signature = await connection.sendRawTransaction(signed.serialize())
           console.log(`Tx submitted`, signature)
 
           console.log(`Waiting for network confirmation...`)
-          await connection.confirmTransaction(signature);
+          await connection.confirmTransaction(signature)
           console.log('Tx confirmed!', signature)
           console.log(`See explorer:`)
           console.log(`https://solscan.io/tx/${signature}?cluster=testnet`)
         } catch (err) {
-          console.warn(err);
+          console.warn(err)
           console.log('[Wallet error] sendTransaction: ' + JSON.stringify(err))
         }
       }
@@ -724,35 +724,40 @@ const Wallet = (props) => {
       window.solana.disconnect()
     }
 
-    setState(prev => ({...prev, ...{
-      isConnected: false,
-      name: null,
-      provider: null,
-      web3: null,
-      chainId: null,
-      address: null,
-      addressShort: null,
-      addressDomain: null
-    }}))
+    setState(prev => ({
+      ...prev,
+      ...{
+        isConnected: false,
+        name: null,
+        provider: null,
+        web3: null,
+        chainId: null,
+        address: null,
+        addressShort: null,
+        addressDomain: null
+      }
+    }))
   }
 
   return (
-    <WalletContext.Provider value={{
-      isLoading: false, // todo
-      isConnected: state.isConnected,
-      name: state.name,
-      chainId: state.chainId,
-      address: state.address,
-      addressShort: state.addressShort,
-      addressDomain: state.addressDomain,
-      web3: state.web3,
-      provider: state.provider,
-      restore,
-      connect,
-      changeNetwork,
-      sendTx,
-      disconnect
-    }}>
+    <WalletContext.Provider
+      value={{
+        isLoading: false, // todo
+        isConnected: state.isConnected,
+        name: state.name,
+        chainId: state.chainId,
+        address: state.address,
+        addressShort: state.addressShort,
+        addressDomain: state.addressDomain,
+        web3: state.web3,
+        provider: state.provider,
+        restore,
+        connect,
+        changeNetwork,
+        sendTx,
+        disconnect
+      }}
+    >
       {props.children}
       <ToastContainer position="top-center" />
     </WalletContext.Provider>
