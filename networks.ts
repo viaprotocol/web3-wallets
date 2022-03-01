@@ -35,28 +35,28 @@ const networksRaw = [
 
   // Optimism
   {
-    'chain_id': 10,
-    'name': 'Optimism Mainnet',
-    'short_name': 'Optimism',
-    'logo_url': 'https://optimistic.etherscan.io/images/svg/brands/optimism.svg',
-    'explorer_url': 'https://optimistic.etherscan.io/',
-    'rpc_url': `https://mainnet.optimism.io`,
-    'currency_name': 'OP Ethereum',
-    'currency_symbol': 'ETH',
-    'currency_decimals': 18,
-    'is_testnet': false
+    chain_id: 10,
+    name: 'Optimism Mainnet',
+    short_name: 'Optimism',
+    logo_url: 'https://optimistic.etherscan.io/images/svg/brands/optimism.svg',
+    explorer_url: 'https://optimistic.etherscan.io/',
+    rpc_url: 'https://mainnet.optimism.io',
+    currency_name: 'OP Ethereum',
+    currency_symbol: 'ETH',
+    currency_decimals: 18,
+    is_testnet: false
   },
   {
-    'chain_id': 69,
-    'name': 'Optimism Testnet',
-    'short_name': 'Optimism Testnet',
-    'logo_url': 'https://optimistic.etherscan.io/images/svg/brands/optimism.svg',
-    'explorer_url': 'https://kovan-optimistic.etherscan.io',
-    'rpc_url': `https://kovan.optimism.io`,
-    'currency_name': 'OP Ethereum',
-    'currency_symbol': 'ETH',
-    'currency_decimals': 18,
-    'is_testnet': true
+    chain_id: 69,
+    name: 'Optimism Testnet',
+    short_name: 'Optimism Testnet',
+    logo_url: 'https://optimistic.etherscan.io/images/svg/brands/optimism.svg',
+    explorer_url: 'https://kovan-optimistic.etherscan.io',
+    rpc_url: 'https://kovan.optimism.io',
+    currency_name: 'OP Ethereum',
+    currency_symbol: 'ETH',
+    currency_decimals: 18,
+    is_testnet: true
   },
 
   // Binance Smart Chain
@@ -113,118 +113,127 @@ const networksRaw = [
 
   // Arbitrum
   {
-    'chain_id': 42161,
-    'name': 'Arbitrum One',
-    'short_name': 'Arbitrum',
-    'logo_url': 'https://arbiscan.io/images/svg/brands/arbitrum.svg',
-    'explorer_url': 'https://arbiscan.io/',
-    'rpc_url': 'https://arb1.arbitrum.io/rpc',
-    'currency_name': 'Arb Ethereum',
-    'currency_symbol': 'ETH',
-    'currency_decimals': 18,
-    'is_testnet': false
+    chain_id: 42161,
+    name: 'Arbitrum One',
+    short_name: 'Arbitrum',
+    logo_url: 'https://arbiscan.io/images/svg/brands/arbitrum.svg',
+    explorer_url: 'https://arbiscan.io/',
+    rpc_url: 'https://arb1.arbitrum.io/rpc',
+    currency_name: 'Arb Ethereum',
+    currency_symbol: 'ETH',
+    currency_decimals: 18,
+    is_testnet: false
   },
   {
-    'chain_id': 421611,
-    'name': 'Arbitrum Rinkeby',
-    'short_name': 'Arbitrum Rinkeby',
-    'logo_url': 'https://arbiscan.io/images/svg/brands/arbitrum.svg',
-    'explorer_url': 'https://testnet.arbiscan.io/',
-    'rpc_url': 'https://rinkeby.arbitrum.io/rpc',
-    'currency_name': 'Arb Ethereum',
-    'currency_symbol': 'ETH',
-    'currency_decimals': 18,
-    'is_testnet': true
-  },
-  {
-    'chain_id': 250,
-    'name': "Fantom Opera",
-    'short_name': "Fantom",
-    'logo_url': "https://webill.sfo3.digitaloceanspaces.com/networks/FTM.svg",
-    'explorer_url': 'https://ftmscan.com/',
-    'rpc_url': 'https://rpc.ftm.tools/',
-    'currency_name': 'Fantom',
-    'currency_symbol': 'FTM',
-    'currency_decimals': 18,
-  },
-  {
-    'chain_id': 43114,
-    'name': "Avalanche C-Chain",
-    'short_name': "Avalanche",
-    'logo_url': "https://webill.sfo3.digitaloceanspaces.com/networks/Avalanche.svg",
-    'explorer_url': 'https://snowtrace.io/',
-    'rpc_url': 'https://api.avax.network/ext/bc/C/rpc',
-    'currency_name': 'Avalanche',
-    'currency_symbol': 'AVAX',
-    'currency_decimals': 18,
-  },
-  {
-    'chain_id': 1666600000,
-    'name': "Harmony Mainnet Shard 0",
-    'short_name': "Harmony",
-    'logo_url': "https://webill.sfo3.digitaloceanspaces.com/networks/Harmony.svg",
-    'explorer_url': 'https://explorer.harmony.one',
-    'rpc_url': 'https://api.harmony.one',
-    'currency_name': 'Harmony',
-    'currency_symbol': 'ONE',
-    'currency_decimals': 18,
-  },
-  {
-    'chain_id': 128,
-    'name': "Huobi ECO Chain Mainnet",
-    'short_name': "HECO",
-    'logo_url': "https://webill.sfo3.digitaloceanspaces.com/networks/Huobi.svg",
-    'explorer_url': 'https://hecoinfo.com',
-    'rpc_url': 'https://http-mainnet.hecochain.com',
-    'currency_name': 'Huobi Token',
-    'currency_symbol': 'HT',
-    'currency_decimals': 18,
-  },
-  {
-    'chain_id': 10,
-    'name': "Optimism",
-    'short_name': "Optimism",
-    'logo_url': "https://webill.sfo3.digitaloceanspaces.com/networks/Optimism.svg",
-    'explorer_url': 'https://optimistic.etherscan.io',
-    'rpc_url': 'https://mainnet.optimism.io/',
-    'currency_name': 'Ethereum',
-    'currency_symbol': 'ETH',
-    'currency_decimals': 18,
-  },
-  {
-    'chain_id': 66,
-    'name': "OKExChain Mainnet",
-    'short_name': "OKEX",
-    'logo_url': "https://webill.sfo3.digitaloceanspaces.com/networks/Okex.svg",
-    'explorer_url': 'https://www.oklink.com/okexchain',
-    'rpc_url': 'https://exchainrpc.okex.org',
-    'currency_name': 'OEC Token',
-    'currency_symbol': 'OKT',
-    'currency_decimals': 18,
-  },
-  {
-    'chain_id': 100,
-    'name': "Gnosis Chain (formerly xDai)",
-    'short_name': "Gnosis",
-    'logo_url': "https://webill.sfo3.digitaloceanspaces.com/networks/Gnosis.svg",
-    'explorer_url': 'https://blockscout.com/xdai/mainnet',
-    'rpc_url': 'https://rpc.gnosischain.com',
-    'currency_name': 'xDai Token',
-    'currency_symbol': 'xDAI',
-    'currency_decimals': 18,
-  },
-  {
-    'chain_id': 1285,
-    'name': "Moonriver",
-    'short_name': "Moonriver",
-    'logo_url': "https://webill.sfo3.digitaloceanspaces.com/networks/Moonriver.svg",
-    'explorer_url': 'https://moonriver.moonscan.io',
-    'rpc_url': 'https://rpc.api.moonriver.moonbeam.network',
-    'currency_name': 'Moonriver',
-    'currency_symbol': 'MOVR',
-    'currency_decimals': 18,
+    chain_id: 421611,
+    name: 'Arbitrum Rinkeby',
+    short_name: 'Arbitrum Rinkeby',
+    logo_url: 'https://arbiscan.io/images/svg/brands/arbitrum.svg',
+    explorer_url: 'https://testnet.arbiscan.io/',
+    rpc_url: 'https://rinkeby.arbitrum.io/rpc',
+    currency_name: 'Arb Ethereum',
+    currency_symbol: 'ETH',
+    currency_decimals: 18,
+    is_testnet: true
   },
 
+  // Fantom
+  {
+    chain_id: 250,
+    name: 'Fantom Opera',
+    short_name: 'Fantom',
+    logo_url: 'https://webill.sfo3.digitaloceanspaces.com/networks/FTM.svg',
+    explorer_url: 'https://ftmscan.com/',
+    rpc_url: 'https://rpc.ftm.tools/',
+    currency_name: 'Fantom',
+    currency_symbol: 'FTM',
+    currency_decimals: 18,
+    is_testnet: false
+  },
+
+  // Avalance
+  {
+    chain_id: 43114,
+    name: 'Avalanche C-Chain',
+    short_name: 'Avalanche',
+    logo_url: 'https://webill.sfo3.digitaloceanspaces.com/networks/Avalanche.svg',
+    explorer_url: 'https://snowtrace.io/',
+    rpc_url: 'https://api.avax.network/ext/bc/C/rpc',
+    currency_name: 'Avalanche',
+    currency_symbol: 'AVAX',
+    currency_decimals: 18,
+    is_testnet: false
+  },
+
+  // Harmony
+  {
+    chain_id: 1666600000,
+    name: 'Harmony Mainnet Shard 0',
+    short_name: 'Harmony',
+    logo_url: 'https://webill.sfo3.digitaloceanspaces.com/networks/Harmony.svg',
+    explorer_url: 'https://explorer.harmony.one',
+    rpc_url: 'https://api.harmony.one',
+    currency_name: 'Harmony',
+    currency_symbol: 'ONE',
+    currency_decimals: 18,
+    is_testnet: false
+  },
+
+  // HECO
+  {
+    chain_id: 128,
+    name: 'Huobi ECO Chain Mainnet',
+    short_name: 'HECO',
+    logo_url: 'https://webill.sfo3.digitaloceanspaces.com/networks/Huobi.svg',
+    explorer_url: 'https://hecoinfo.com',
+    rpc_url: 'https://http-mainnet.hecochain.com',
+    currency_name: 'Huobi Token',
+    currency_symbol: 'HT',
+    currency_decimals: 18,
+    is_testnet: false
+  },
+
+  // OKEx
+  {
+    chain_id: 66,
+    name: 'OKExChain Mainnet',
+    short_name: 'OKEX',
+    logo_url: 'https://webill.sfo3.digitaloceanspaces.com/networks/Okex.svg',
+    explorer_url: 'https://www.oklink.com/okexchain',
+    rpc_url: 'https://exchainrpc.okex.org',
+    currency_name: 'OEC Token',
+    currency_symbol: 'OKT',
+    currency_decimals: 18,
+    is_testnet: false
+  },
+
+  // Gnosis/xDai
+  {
+    chain_id: 100,
+    name: 'Gnosis Chain (formerly xDai)',
+    short_name: 'Gnosis',
+    logo_url: 'https://webill.sfo3.digitaloceanspaces.com/networks/Gnosis.svg',
+    explorer_url: 'https://blockscout.com/xdai/mainnet',
+    rpc_url: 'https://rpc.gnosischain.com',
+    currency_name: 'xDai Token',
+    currency_symbol: 'xDAI',
+    currency_decimals: 18,
+    is_testnet: false
+  },
+
+  // Moonriver
+  {
+    chain_id: 1285,
+    name: 'Moonriver',
+    short_name: 'Moonriver',
+    logo_url: 'https://webill.sfo3.digitaloceanspaces.com/networks/Moonriver.svg',
+    explorer_url: 'https://moonriver.moonscan.io',
+    rpc_url: 'https://rpc.api.moonriver.moonbeam.network',
+    currency_name: 'Moonriver',
+    currency_symbol: 'MOVR',
+    currency_decimals: 18,
+    is_testnet: false
+  },
 ]
 
 const networks = networksRaw.map(item => ({
