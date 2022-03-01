@@ -228,6 +228,18 @@ const networksRaw = [
     currency_decimals: 18,
     is_testnet: false
   },
+  {
+    chain_id: 256,
+    name: 'Huobi ECO Chain Testnet',
+    short_name: 'HECO Testnet',
+    logo_url: 'https://webill.sfo3.digitaloceanspaces.com/networks/Huobi.svg',
+    explorer_url: 'https://testnet.hecoinfo.com/',
+    rpc_url: 'https://http-testnet.hecochain.com/',
+    currency_name: 'Huobi Token',
+    currency_symbol: 'HT',
+    currency_decimals: 18,
+    is_testnet: true
+  },
 
   // OKEx
   {
