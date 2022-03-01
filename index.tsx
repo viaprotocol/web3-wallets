@@ -17,8 +17,6 @@ import { Connection, PublicKey, Transaction, clusterApiUrl, SystemProgram } from
 
 import { getNetworkById } from './networks'
 
-const SOLANA_NETWORK = clusterApiUrl('testnet' /*'mainnet-beta'*/)
-
 declare global {
   interface Window {
     ethereum: MetaMaskInpageProvider
@@ -30,7 +28,7 @@ interface WalletInterface {
   isLoading: boolean
   isConnected: boolean
   name: null | 'WalletConnect' | 'MetaMask' | 'Phantom'
-  chainId: null | number
+  chainId: null | number | 'solana-testnet' | 'solana-mainnet'
   address: string | null
   addressShort: string | null
   addressDomain: null | string
@@ -117,7 +115,7 @@ interface StateProps {
   name: null | 'WalletConnect' | 'MetaMask' | 'Phantom'
   provider: any
   web3: Web3 | null
-  chainId: number | null
+  chainId: null | number | 'solana-testnet' | 'solana-mainnet'
   address: string | null
   addressShort: string | null
   addressDomain: string | null
@@ -490,7 +488,10 @@ const Wallet = props => {
     })
   }
 
-  const connectPhantom = async () => {
+  const connectPhantom = async (chainId) => {
+    if (chainId !== 'solana-testnet' && chainId !== 'solana-mainnet') {
+      throw new Error(`Unknown Phantom chainId ${chainId}`)
+    }
     try {
       const resp = await window.solana.connect()
       //console.log('resp', resp)
@@ -503,7 +504,7 @@ const Wallet = props => {
           name: 'Phantom',
           provider: null,
           web3: null,
-          chainId: null,
+          chainId: chainId,
           address: address_,
           addressShort: shortify(address_),
           addressDomain: null
@@ -575,7 +576,7 @@ const Wallet = props => {
         goPhantom()
         return false
       }
-      return await connectPhantom()
+      return await connectPhantom(chainId)
     }
   }
 
@@ -658,7 +659,18 @@ const Wallet = props => {
     }
 
     if (state.name === 'Phantom') {
-      const connection = new Connection(SOLANA_NETWORK)
+      let cluster
+      if (state.chainId === 'solana-testnet') {
+        cluster = 'testnet'
+      }
+      if (state.chainId === 'solana-mainnet') {
+        cluster = 'mainnet-beta'
+      }
+      if (!cluster) {
+        throw new Error(`Unknown state.chainId ${state.chainId} -> cluster ${cluster}`)
+      }
+      const solanaNetwork = clusterApiUrl(cluster)
+      const connection = new Connection(solanaNetwork)
       const provider = window.solana
 
       const createTransferTransaction = async () => {
