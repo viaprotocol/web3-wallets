@@ -176,6 +176,18 @@ const networksRaw = [
     currency_decimals: 18,
     is_testnet: false
   },
+  {
+    chain_id: 43113,
+    name: 'Avalanche Fuji Testnet',
+    short_name: 'Avalanche Fuji',
+    logo_url: 'https://snowtrace.io/images/svg/brands/mainbrand-1.svg',
+    explorer_url: 'https://testnet.snowtrace.io/',
+    rpc_url: 'https://api.avax-test.network/ext/bc/C/rpc',
+    currency_name: 'Avalanche',
+    currency_symbol: 'AVAX',
+    currency_decimals: 18,
+    is_testnet: true
+  },
 
   // Harmony
   {
