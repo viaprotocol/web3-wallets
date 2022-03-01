@@ -42,7 +42,7 @@ const networksRaw = [
     explorer_url: 'https://optimistic.etherscan.io/',
     rpc_url: 'https://mainnet.optimism.io',
     currency_name: 'OP Ethereum',
-    currency_symbol: 'ETH',
+    currency_symbol: 'opETH',
     currency_decimals: 18,
     is_testnet: false
   },
@@ -54,7 +54,7 @@ const networksRaw = [
     explorer_url: 'https://kovan-optimistic.etherscan.io',
     rpc_url: 'https://kovan.optimism.io',
     currency_name: 'OP Ethereum',
-    currency_symbol: 'ETH',
+    currency_symbol: 'opETH',
     currency_decimals: 18,
     is_testnet: true
   },
@@ -120,7 +120,7 @@ const networksRaw = [
     explorer_url: 'https://arbiscan.io/',
     rpc_url: 'https://arb1.arbitrum.io/rpc',
     currency_name: 'Arb Ethereum',
-    currency_symbol: 'ETH',
+    currency_symbol: 'arETH',
     currency_decimals: 18,
     is_testnet: false
   },
@@ -132,7 +132,7 @@ const networksRaw = [
     explorer_url: 'https://testnet.arbiscan.io/',
     rpc_url: 'https://rinkeby.arbitrum.io/rpc',
     currency_name: 'Arb Ethereum',
-    currency_symbol: 'ETH',
+    currency_symbol: 'arETH',
     currency_decimals: 18,
     is_testnet: true
   },
