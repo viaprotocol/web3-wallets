@@ -140,15 +140,27 @@ const networksRaw = [
   // Fantom
   {
     chain_id: 250,
-    name: 'Fantom Opera',
+    name: 'Fantom Mainnet',
     short_name: 'Fantom',
-    logo_url: 'https://webill.sfo3.digitaloceanspaces.com/networks/FTM.svg',
+    logo_url: 'https://ftmscan.com/images/svg/brands/fantom.svg',
     explorer_url: 'https://ftmscan.com/',
     rpc_url: 'https://rpc.ftm.tools/',
     currency_name: 'Fantom',
     currency_symbol: 'FTM',
     currency_decimals: 18,
     is_testnet: false
+  },
+  {
+    chain_id: 4002,
+    name: 'Fantom Testnet',
+    short_name: 'Fantom Testnet',
+    logo_url: 'https://testnet.ftmscan.com/images/svg/brands/fantom.svg',
+    explorer_url: 'https://testnet.ftmscan.com/',
+    rpc_url: 'https://rpc.testnet.fantom.network/',
+    currency_name: 'Fantom',
+    currency_symbol: 'FTM',
+    currency_decimals: 18,
+    is_testnet: true
   },
 
   // Avalance
