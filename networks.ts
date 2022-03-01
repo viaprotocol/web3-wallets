@@ -254,6 +254,18 @@ const networksRaw = [
     currency_decimals: 18,
     is_testnet: false
   },
+  {
+    chain_id: 65,
+    name: 'OKExChain Testnet',
+    short_name: 'OKEX Testnet',
+    logo_url: 'https://webill.sfo3.digitaloceanspaces.com/networks/Okex.svg',
+    explorer_url: 'https://www.oklink.com/oec-test/',
+    rpc_url: 'https://exchaintestrpc.okex.org',
+    currency_name: 'OEC Token',
+    currency_symbol: 'OKT',
+    currency_decimals: 18,
+    is_testnet: true
+  },
 
   // Gnosis/xDai
   {
