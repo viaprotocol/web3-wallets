@@ -202,6 +202,18 @@ const networksRaw = [
     currency_decimals: 18,
     is_testnet: false
   },
+  {
+    chain_id: 1666700000,
+    name: 'Harmony Testnet Shard 0',
+    short_name: 'Harmony Testnet',
+    logo_url: 'https://webill.sfo3.digitaloceanspaces.com/networks/Harmony.svg',
+    explorer_url: 'https://explorer.pops.one/',
+    rpc_url: 'https://api.s0.b.hmny.io',
+    currency_name: 'Harmony',
+    currency_symbol: 'ONE',
+    currency_decimals: 18,
+    is_testnet: true
+  },
 
   // HECO
   {
