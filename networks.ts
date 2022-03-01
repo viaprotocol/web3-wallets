@@ -280,6 +280,18 @@ const networksRaw = [
     currency_decimals: 18,
     is_testnet: false
   },
+  /*{ // Testnet not ready
+    chain_id: 100,
+    name: 'Gnosis Chain Testnet',
+    short_name: 'Gnosis Testnet',
+    logo_url: 'https://webill.sfo3.digitaloceanspaces.com/networks/Gnosis.svg',
+    explorer_url: 'https://blockscout.com/xdai/testnet',
+    rpc_url: 'https://blockscout.com/xdai/testnet/api/eth-rpc',
+    currency_name: 'xDai Token',
+    currency_symbol: 'xDAI',
+    currency_decimals: 18,
+    is_testnet: false
+  },*/
 
   // Moonriver
   {
@@ -293,6 +305,18 @@ const networksRaw = [
     currency_symbol: 'MOVR',
     currency_decimals: 18,
     is_testnet: false
+  },
+  {
+    chain_id: 1287,
+    name: 'Moonbase Testnet',
+    short_name: 'Moonbase Testnet',
+    logo_url: 'https://webill.sfo3.digitaloceanspaces.com/networks/Moonriver.svg',
+    explorer_url: 'https://moonbase.moonscan.io/',
+    rpc_url: 'https://rpc.api.moonbase.moonbeam.network',
+    currency_name: 'Moonbase',
+    currency_symbol: 'DEV',
+    currency_decimals: 18,
+    is_testnet: true
   },
 ]
 
