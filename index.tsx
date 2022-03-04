@@ -235,6 +235,7 @@ const Wallet = props => {
         method: 'eth_requestAccounts'
       })
     } catch (e) {
+      // @ts-ignore
       if (e.code === 4001) {
         console.warn('User rejected the request', e)
         return false
@@ -511,6 +512,7 @@ const Wallet = props => {
         }
       }))
     } catch (err) {
+      // @ts-ignore
       if (err.code === 4001) {
         console.warn('[Wallet] User rejected the request.')
         return false
@@ -610,6 +612,7 @@ const Wallet = props => {
     } catch (error) {
       console.warn('Cant change network:', error)
 
+      // @ts-ignore
       if (error.code === 4902) {
         // the chain has not been added to MetaMask
         try {
