@@ -234,7 +234,7 @@ const Wallet = props => {
       accounts = await provider_.request({
         method: 'eth_requestAccounts'
       })
-    } catch (e: any) {
+    } catch (e) {
       if (e.code === 4001) {
         console.warn('User rejected the request', e)
         return false
@@ -488,7 +488,7 @@ const Wallet = props => {
     })
   }
 
-  const connectPhantom = async (chainId) => {
+  const connectPhantom = async chainId => {
     if (chainId !== 'solana-testnet' && chainId !== 'solana-mainnet') {
       throw new Error(`Unknown Phantom chainId ${chainId}`)
     }
@@ -510,7 +510,7 @@ const Wallet = props => {
           addressDomain: null
         }
       }))
-    } catch (err: any) {
+    } catch (err) {
       if (err.code === 4001) {
         console.warn('[Wallet] User rejected the request.')
         return false
@@ -538,17 +538,30 @@ const Wallet = props => {
     }))
   }
 
-  const metamaskAccountChangeHandler = accounts => {
+  const metamaskAccountChangeHandler = async accounts => {
     console.log('* accountsChanged', accounts)
 
     // todo: fix state
     /*if (!state.isConnected) {
       return
     }*/
+
     if (!accounts.length) {
       // metamask disconnect
       disconnect()
     }
+
+    const address_ = accounts[0]
+    const addressDomain_ = await getDomain(getDomain)
+
+    setState(prev => ({
+      ...prev,
+      ...{
+        address: address_,
+        addressShort: shortify(address_),
+        addressDomain: addressDomain_
+      }
+    }))
   }
 
   const connect = async ({ name, chainId }) => {
@@ -594,7 +607,7 @@ const Wallet = props => {
         ]
       })
       return true
-    } catch (error: any) {
+    } catch (error) {
       console.warn('Cant change network:', error)
 
       if (error.code === 4902) {
