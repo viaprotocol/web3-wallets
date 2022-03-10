@@ -246,7 +246,7 @@ const Wallet = props => {
 
     console.log('accounts = ', accounts)
     const address_ = accounts[0]
-    const addressDomain_ = await getDomain(getDomain)
+    const addressDomain_ = await getDomain(address_)
 
     if (chainId) {
       // go change network
@@ -554,7 +554,7 @@ const Wallet = props => {
     }
 
     const address_ = accounts[0]
-    const addressDomain_ = await getDomain(getDomain)
+    const addressDomain_ = await getDomain(address_)
 
     setState(prev => ({
       ...prev,
