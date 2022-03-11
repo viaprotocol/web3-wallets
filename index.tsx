@@ -13,7 +13,7 @@ import 'react-toastify/dist/ReactToastify.css'
 
 import { MetaMaskInpageProvider } from '@metamask/providers'
 
-import { Connection, PublicKey, Transaction, clusterApiUrl, SystemProgram } from '@solana/web3.js'
+import { Connection, PublicKey, Transaction, clusterApiUrl } from '@solana/web3.js'
 
 import { getNetworkById } from './networks'
 
@@ -503,7 +503,7 @@ const Wallet = props => {
         ...{
           isConnected: true,
           name: 'Phantom',
-          provider: null,
+          provider: window.solana,
           web3: null,
           chainId: chainId,
           address: address_,
@@ -689,25 +689,17 @@ const Wallet = props => {
       const connection = new Connection(solanaNetwork)
       const provider = window.solana
 
-      // createTransferTransaction
-      /*const transaction = new Transaction().add(
-        SystemProgram.transfer({
-          fromPubkey: provider.publicKey,
-          toPubkey: provider.publicKey,
-          lamports: 1000000
-        })
-      )*/
       transaction.feePayer = provider.publicKey
       console.log('Getting recent blockhash')
       //const anyTransaction: any = transaction
       transaction.recentBlockhash = (await connection.getRecentBlockhash()).blockhash
 
-      // send transcation
       try {
         const signed = await provider.signTransaction(transaction)
-        const rawTx = signed.serialize()
         console.log('Got signature, submitting transaction...')
+        const rawTx = signed.serialize()
         let signature = await connection.sendRawTransaction(rawTx)
+        // todo: sendRawTransaction Commitment
         console.log(`Tx submitted`, signature)
 
         console.log(`Waiting for network confirmation...`)
