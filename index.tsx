@@ -8,7 +8,7 @@ import isMobile from 'ismobilejs'
 import WalletConnect from '@walletconnect/client'
 import QRCodeModal from '@walletconnect/qrcode-modal'
 
-import { ToastContainer, toast } from 'react-toastify'
+import { ToastContainer, toast, Slide } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
 import { MetaMaskInpageProvider } from '@metamask/providers'
@@ -772,7 +772,7 @@ const Wallet = props => {
       }}
     >
       {props.children}
-      <ToastContainer position="top-center" />
+      <ToastContainer position="top-right" newestOnTop={true} transition={Slide} />
     </WalletContext.Provider>
   )
 }
