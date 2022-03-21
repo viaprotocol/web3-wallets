@@ -692,7 +692,7 @@ const Wallet = props => {
       transaction.feePayer = provider.publicKey
       console.log('Getting recent blockhash')
       //const anyTransaction: any = transaction
-      transaction.recentBlockhash = (await connection.getRecentBlockhash()).blockhash
+      transaction.recentBlockhash = transaction.recentBlockhash || (await connection.getRecentBlockhash()).blockhash
 
       try {
         const signed = await provider.signTransaction(transaction)
