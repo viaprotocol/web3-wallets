@@ -660,7 +660,7 @@ const Wallet = props => {
     }
   }
 
-  const sendTx = async (transaction, { signers }) => {
+  const sendTx = async (transaction, { signers = null } = {}) => {
     console.log('[Wallet] sendTx', transaction)
 
     if (state.name === 'MetaMask') {
