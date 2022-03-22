@@ -706,7 +706,7 @@ const Wallet = props => {
         await connection.confirmTransaction(signature)
         console.log('Tx confirmed!', signature)
         console.log(`See explorer:`)
-        console.log(`https://solscan.io/tx/${signature}?cluster=testnet`)
+        console.log(`https://solscan.io/tx/${signature}${cluster === 'testnet' ? '?cluster=testnet' : ''}`)
       } catch (err) {
         console.warn(err)
         console.log('[Wallet error] sendTransaction: ' + JSON.stringify(err))
