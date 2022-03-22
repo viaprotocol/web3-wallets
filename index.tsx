@@ -660,7 +660,7 @@ const Wallet = props => {
     }
   }
 
-  const sendTx = async (transaction, { signers = null } = {}) => {
+  const sendTx = async (transaction, { signers = [] } = {}) => {
     console.log('[Wallet] sendTx', transaction)
 
     if (state.name === 'MetaMask') {
@@ -693,7 +693,7 @@ const Wallet = props => {
       console.log('Getting recent blockhash')
       transaction.recentBlockhash = transaction.recentBlockhash || (await connection.getRecentBlockhash()).blockhash
 
-      if (signers) {
+      if (signers.length) {
         transaction.partialSign(...signers)
         console.log('partialSigned')
       }
