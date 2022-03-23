@@ -511,6 +511,7 @@ const Wallet = props => {
           addressDomain: null
         }
       }))
+      return true
     } catch (err) {
       // @ts-ignore
       if (err.code === 4001) {
