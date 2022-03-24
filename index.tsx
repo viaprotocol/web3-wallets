@@ -716,17 +716,20 @@ const Wallet = props => {
 
       try {
         const signed = await provider.signTransaction(transaction)
+        console.log('signed', signed)
         console.log('Got signature, submitting transaction...')
         const rawTx = signed.serialize()
         let signature = await connection.sendRawTransaction(rawTx)
         // todo: sendRawTransaction Commitment
         console.log(`Tx submitted`, signature)
-
-        console.log(`Waiting for network confirmation...`)
-        await connection.confirmTransaction(signature)
-        console.log('Tx confirmed!', signature)
-        console.log(`See explorer:`)
-        console.log(`https://solscan.io/tx/${signature}${cluster === 'testnet' ? '?cluster=testnet' : ''}`)
+        ;(async () => {
+          console.log(`Waiting for network confirmation...`)
+          await connection.confirmTransaction(signature)
+          console.log('Tx confirmed!', signature)
+          console.log(`See explorer:`)
+          console.log(`https://solscan.io/tx/${signature}${cluster === 'testnet' ? '?cluster=testnet' : ''}`)
+        })()
+        return signature
       } catch (err) {
         console.warn(err)
         console.log('[Wallet error] sendTransaction: ' + JSON.stringify(err))
