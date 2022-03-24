@@ -217,7 +217,16 @@ const Wallet = props => {
 
     await dropWC()
 
-    return await connectMetamask()
+    const savedName = localStorage.getItem('web3-wallets-name')
+    if (!savedName || savedName === names.MetaMask) {
+      return await connectMetamask()
+    }
+    if (savedName === names.WalletConnect) {
+      // todo: restore WC session
+    }
+    if (savedName === names.Phantom) {
+      return await connectPhantom()
+    }
   }
 
   const connectMetamask = async (chainId?: string | number) => {
@@ -281,6 +290,8 @@ const Wallet = props => {
         addressDomain: addressDomain_
       }
     }))
+
+    localStorage.setItem('web3-wallets-name', names.MetaMask)
     return true
   }
 
@@ -406,6 +417,7 @@ const Wallet = props => {
           }
         }))
 
+        localStorage.setItem('web3-wallets-name', names.WalletConnect)
         resolve(true)
       })
 
@@ -485,11 +497,12 @@ const Wallet = props => {
             addressDomain: null
           }
         }))
+        localStorage.removeItem('web3-wallets-name')
       })
     })
   }
 
-  const connectPhantom = async chainId => {
+  const connectPhantom = async (chainId = 'solana-mainnet') => {
     if (chainId !== 'solana-testnet' && chainId !== 'solana-mainnet') {
       throw new Error(`Unknown Phantom chainId ${chainId}`)
     }
@@ -511,6 +524,8 @@ const Wallet = props => {
           addressDomain: null
         }
       }))
+
+      localStorage.setItem('web3-wallets-name', names.Phantom)
       return true
     } catch (err) {
       // @ts-ignore
@@ -755,6 +770,7 @@ const Wallet = props => {
         addressDomain: null
       }
     }))
+    localStorage.removeItem('web3-wallets-name')
   }
 
   return (
