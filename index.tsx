@@ -802,3 +802,15 @@ const Wallet = props => {
 }
 
 export default Wallet
+
+export const isValidAddress = (chainId: number | 'solana-testnet' | 'solana-mainnet', address: string) => {
+  if (chainId === -1 || chainId === 'solana-testnet' || chainId === 'solana-mainnet') {
+    try {
+      return Boolean(new PublicKey(address))
+    } catch (e) {
+      return false
+    }
+  } else {
+    return Web3.utils.isAddress(address)
+  }
+}
