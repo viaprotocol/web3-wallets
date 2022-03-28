@@ -150,11 +150,6 @@ const Wallet = props => {
     return null
   }
 
-  const shortify = address => {
-    const result = typeof address === 'string' ? `${address.slice(0, 6)}...${address.slice(address.length - 4)}` : null
-    return result
-  }
-
   /*
   setState(prev => {
     // Object.assign would also work
@@ -286,7 +281,7 @@ const Wallet = props => {
         web3: new Web3(provider_),
         chainId: chainId_,
         address: address_,
-        addressShort: shortify(address_),
+        addressShort: shortenAddress(address_),
         addressDomain: addressDomain_
       }
     }))
@@ -352,7 +347,7 @@ const Wallet = props => {
           web3: web3_,
           chainId: connector.session.chainId,
           address: connector.session.accounts[0],
-          addressShort: shortify(connector.session.accounts[0]),
+          addressShort: shortenAddress(connector.session.accounts[0]),
           addressDomain
         }}))
 
@@ -412,7 +407,7 @@ const Wallet = props => {
             web3: web3_,
             chainId: walletChainId,
             address: address_,
-            addressShort: shortify(address_),
+            addressShort: shortenAddress(address_),
             addressDomain: addressDomain_
           }
         }))
@@ -520,7 +515,7 @@ const Wallet = props => {
           web3: null,
           chainId: chainId,
           address: address_,
-          addressShort: shortify(address_),
+          addressShort: shortenAddress(address_),
           addressDomain: null
         }
       }))
@@ -576,7 +571,7 @@ const Wallet = props => {
       ...prev,
       ...{
         address: address_,
-        addressShort: shortify(address_),
+        addressShort: shortenAddress(address_),
         addressDomain: addressDomain_
       }
     }))
@@ -813,4 +808,15 @@ export const isValidAddress = (chainId: number | 'solana-testnet' | 'solana-main
   } else {
     return Web3.utils.isAddress(address)
   }
+}
+
+export const shortenAddress = address => {
+  const result = typeof address === 'string'
+    ? [
+      address.slice(0, address.slice(0, 2) === '0x' ? 6 : 4),
+      '...',
+      address.slice(address.length - 4)
+    ].join('')
+    : null
+  return result
 }
