@@ -229,10 +229,10 @@ const Wallet = props => {
       return false
     }
 
-    const isUnlocked = await window.ethereum._metamask.isUnlocked()
+    /*const isUnlocked = await window.ethereum._metamask.isUnlocked()
     if (!isUnlocked) {
       return false
-    }
+    }*/
 
     const provider_ = window.ethereum
     const chainIdHex_ = provider_.chainId
