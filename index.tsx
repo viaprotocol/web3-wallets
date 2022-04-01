@@ -228,6 +228,12 @@ const Wallet = props => {
     if (!window.ethereum || !window.ethereum.isMetaMask) {
       return false
     }
+
+    const isUnlocked = await window.ethereum._metamask.isUnlocked()
+    if (!isUnlocked) {
+      return false
+    }
+
     const provider_ = window.ethereum
     const chainIdHex_ = provider_.chainId
     let chainId_ = typeof chainIdHex_ === 'string' ? parseInt(chainIdHex_) : null
@@ -811,12 +817,9 @@ export const isValidAddress = (chainId: number | 'solana-testnet' | 'solana-main
 }
 
 export const shortenAddress = address => {
-  const result = typeof address === 'string'
-    ? [
-      address.slice(0, address.slice(0, 2) === '0x' ? 6 : 4),
-      '...',
-      address.slice(address.length - 4)
-    ].join('')
-    : null
+  const result =
+    typeof address === 'string'
+      ? [address.slice(0, address.slice(0, 2) === '0x' ? 6 : 4), '...', address.slice(address.length - 4)].join('')
+      : null
   return result
 }
