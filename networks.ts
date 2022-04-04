@@ -369,6 +369,11 @@ const networks = networksRaw.map(item => ({
   }
 }))
 
+export const rpcMapping = networksRaw.reduce((mapper, network) => {
+  mapper[network.chain_id] = network.rpc_url
+  return mapper
+}, {})
+
 export const getNetworkById = (chainId: string | number) => {
   const network = networks.find(net => net.chain_id === chainId)
   if (network) {
