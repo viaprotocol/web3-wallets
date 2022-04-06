@@ -214,8 +214,8 @@ const Wallet = props => {
 
     const savedName = localStorage.getItem('web3-wallets-name')
     if (!savedName || savedName === names.MetaMask) {
-      const isUnlocked = window.ethereum?._metamask?.isUnlocked && await window.ethereum?._metamask?.isUnlocked()
-      if (isUnlocked !== false) { // unlocked or unknown
+      const isUnlocked = window.ethereum?._metamask?.isUnlocked && await window.ethereum._metamask.isUnlocked()
+      if (isUnlocked) {
         return await connectMetamask()
       } else {
         return false
