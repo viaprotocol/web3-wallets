@@ -214,7 +214,12 @@ const Wallet = props => {
 
     const savedName = localStorage.getItem('web3-wallets-name')
     if (!savedName || savedName === names.MetaMask) {
-      return await connectMetamask()
+      const isUnlocked = window.ethereum?._metamask?.isUnlocked && await window.ethereum?._metamask?.isUnlocked()
+      if (isUnlocked !== false) { // unlocked or unknown
+        return await connectMetamask()
+      } else {
+        return false
+      }
     }
     if (savedName === names.WalletConnect) {
       // todo: restore WC session
@@ -228,11 +233,6 @@ const Wallet = props => {
     if (!window.ethereum || !window.ethereum.isMetaMask) {
       return false
     }
-
-    /*const isUnlocked = await window.ethereum._metamask.isUnlocked()
-    if (!isUnlocked) {
-      return false
-    }*/
 
     const provider_ = window.ethereum
     const chainIdHex_ = provider_.chainId
