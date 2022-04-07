@@ -805,7 +805,7 @@ const Wallet = props => {
 export default Wallet
 
 export const isValidAddress = (chainId: number | 'solana-testnet' | 'solana-mainnet', address: string) => {
-  if (chainId === -1 || chainId === 'solana-testnet' || chainId === 'solana-mainnet') {
+  if (chainId === -1 || chainId === -1001 || chainId === 'solana-testnet' || chainId === 'solana-mainnet') {
     try {
       return Boolean(new PublicKey(address))
     } catch (e) {
@@ -822,4 +822,13 @@ export const shortenAddress = address => {
       ? [address.slice(0, address.slice(0, 2) === '0x' ? 6 : 4), '...', address.slice(address.length - 4)].join('')
       : null
   return result
+}
+
+export const nativeTokenAddress = (chainId: number | 'solana-testnet' | 'solana-mainnet') => {
+  if (chainId === -1 || chainId === -1001 || chainId === 'solana-testnet' || chainId === 'solana-mainnet') {
+    return 'So11111111111111111111111111111111111111111'
+  }
+  if (chainId > 0) {
+    return '0x0000000000000000000000000000000000000000'
+  }
 }
