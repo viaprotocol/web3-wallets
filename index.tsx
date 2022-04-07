@@ -675,6 +675,9 @@ const Wallet = props => {
     if (state.name === 'WalletConnect') {
       // todo (show new QR)
     }
+    if (name === 'Phantom') { // todo: make something better
+      return true
+    }
   }
 
   const sendTx = async (transaction, { signers = [] } = {}) => {
