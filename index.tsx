@@ -28,7 +28,7 @@ interface WalletInterface {
   isLoading: boolean
   isConnected: boolean
   name: null | 'WalletConnect' | 'MetaMask' | 'Phantom'
-  chainId: null | number | 'solana-testnet' | 'solana-mainnet'
+  chainId: null | number
   address: string | null
   addressShort: string | null
   addressDomain: null | string
@@ -115,7 +115,7 @@ interface StateProps {
   name: null | 'WalletConnect' | 'MetaMask' | 'Phantom'
   provider: any
   web3: Web3 | null
-  chainId: null | number | 'solana-testnet' | 'solana-mainnet'
+  chainId: null | number
   address: string | null
   addressShort: string | null
   addressDomain: string | null
@@ -503,8 +503,8 @@ const Wallet = props => {
     })
   }
 
-  const connectPhantom = async (chainId = 'solana-mainnet') => {
-    if (chainId !== 'solana-testnet' && chainId !== 'solana-mainnet') {
+  const connectPhantom = async (chainId = -1) => {
+    if (chainId !== -1 && chainId !== -1001) {
       throw new Error(`Unknown Phantom chainId ${chainId}`)
     }
     try {
@@ -696,10 +696,10 @@ const Wallet = props => {
 
     if (state.name === 'Phantom') {
       let cluster
-      if (state.chainId === 'solana-testnet') {
+      if (state.chainId === -1001) {
         cluster = 'testnet'
       }
-      if (state.chainId === 'solana-mainnet') {
+      if (state.chainId === -1) {
         cluster = 'mainnet-beta'
       }
       if (!cluster) {
@@ -807,8 +807,8 @@ const Wallet = props => {
 
 export default Wallet
 
-export const isValidAddress = (chainId: number | 'solana-testnet' | 'solana-mainnet', address: string) => {
-  if (chainId === -1 || chainId === -1001 || chainId === 'solana-testnet' || chainId === 'solana-mainnet') {
+export const isValidAddress = (chainId: number, address: string) => {
+  if (chainId === -1 || chainId === -1001) {
     try {
       return Boolean(new PublicKey(address))
     } catch (e) {
@@ -827,8 +827,8 @@ export const shortenAddress = address => {
   return result
 }
 
-export const nativeTokenAddress = (chainId: number | 'solana-testnet' | 'solana-mainnet') => {
-  if (chainId === -1 || chainId === -1001 || chainId === 'solana-testnet' || chainId === 'solana-mainnet') {
+export const nativeTokenAddress = (chainId: number) => {
+  if (chainId === -1 || chainId === -1001) {
     return 'So11111111111111111111111111111111111111111'
   }
   if (chainId > 0) {
