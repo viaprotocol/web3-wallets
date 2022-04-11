@@ -318,6 +318,32 @@ const networksRaw = [
     currency_decimals: 18,
     is_testnet: true
   },
+
+  // Solana
+  {
+    chain_id: -1,
+    name: 'Solana',
+    short_name: 'Solana',
+    logo_url: 'https://solscan.io/static/media/solana-sol-logo.b612f140.svg',
+    explorer_url: 'https://solscan.io/',
+    rpc_url: 'https://api.mainnet-beta.solana.com',
+    currency_name: 'Solana',
+    currency_symbol: 'SOL',
+    currency_decimals: 9,
+    is_testnet: false
+  },
+  {
+    chain_id: -1001,
+    name: 'Solana Testnet',
+    short_name: 'Solana Testnet',
+    logo_url: 'https://solscan.io/static/media/solana-sol-logo.b612f140.svg',
+    explorer_url: 'https://solscan.io/?cluster=testnet', // todo: function?
+    rpc_url: 'https://api.testnet.solana.com',
+    currency_name: 'Solana',
+    currency_symbol: 'SOL',
+    currency_decimals: 9,
+    is_testnet: true
+  }
 ]
 
 const networks = networksRaw.map(item => ({

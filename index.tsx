@@ -15,7 +15,7 @@ import { MetaMaskInpageProvider } from '@metamask/providers'
 
 import { Connection, PublicKey, Transaction, clusterApiUrl } from '@solana/web3.js'
 
-import * as nearAPI from "near-api-js";
+import * as nearAPI from 'near-api-js'
 
 import { getNetworkById } from './networks'
 import { WalletConnection } from 'near-api-js'
@@ -31,7 +31,7 @@ interface WalletInterface {
   isLoading: boolean
   isConnected: boolean
   name: null | 'WalletConnect' | 'MetaMask' | 'Phantom' | 'Near'
-  chainId: null | number | 'solana-testnet' | 'solana-mainnet' | 'testnet' | 'mainnet'
+  chainId: null | number
   address: string | null
   addressShort: string | null
   addressDomain: null | string
@@ -119,7 +119,7 @@ interface StateProps {
   name: null | 'WalletConnect' | 'MetaMask' | 'Phantom' | 'Near'
   provider: any
   web3: Web3 | null
-  chainId: null | number | 'solana-testnet' | 'solana-mainnet' | 'testnet' | 'mainnet'
+  chainId: null | number
   address: string | null
   addressShort: string | null
   addressDomain: string | null
@@ -218,7 +218,12 @@ const Wallet = props => {
 
     const savedName = localStorage.getItem('web3-wallets-name')
     if (!savedName || savedName === names.MetaMask) {
-      return await connectMetamask()
+      const isUnlocked = window.ethereum?._metamask?.isUnlocked && await window.ethereum._metamask.isUnlocked()
+      if (isUnlocked) {
+        return await connectMetamask()
+      } else {
+        return false
+      }
     }
     if (savedName === names.WalletConnect) {
       // todo: restore WC session
@@ -227,8 +232,8 @@ const Wallet = props => {
       return await connectPhantom()
     }
     if (savedName === names.Near) {
-      const chainId = localStorage.getItem('web3-wallets-near-chain')!
-      const contractId = localStorage.getItem('web3-wallets-near-contract')!
+      const chainId = Number(localStorage.getItem('web3-wallets-near-chainId')!)
+      const contractId = localStorage.getItem('web3-wallets-near-contractId')!
       return await connectNear(chainId, contractId)
     }
   }
@@ -237,11 +242,6 @@ const Wallet = props => {
     if (!window.ethereum || !window.ethereum.isMetaMask) {
       return false
     }
-
-    /*const isUnlocked = await window.ethereum._metamask.isUnlocked()
-    if (!isUnlocked) {
-      return false
-    }*/
 
     const provider_ = window.ethereum
     const chainIdHex_ = provider_.chainId
@@ -512,8 +512,8 @@ const Wallet = props => {
     })
   }
 
-  const connectPhantom = async (chainId = 'solana-mainnet') => {
-    if (chainId !== 'solana-testnet' && chainId !== 'solana-mainnet') {
+  const connectPhantom = async (chainId = -1) => {
+    if (chainId !== -1 && chainId !== -1001) {
       throw new Error(`Unknown Phantom chainId ${chainId}`)
     }
     try {
@@ -547,20 +547,25 @@ const Wallet = props => {
     }
   }
 
-  const connectNear = async (chainId: string, contractId: string) => {
-    if (chainId !== 'testnet' && chainId !== 'mainnet') {
+  const connectNear = async (chainId: number, contractId: string) => {
+    if (chainId !== -2 && chainId !== -1002) {
       throw new Error(`Unknown Near chainId ${chainId}`)
     }
+
+    const chainIdAlias = {
+      '-2': 'mainnet',
+      '-1002': 'testnet',
+    }[chainId]
 
     const { connect, keyStores, WalletConnection } = nearAPI
 
     const config = {
-      networkId: chainId,
+      networkId: chainIdAlias,
       keyStore: new keyStores.BrowserLocalStorageKeyStore(),
-      nodeUrl: `https://rpc.${chainId}.near.org`,
-      walletUrl: `https://wallet.${chainId}.near.org`,
-      helperUrl: `https://helper.${chainId}.near.org`,
-      explorerUrl: `https://explorer.${chainId}.near.org`,
+      nodeUrl: `https://rpc.${chainIdAlias}.near.org`,
+      walletUrl: `https://wallet.${chainIdAlias}.near.org`,
+      helperUrl: `https://helper.${chainIdAlias}.near.org`,
+      explorerUrl: `https://explorer.${chainIdAlias}.near.org`,
       headers: {},
     }
 
@@ -585,7 +590,7 @@ const Wallet = props => {
       return true
     }
 
-    // Перебрасывает на страницу с логином.
+    // Redirects to login page
     wallet.requestSignIn(
       contractId, // contract requesting access
       // NEAR-TODO:
@@ -594,8 +599,8 @@ const Wallet = props => {
       // "http://YOUR-URL.com/failure" // optional
     ).then(() => {
       localStorage.setItem('web3-wallets-name', names.Near)
-      localStorage.setItem('web3-wallets-near-chain', chainId)
-      localStorage.setItem('web3-wallets-near-contract', contractId)
+      localStorage.setItem('web3-wallets-near-chainId', String(chainId))
+      localStorage.setItem('web3-wallets-near-contractId', contractId)
     })
   }
 
@@ -740,6 +745,9 @@ const Wallet = props => {
     if (state.name === 'WalletConnect') {
       // todo (show new QR)
     }
+    if (name === 'Phantom') { // todo: make something better
+      return true
+    }
   }
 
   const sendTx = async (transaction, { signers = [] } = {}) => {
@@ -758,10 +766,10 @@ const Wallet = props => {
 
     if (state.name === 'Phantom') {
       let cluster
-      if (state.chainId === 'solana-testnet') {
+      if (state.chainId === -1001) {
         cluster = 'testnet'
       }
-      if (state.chainId === 'solana-mainnet') {
+      if (state.chainId === -1) {
         cluster = 'mainnet-beta'
       }
       if (!cluster) {
@@ -873,8 +881,8 @@ const Wallet = props => {
 
 export default Wallet
 
-export const isValidAddress = (chainId: number | 'solana-testnet' | 'solana-mainnet', address: string) => {
-  if (chainId === -1 || chainId === 'solana-testnet' || chainId === 'solana-mainnet') {
+export const isValidAddress = (chainId: number, address: string) => {
+  if (chainId === -1 || chainId === -1001) {
     try {
       return Boolean(new PublicKey(address))
     } catch (e) {
@@ -891,4 +899,13 @@ export const shortenAddress = address => {
       ? [address.slice(0, address.slice(0, 2) === '0x' ? 6 : 4), '...', address.slice(address.length - 4)].join('')
       : null
   return result
+}
+
+export const nativeTokenAddress = (chainId: number) => {
+  if (chainId === -1 || chainId === -1001) {
+    return 'So11111111111111111111111111111111111111111'
+  }
+  if (chainId > 0) {
+    return '0x0000000000000000000000000000000000000000'
+  }
 }
