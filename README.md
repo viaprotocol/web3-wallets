@@ -24,5 +24,7 @@ Universal interface for web3 wallets
 - `-1001` - Solana-testnet
 - `-2` - Near
 - `-1002` - Near-testnet
+- `-3` - TON
+- `-1003` - TON-testnet
 
 (For more information see [/networks.ts](/networks.ts))
