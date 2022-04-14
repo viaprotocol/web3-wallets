@@ -1,18 +1,16 @@
-/* eslint-disable */
-
-import Web3 from 'web3'
 import isMobile from 'ismobilejs'
 import { PublicKey } from '@solana/web3.js'
 
 import 'react-toastify/dist/ReactToastify.css'
 import { Web3Provider } from '@ethersproject/providers'
+import { isAddress } from 'ethers/lib/utils'
 
 export const goMetamask = () => {
   if (isMobile(window.navigator).any) {
     /*
         open app in mobile metamask
         info: https://docs.metamask.io/guide/mobile-best-practices.html#deeplinking
-  
+
         `https://checkout.webill.io/nft/bb811382-1f1b-4376-8884-5f74bd808f83/`
         ->
         `https://metamask.app.link/dapp/checkout.webill.io/nft/bb811382-1f1b-4376-8884-5f74bd808f83/`
@@ -47,7 +45,7 @@ export const isValidAddress = (chainId: number | 'solana-testnet' | 'solana-main
       return false
     }
   } else {
-    return Web3.utils.isAddress(address)
+    return isAddress(address)
   }
 }
 
@@ -60,11 +58,9 @@ export const shortenAddress = address => {
 }
 
 export const getDomainAddress = async (address: string, provider?: Web3Provider) => {
-  try {
-    if (provider) {
-      const addressDomain = await provider.lookupAddress(address)
-      return addressDomain
-    }
-  } catch (err) {}
+  if (provider) {
+    const addressDomain = await provider.lookupAddress(address)
+    return addressDomain
+  }
   return null
 }

@@ -1,7 +1,6 @@
 /* eslint-disable */
 
 import { useState, useEffect } from 'react'
-import Web3 from 'web3'
 import { BigNumber, ethers } from 'ethers'
 import type { ExternalProvider, TransactionRequest, Web3Provider } from '@ethersproject/providers'
 
@@ -38,7 +37,6 @@ interface StateProps {
   provider: Web3Provider | null
   ethersProvider: ethers.providers.Web3Provider | null
   walletProvider: WalletConnectProvider | null
-  web3: Web3 | null
   chainId: null | number | 'solana-testnet' | 'solana-mainnet'
   address: string | null
   addressShort: string | null
@@ -53,7 +51,6 @@ const WalletProvider = props => {
     provider: null,
     ethersProvider: null,
     walletProvider: null,
-    web3: null,
     chainId: null,
     address: null,
     addressShort: null,
@@ -97,7 +94,7 @@ const WalletProvider = props => {
       return false
     }
 
-    const provider = new ethers.providers.Web3Provider(window.ethereum as unknown as ExternalProvider, 'any')
+    const provider = new ethers.providers.Web3Provider(window.ethereum as unknown as ExternalProvider)
     const accounts = (await provider.send('eth_requestAccounts', [])) as string[]
     const address = accounts[0]
     const addressDomain = await getDomain(address)
@@ -113,8 +110,6 @@ const WalletProvider = props => {
         isConnected: true,
         name: 'MetaMask',
         provider,
-        //@ts-ignore
-        web3: new Web3(window.ethereum),
         ethersProvider: provider,
         chainId,
         address,
@@ -195,7 +190,6 @@ const WalletProvider = props => {
           isConnected: true,
           name: 'Phantom',
           provider: window.solana,
-          web3: null,
           chainId,
           address: address_,
           addressShort: shortenAddress(address_),
@@ -282,7 +276,7 @@ const WalletProvider = props => {
     }
 
     if (name === 'WalletConnect') {
-      return connectWC(chainId)
+      return await connectWC(chainId)
     }
 
     if (name === 'Phantom') {
@@ -335,15 +329,16 @@ const WalletProvider = props => {
     return false
   }
 
-  const changeNetwork = async (name: string, chainId: string | number) => {
+  const changeNetwork = async (chainId: string | number) => {
     console.log('Wallet.changeNetwork()', chainId)
 
     const network = getNetworkById(chainId)
     const params = network.data.params
-    // console.log('state.name', state.name)
+    console.log('state.name', state.name)
+    console.log('chain', chainId)
     /*if (state.name === 'MetaMask') {*/
     // todo: stale state
-    if (name === 'MetaMask') {
+    if (state.name === 'MetaMask') {
       const isChanged = await metamaskChangeNetwork(params)
       if (isChanged) {
         setState(prev => ({
@@ -357,8 +352,20 @@ const WalletProvider = props => {
       return false
     }
 
-    if (state.name === 'WalletConnect') {
+    if (state.name === 'WalletConnect' && typeof chainId === 'number') {
+      // @ts-ignore
+      state.provider.provider.request({
+        method: 'wallet_switchEthereumChain',
+        params: [
+          {
+            chainId: BigNumber.from(chainId).toHexString()
+          }
+        ]
+      })
       // todo (show new QR)
+      await connectWC(chainId)
+      fetchWalletInfo()
+      return true
     }
 
     return false
@@ -366,7 +373,9 @@ const WalletProvider = props => {
 
   const sendTx = async (
     transaction: TransactionRequest | Transaction,
-    { signers = [] }: { signers?: Signer[] } = {}
+    params?: {
+      signers?: Signer[]
+    }
   ): Promise<string> => {
     console.log('[Wallet] sendTx', transaction)
 
@@ -391,8 +400,8 @@ const WalletProvider = props => {
       console.log('Getting recent blockhash')
       transaction.recentBlockhash = transaction.recentBlockhash || (await connection.getRecentBlockhash()).blockhash
 
-      if (signers.length) {
-        transaction.partialSign(...signers)
+      if (params?.signers?.length) {
+        transaction.partialSign(...params.signers)
         console.log('partialSigned')
       }
 
@@ -419,7 +428,7 @@ const WalletProvider = props => {
         throw err
       }
     } else {
-      const signer = state.ethersProvider!.getSigner()
+      const signer = state.provider!.getSigner()
 
       const sendedTransaction = await signer?.sendTransaction(transaction)
 
@@ -447,7 +456,6 @@ const WalletProvider = props => {
         isConnected: false,
         name: null,
         provider: null,
-        web3: null,
         chainId: null,
         address: null,
         addressShort: null,
@@ -460,19 +468,19 @@ const WalletProvider = props => {
   }
 
   const estimateGas = async (data: TransactionRequest): Promise<BigNumber | undefined> => {
-    const estimatedGas = await state.ethersProvider?.estimateGas(data)
+    const estimatedGas = await state.provider?.estimateGas(data)
 
     return estimatedGas
   }
 
   const fetchWalletInfo = async () => {
-    if (state.ethersProvider) {
-      const address = await state.ethersProvider.getSigner().getAddress()
+    if (state.provider) {
+      const address = await state.provider.getSigner().getAddress()
 
-      const addressDomain = await getDomainAddress(address, state.ethersProvider)
+      const addressDomain = await getDomainAddress(address, state.provider)
 
       const addressShort = shortify(address)
-      const chainId = (await state.ethersProvider.getNetwork()).chainId
+      const chainId = (await state.provider.getNetwork()).chainId
 
       setState(prev => ({
         ...prev,
@@ -500,10 +508,9 @@ const WalletProvider = props => {
         address: state.address,
         addressShort: state.addressShort,
         addressDomain: state.addressDomain,
-        web3: state.web3,
         estimateGas,
         provider: state.provider,
-        getTransactionReceipt: state.ethersProvider?.getTransactionReceipt.bind(state.ethersProvider),
+        getTransactionReceipt: state.provider?.getTransactionReceipt,
         restore,
         connect,
         changeNetwork,
