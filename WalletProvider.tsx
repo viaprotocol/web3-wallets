@@ -132,7 +132,8 @@ const WalletProvider = props => {
 
   const connectWC = async (chainId_: number): Promise<boolean> => {
     const walletConnectProvider = new WalletConnectProvider({
-      rpc: rpcMapping
+      rpc: rpcMapping,
+      chainId: chainId_
     })
 
     await walletConnectProvider.enable()
@@ -353,15 +354,6 @@ const WalletProvider = props => {
     }
 
     if (state.name === 'WalletConnect' && typeof chainId === 'number') {
-      // @ts-ignore
-      state.provider.provider.request({
-        method: 'wallet_switchEthereumChain',
-        params: [
-          {
-            chainId: BigNumber.from(chainId).toHexString()
-          }
-        ]
-      })
       // todo (show new QR)
       await connectWC(chainId)
       fetchWalletInfo()
@@ -477,7 +469,12 @@ const WalletProvider = props => {
     if (state.provider) {
       const address = await state.provider.getSigner().getAddress()
 
-      const addressDomain = await getDomainAddress(address, state.provider)
+      let addressDomain
+      try {
+        addressDomain = await getDomainAddress(address, state.provider)
+      } catch (e) {
+        console.error(e)
+      }
 
       const addressShort = shortify(address)
       const chainId = (await state.provider.getNetwork()).chainId
@@ -510,7 +507,7 @@ const WalletProvider = props => {
         addressDomain: state.addressDomain,
         estimateGas,
         provider: state.provider,
-        getTransactionReceipt: state.provider?.getTransactionReceipt,
+        getTransactionReceipt: state.provider?.getTransactionReceipt.bind(state.provider),
         restore,
         connect,
         changeNetwork,
