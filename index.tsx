@@ -808,15 +808,24 @@ const Wallet = props => {
 export default Wallet
 
 export const isValidAddress = (chainId: number, address: string) => {
+  if (chainId > 0) {
+    return Web3.utils.isAddress(address)
+  }
   if (chainId === -1 || chainId === -1001) {
     try {
       return Boolean(new PublicKey(address))
     } catch (e) {
       return false
     }
-  } else {
-    return Web3.utils.isAddress(address)
   }
+  if (chainId === -3 || chainId === -1003) {
+    // example:
+    // EQBj0KYB_PG6zg_F3sjLwFkJ5C02aw0V10Dhd256c-Sr3BvF
+    // EQCudP0_Xu7qi-aCUTCNsjXHvi8PNNL3lGfq2Wcmbg2oN-Jg
+    // EQAXqKCSrUFgPKMlCKlfyT2WT7GhVzuHyXiPtDvT9s5FMp5o
+    return address.length === 48 && address.slice(0, 2) === 'EQ' && /^[a-zA-Z0-9_-]*$/.test(address)
+  }
+  throw new Error(`Not implemented or wrong chainId ${chainId}`)
 }
 
 export const shortenAddress = address => {
