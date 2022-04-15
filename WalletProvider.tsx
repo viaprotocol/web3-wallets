@@ -139,11 +139,6 @@ const WalletProvider = props => {
     await walletConnectProvider.enable()
     const web3Provider = new ethers.providers.Web3Provider(walletConnectProvider)
 
-    walletConnectProvider.on('chainChanged', сhainChangeHandler)
-    walletConnectProvider.on('accountsChanged', accountChangeHandler)
-    web3Provider.on('chainChanged', сhainChangeHandler)
-    web3Provider.on('accountsChanged', accountChangeHandler)
-
     await setState(prev => ({
       ...prev,
       ...{
@@ -335,10 +330,7 @@ const WalletProvider = props => {
 
     const network = getNetworkById(chainId)
     const params = network.data.params
-    console.log('state.name', state.name)
-    console.log('chain', chainId)
-    /*if (state.name === 'MetaMask') {*/
-    // todo: stale state
+
     if (state.name === 'MetaMask') {
       const isChanged = await metamaskChangeNetwork(params)
       if (isChanged) {
@@ -356,7 +348,6 @@ const WalletProvider = props => {
     if (state.name === 'WalletConnect' && typeof chainId === 'number') {
       // todo (show new QR)
       await connectWC(chainId)
-      fetchWalletInfo()
       return true
     }
 
@@ -457,6 +448,7 @@ const WalletProvider = props => {
 
     localStorage.removeItem('web3-wallets-name')
     localStorage.removeItem('web3-wallets-data')
+    localStorage.removeItem('isFirstInited')
   }
 
   const estimateGas = async (data: TransactionRequest): Promise<BigNumber | undefined> => {
@@ -493,6 +485,19 @@ const WalletProvider = props => {
 
   useEffect(() => {
     fetchWalletInfo()
+
+    if (state.provider) {
+      // @ts-ignore
+      state.provider.provider.on('chainChanged', metamaskChainChangeHandler)
+
+      // @ts-ignore
+      state.provider.provider.on('accountsChanged', metamaskAccountChangeHandler)
+
+      // @ts-ignore
+      state.provider.provider.on('disconnect', (code: number, reason: string) => {
+        disconnect()
+      })
+    }
   }, [state.provider])
 
   return (
