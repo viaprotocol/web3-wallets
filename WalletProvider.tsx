@@ -289,17 +289,14 @@ const WalletProvider = props => {
 
   const metamaskChangeNetwork = async params => {
     const newChainIdHex = params[0].chainId
-    const { ethereum } = window
 
+    if (!state.provider) return
     try {
-      await ethereum.request({
-        method: 'wallet_switchEthereumChain',
-        params: [
-          {
-            chainId: newChainIdHex
-          }
-        ]
-      })
+      await state.provider!.send('wallet_switchEthereumChain', [
+        {
+          chainId: newChainIdHex
+        }
+      ])
       return true
     } catch (error) {
       console.warn('Cant change network:', error)
@@ -309,10 +306,7 @@ const WalletProvider = props => {
         // the chain has not been added to MetaMask
         try {
           console.log('Try to add the network...', params)
-          await ethereum.request({
-            method: 'wallet_addEthereumChain',
-            params: params
-          })
+          await state.provider!.send('wallet_addEthereumChain', params)
           // todo:
           // Users can allow adding, but not allowing switching
           return true
@@ -346,8 +340,6 @@ const WalletProvider = props => {
     }
 
     if (state.name === 'WalletConnect' && typeof chainId === 'number') {
-      // todo (show new QR)
-      await connectWC(chainId)
       return true
     }
 
@@ -433,6 +425,14 @@ const WalletProvider = props => {
       window.solana.disconnect()
     }
 
+    if (state.name === 'WalletConnect') {
+      // @ts-ignore
+      if (state.provider?.provider.close) {
+        // @ts-ignore
+        state.provider.provider.close()
+      }
+    }
+
     setState(prev => ({
       ...prev,
       ...{
@@ -495,8 +495,11 @@ const WalletProvider = props => {
 
       // @ts-ignore
       state.provider.provider.on('disconnect', (code: number, reason: string) => {
+        console.log('Wallet.onDisconnect()', code, reason)
         disconnect()
       })
+      // @ts-ignore
+      window.provider = state.provider
     }
   }, [state.provider])
 
