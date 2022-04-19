@@ -823,7 +823,13 @@ export const isValidAddress = (chainId: number, address: string) => {
     // EQBj0KYB_PG6zg_F3sjLwFkJ5C02aw0V10Dhd256c-Sr3BvF
     // EQCudP0_Xu7qi-aCUTCNsjXHvi8PNNL3lGfq2Wcmbg2oN-Jg
     // EQAXqKCSrUFgPKMlCKlfyT2WT7GhVzuHyXiPtDvT9s5FMp5o
-    return address.length === 48 && address.slice(0, 2) === 'EQ' && /^[a-zA-Z0-9_-]*$/.test(address)
+    return address.length === 48
+      && (
+        address.slice(0, 2) === 'EQ' ||
+        address.slice(0, 2) === 'kQ' ||
+        address.slice(0, 2) === 'Ef'
+      )
+      && /^[a-zA-Z0-9_-]*$/.test(address)
   }
   throw new Error(`Not implemented or wrong chainId ${chainId}`)
 }
