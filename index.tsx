@@ -390,10 +390,14 @@ const Wallet = props => {
         console.info('walletChainId', walletChainId)
 
         if (walletChainId !== dappChainId) {
+          /*
+            Note: WalletConnect v1 is not able to switch networks
+          */
           toast.warn('Wrong wallet network — disconnected')
-          /*console.warn('(Rejected) Select the correct network in your wallet')*/
-          resolve(true) // to close modalbox
+          console.warn('[Wallet] Wrong wallet network — disconnected')
           connector.killSession()
+          resolve(false)
+          return
         }
 
         const address_ = accounts[0]
