@@ -16,6 +16,7 @@ import { MetaMaskInpageProvider } from '@metamask/providers'
 import { Connection, PublicKey, Transaction, clusterApiUrl } from '@solana/web3.js'
 
 import { getNetworkById } from './networks'
+import { checkEnsValid } from './utils/solana'
 
 declare global {
   interface Window {
@@ -214,7 +215,7 @@ const Wallet = props => {
 
     const savedName = localStorage.getItem('web3-wallets-name')
     if (savedName === names.MetaMask) {
-      const isUnlocked = window.ethereum?._metamask?.isUnlocked && await window.ethereum._metamask.isUnlocked()
+      const isUnlocked = window.ethereum?._metamask?.isUnlocked && (await window.ethereum._metamask.isUnlocked())
       if (isUnlocked) {
         return await connectMetamask()
       } else {
@@ -675,7 +676,8 @@ const Wallet = props => {
     if (state.name === 'WalletConnect') {
       // todo (show new QR)
     }
-    if (name === 'Phantom') { // todo: make something better
+    if (name === 'Phantom') {
+      // todo: make something better
       return true
     }
   }
@@ -807,12 +809,16 @@ const Wallet = props => {
 
 export default Wallet
 
-export const isValidAddress = (chainId: number, address: string) => {
+export const isValidAddress = async (chainId: number, address: string) => {
   if (chainId > 0) {
     return Web3.utils.isAddress(address)
   }
   if (chainId === -1 || chainId === -1001) {
     try {
+      if (address.slice(-4) === '.sol') {
+        await checkEnsValid(address)
+        return true
+      }
       return Boolean(new PublicKey(address))
     } catch (e) {
       return false
