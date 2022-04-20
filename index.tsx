@@ -833,7 +833,8 @@ export const isValidAddress = async (chainId: number, address: string) => {
       && (
         address.slice(0, 2) === 'EQ' ||
         address.slice(0, 2) === 'kQ' ||
-        address.slice(0, 2) === 'Ef'
+        address.slice(0, 2) === 'Ef' ||
+        address.slice(0, 2) === 'UQ'
       )
       && /^[a-zA-Z0-9_-]*$/.test(address)
   }
