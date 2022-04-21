@@ -22,11 +22,8 @@ export const checkEnsValid = async (input: string) => {
   return registry
 }
 
-export const parseAddressFromEns = async (input: string) => {
-  let addressTemp = input
-  if (input.slice(-4) === '.sol') {
-    addressTemp = input.slice(0, -4)
-  }
+export const parseAddressFromEnsSolana = async (input: string) => {
+  const addressTemp = input.slice(0, -4)
   const { inputDomainKey } = await getInputKey(addressTemp)
   const registry = await NameRegistryState.retrieve(connection, inputDomainKey)
 

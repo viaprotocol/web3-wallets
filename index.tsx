@@ -16,7 +16,7 @@ import { MetaMaskInpageProvider } from '@metamask/providers'
 import { Connection, PublicKey, Transaction, clusterApiUrl } from '@solana/web3.js'
 
 import { getNetworkById } from './networks'
-import { checkEnsValid } from './utils/solana'
+import { checkEnsValid, parseAddressFromEnsSolana } from './utils/solana'
 
 declare global {
   interface Window {
@@ -869,5 +869,18 @@ export const nativeTokenAddress = (chainId: number) => {
   }
   if (chainId > 0) {
     return '0x0000000000000000000000000000000000000000'
+  }
+}
+
+export const parseAddressFromEns = async (input: string) => {
+  if (input.slice(-4) === '.sol') {
+    return await parseAddressFromEnsSolana(input)
+  } else if (input.slice(-4) === '.eth') {
+    const rpc = getNetworkById(1).rpc_url
+    const provider = new Web3.providers.HttpProvider(rpc)
+    const result = await new Web3(provider).eth.ens.getAddress(input)
+    return result
+  } else {
+    return input
   }
 }
