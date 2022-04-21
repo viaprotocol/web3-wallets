@@ -16,7 +16,7 @@ import { MetaMaskInpageProvider } from '@metamask/providers'
 import { Connection, PublicKey, Transaction, clusterApiUrl } from '@solana/web3.js'
 
 import { getNetworkById } from './networks'
-import { checkEnsValid, parseAddressFromEnsSolana } from './utils/solana'
+import { checkEnsValid, parseAddressFromEnsSolana, parseEnsFromSolanaAddress } from './utils/solana'
 
 declare global {
   interface Window {
@@ -516,6 +516,7 @@ const Wallet = props => {
       const resp = await window.solana.connect()
       //console.log('resp', resp)
       const address_ = resp.publicKey.toString()
+      const domain = await parseEnsFromSolanaAddress(address_)
 
       setState(prev => ({
         ...prev,
@@ -527,7 +528,7 @@ const Wallet = props => {
           chainId: chainId,
           address: address_,
           addressShort: shortenAddress(address_),
-          addressDomain: null
+          addressDomain: domain
         }
       }))
 

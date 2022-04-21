@@ -29,3 +29,14 @@ export const parseAddressFromEnsSolana = async (input: string) => {
 
   return registry.owner.toBase58()
 }
+
+export const parseEnsFromSolanaAddress = async (input: string) => {
+  try {
+    const response = await fetch(`https://api.solscan.io/domain?address=${input}`)
+    const json = await response.json()
+    return json?.data?.[0]?.name ?? null
+  } catch (error) {
+    console.error('Failed parse solana ENS', error)
+    return null
+  }
+}
