@@ -16,9 +16,12 @@ import { MetaMaskInpageProvider } from '@metamask/providers'
 import { Connection, PublicKey, Transaction, clusterApiUrl } from '@solana/web3.js'
 
 import * as nearAPI from 'near-api-js'
+import { WalletConnection } from 'near-api-js'
 
 import { getNetworkById } from './networks'
-import { WalletConnection } from 'near-api-js'
+
+import { checkEnsValid, parseAddressFromEnsSolana, parseEnsFromSolanaAddress } from './utils/solana'
+
 
 declare global {
   interface Window {
@@ -217,8 +220,8 @@ const Wallet = props => {
     await dropWC()
 
     const savedName = localStorage.getItem('web3-wallets-name')
-    if (!savedName || savedName === names.MetaMask) {
-      const isUnlocked = window.ethereum?._metamask?.isUnlocked && await window.ethereum._metamask.isUnlocked()
+    if (savedName === names.MetaMask) {
+      const isUnlocked = window.ethereum?._metamask?.isUnlocked && (await window.ethereum._metamask.isUnlocked())
       if (isUnlocked) {
         return await connectMetamask()
       } else {
@@ -398,10 +401,14 @@ const Wallet = props => {
         console.info('walletChainId', walletChainId)
 
         if (walletChainId !== dappChainId) {
+          /*
+            Note: WalletConnect v1 is not able to switch networks
+          */
           toast.warn('Wrong wallet network — disconnected')
-          /*console.warn('(Rejected) Select the correct network in your wallet')*/
-          resolve(true) // to close modalbox
+          console.warn('[Wallet] Wrong wallet network — disconnected')
           connector.killSession()
+          resolve(false)
+          return
         }
 
         const address_ = accounts[0]
@@ -520,6 +527,7 @@ const Wallet = props => {
       const resp = await window.solana.connect()
       //console.log('resp', resp)
       const address_ = resp.publicKey.toString()
+      const domain = await parseEnsFromSolanaAddress(address_)
 
       setState(prev => ({
         ...prev,
@@ -531,7 +539,7 @@ const Wallet = props => {
           chainId: chainId,
           address: address_,
           addressShort: shortenAddress(address_),
-          addressDomain: null
+          addressDomain: domain
         }
       }))
 
@@ -745,7 +753,8 @@ const Wallet = props => {
     if (state.name === 'WalletConnect') {
       // todo (show new QR)
     }
-    if (name === 'Phantom') { // todo: make something better
+    if (name === 'Phantom') {
+      // todo: make something better
       return true
     }
   }
@@ -881,24 +890,54 @@ const Wallet = props => {
 
 export default Wallet
 
-export const isValidAddress = (chainId: number, address: string) => {
+export const isValidAddress = async (chainId: number, address: string) => {
+  if (chainId > 0) {
+    if (address.slice(-4) === '.eth') {
+      const rpc = getNetworkById(1).rpc_url
+      const provider = new Web3.providers.HttpProvider(rpc)
+      const result = await new Web3(provider).eth.ens.getAddress(address)
+      return !!result
+    }
+    return Web3.utils.isAddress(address)
+  }
   if (chainId === -1 || chainId === -1001) {
     try {
+      if (address.slice(-4) === '.sol') {
+        await checkEnsValid(address)
+        return true
+      }
       return Boolean(new PublicKey(address))
     } catch (e) {
       return false
     }
-  } else {
-    return Web3.utils.isAddress(address)
   }
+  if (chainId === -3 || chainId === -1003) {
+    // example:
+    // EQBj0KYB_PG6zg_F3sjLwFkJ5C02aw0V10Dhd256c-Sr3BvF
+    // EQCudP0_Xu7qi-aCUTCNsjXHvi8PNNL3lGfq2Wcmbg2oN-Jg
+    // EQAXqKCSrUFgPKMlCKlfyT2WT7GhVzuHyXiPtDvT9s5FMp5o
+    return (
+      address.length === 48 &&
+      (address.slice(0, 2) === 'EQ' ||
+        address.slice(0, 2) === 'kQ' ||
+        address.slice(0, 2) === 'Ef' ||
+        address.slice(0, 2) === 'UQ') &&
+      /^[a-zA-Z0-9_-]*$/.test(address)
+    )
+  }
+  throw new Error(`Not implemented or wrong chainId ${chainId}`)
 }
 
 export const shortenAddress = address => {
-  const result =
-    typeof address === 'string'
-      ? [address.slice(0, address.slice(0, 2) === '0x' ? 6 : 4), '...', address.slice(address.length - 4)].join('')
-      : null
-  return result
+  if (typeof address === 'string') {
+    if (address.at(-4) === '.') {
+      return address
+    } else {
+      return [address.slice(0, address.slice(0, 2) === '0x' ? 6 : 4), '...', address.slice(address.length - 4)].join('')
+    }
+  }
+
+  return ''
 }
 
 export const nativeTokenAddress = (chainId: number) => {
@@ -907,5 +946,18 @@ export const nativeTokenAddress = (chainId: number) => {
   }
   if (chainId > 0) {
     return '0x0000000000000000000000000000000000000000'
+  }
+}
+
+export const parseAddressFromEns = async (input: string) => {
+  if (input.slice(-4) === '.sol') {
+    return await parseAddressFromEnsSolana(input)
+  } else if (input.slice(-4) === '.eth') {
+    const rpc = getNetworkById(1).rpc_url
+    const provider = new Web3.providers.HttpProvider(rpc)
+    const result = await new Web3(provider).eth.ens.getAddress(input)
+    return result
+  } else {
+    return input
   }
 }
