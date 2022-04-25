@@ -226,7 +226,7 @@ const Wallet = props => {
       // todo: restore WC session
     }
     if (savedName === names.Phantom) {
-      return await connectPhantom()
+      return await connectPhantom(-1, true)
     }
   }
 
@@ -508,13 +508,12 @@ const Wallet = props => {
     })
   }
 
-  const connectPhantom = async (chainId = -1) => {
+  const connectPhantom = async (chainId = -1, isRecconect = false) => {
     if (chainId !== -1 && chainId !== -1001) {
       throw new Error(`Unknown Phantom chainId ${chainId}`)
     }
     try {
-      const resp = await window.solana.connect()
-      //console.log('resp', resp)
+      const resp = isRecconect ? await window.solana.connect({ onlyIfTrusted: true }) : await window.solana.connect()
       const address_ = resp.publicKey.toString()
       const domain = await parseEnsFromSolanaAddress(address_)
 
