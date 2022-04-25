@@ -8,9 +8,11 @@ Universal interface for web3 wallets
 
                                ╭───[MetaMask]────────[EVM-blockchains]
                                │
-[your dapp]───[web3-wallets]───┼───[WalletConnect]───[EVM-blockchains]
+                               ├───[WalletConnect]───[EVM-blockchains]
+[your dapp]───[web3-wallets]───┤
+                               ├───[Phantom]─────────[Solana]
                                │
-                               ╰───[Phantom]─────────[Solana]
+                               ╰───[NEAR Wallet]─────[NEAR]
 
 ```
 ## Used `chainId`'s
