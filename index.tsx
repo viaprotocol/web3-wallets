@@ -698,6 +698,49 @@ const Wallet = props => {
         console.log('partialSigned')
       }
 
+      const retrySendSignedTransaction = async (
+        connection: Connection, 
+        rawTx: Buffer | Uint8Array | number[]
+      ) => {
+        class TimeoutError extends Error { // TODO: JSON.stringify returns null
+          constructor() {
+            super('')
+          }
+        }
+
+        const MAX_ATTEMPTS = 3
+        const SEND_TIMEOUT_SECS = 12
+
+        for (let i = 0; i < MAX_ATTEMPTS; i++) {
+          if (i > 0) {
+            console.log('Transaction didn\'t reach the node, retrying...')
+          }
+          try {
+            let signature = await connection.sendRawTransaction(rawTx)
+            console.log(`Tx submitted`, signature)
+            console.log(`Waiting for network confirmation...`)
+
+            await Promise.race([
+              connection.confirmTransaction(signature, 'confirmed'),
+              new Promise((_, reject) => setTimeout(() => reject(new TimeoutError()), SEND_TIMEOUT_SECS * 1e3))
+            ])
+          } catch (err) {
+            if (err instanceof TimeoutError) {
+              continue
+            }
+            throw err
+          }
+          return
+        }
+        console.log('Retry limit reached')
+        throw TimeoutError
+      }
+
+      const logError = (err) => {
+        console.warn(err)
+        console.log('[Wallet error] sendTransaction: ' + JSON.stringify(err))
+      }
+
       try {
         const signed = await provider.signTransaction(transaction)
         console.log('signed', signed)
@@ -705,18 +748,23 @@ const Wallet = props => {
         const rawTx = signed.serialize()
         let signature = await connection.sendRawTransaction(rawTx)
         // todo: sendRawTransaction Commitment
-        console.log(`Tx submitted`, signature)
         ;(async () => {
-          console.log(`Waiting for network confirmation...`)
-          await connection.confirmTransaction(signature)
-          console.log('Tx confirmed!', signature)
-          console.log(`See explorer:`)
-          console.log(`https://solscan.io/tx/${signature}${cluster === 'testnet' ? '?cluster=testnet' : ''}`)
+          let success = true
+          await retrySendSignedTransaction(connection, rawTx).catch((err) => { // TODO: Exception is not caught otherwise?
+            success = false
+            logError(err)
+          })
+          if (success) {
+            console.log('Tx confirmed!', signature)
+            console.log(`See explorer:`)
+            console.log(`https://solscan.io/tx/${signature}${cluster === 'testnet' ? '?cluster=testnet' : ''}`)
+          } else {
+            return
+          }
         })()
         return signature
       } catch (err) {
-        console.warn(err)
-        console.log('[Wallet error] sendTransaction: ' + JSON.stringify(err))
+        logError(err)
       }
     }
   }
