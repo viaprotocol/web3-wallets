@@ -7,22 +7,22 @@ import { EVM_WALLETS_CONFIG } from './config'
 import { IUseBalanceOptions } from './types'
 
 function useEVMBalance(options: IUseBalanceOptions) {
-  const { isConnected, web3, name, address } = options
+  const { isConnected, web3, name, address, chainId } = options
   const isEVMWallet = !!name && EVM_WALLETS_CONFIG.includes(name)
   const isSubscriptionIsAvailable = isEVMWallet && address && isConnected
 
-  const [balance, setBalance] = useState<string | null>(null)
+  const [balance, setBalance] = useState<number | null>(null)
 
   // Call balance function on each changing of web3 or address
   useEffect(() => {
     if (isSubscriptionIsAvailable) {
       web3?.eth.getBalance(address, (e, rawBalance) => {
         if (!e) {
-          setBalance(rawBalance)
+          setBalance(Number(rawBalance))
         }
       })
     }
-  }, [isSubscriptionIsAvailable, address, web3])
+  }, [isSubscriptionIsAvailable, address, web3, setBalance, chainId])
 
   // Subscribe to block changes
   useEffect(() => {
@@ -30,7 +30,7 @@ function useEVMBalance(options: IUseBalanceOptions) {
       if (!err) {
         web3.eth.getBalance(address, (e, rawBalance) => {
           if (!e) {
-            setBalance(rawBalance)
+            setBalance(Number(rawBalance))
           }
         })
       }

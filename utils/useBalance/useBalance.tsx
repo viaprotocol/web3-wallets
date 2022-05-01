@@ -1,12 +1,28 @@
+import { useMemo } from 'react'
+
 import { IUseBalanceOptions } from './types'
 import { useEVMBalance } from './useEVMBalance'
+import { useSolanaBalance } from './useSolanaBalance'
 
 function useBalance(options: IUseBalanceOptions) {
-  const balance = useEVMBalance(options)
+  const { name } = options
 
-  console.log('web3', options.web3)
+  const evmBalance = useEVMBalance(options)
+  const solBalance = useSolanaBalance(options)
 
-  return [balance]
+  const balance = useMemo(() => {
+    if (!name) {
+      return null
+    }
+
+    return {
+      Phantom: solBalance,
+      WalletConnect: evmBalance,
+      MetaMask: evmBalance 
+    }[name]
+  }, [name, solBalance, evmBalance])
+
+  return balance
 }
 
 export { useBalance }

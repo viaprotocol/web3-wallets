@@ -1,5 +1,7 @@
 import { AvailableWalletNames } from '@/web3-wallets/types'
 
-const EVM_WALLETS_CONFIG: Array<AvailableWalletNames> = ['MetaMask', 'WalletConnect']
+const EVM_WALLETS_CONFIG: AvailableWalletNames[] = ['MetaMask', 'WalletConnect']
 
-export { EVM_WALLETS_CONFIG }
+const SOL_WALLETS_CONFIG: AvailableWalletNames[] = ['Phantom']
+
+export { EVM_WALLETS_CONFIG, SOL_WALLETS_CONFIG }

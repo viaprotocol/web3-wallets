@@ -1,5 +1,7 @@
 import Web3 from 'web3'
 
+import { Connection } from '@solana/web3.js'
+
 type AvailableWalletNames = 'WalletConnect' | 'MetaMask' | 'Phantom'
 
 interface IWalletStoreState {
@@ -8,6 +10,7 @@ interface IWalletStoreState {
   name: null | AvailableWalletNames
   provider: any // 📌 TODO: add interface
   web3: Web3 | null
+  connection: Connection | null
   chainId: null | number
   address: string | null
   addressShort: string | null
@@ -17,7 +20,7 @@ interface IWalletStoreState {
 interface IWallet extends IWalletStoreState{
   restore: Function
   connect: Function
-  balance: string | null
+  balance: number | null
   changeNetwork: Function
   sendTx: Function
   disconnect: Function
