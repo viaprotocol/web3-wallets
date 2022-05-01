@@ -1,22 +1,43 @@
 /* eslint-disable */
 
-import React, { useState, createContext } from 'react'
-import Web3 from 'web3'
+import 'react-toastify/dist/ReactToastify.css'
+
+import {
+  createContext,
+  useCallback,
+  useEffect,
+  useState
+} from 'react'
 
 import isMobile from 'ismobilejs'
+import {
+  Slide,
+  toast,
+  ToastContainer
+} from 'react-toastify'
+import Web3 from 'web3'
 
+import { MetaMaskInpageProvider } from '@metamask/providers'
+import {
+  clusterApiUrl,
+  Connection,
+  PublicKey
+} from '@solana/web3.js'
 import WalletConnect from '@walletconnect/client'
 import QRCodeModal from '@walletconnect/qrcode-modal'
 
-import { ToastContainer, toast, Slide } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
-
-import { MetaMaskInpageProvider } from '@metamask/providers'
-
-import { Connection, PublicKey, Transaction, clusterApiUrl } from '@solana/web3.js'
-
 import { getNetworkById } from './networks'
-import { checkEnsValid, parseAddressFromEnsSolana, parseEnsFromSolanaAddress } from './utils/solana'
+import {
+  IWallet,
+  IWalletStoreState,
+  TGetBalanceOption
+} from './types'
+import { useBalance } from './utils'
+import {
+  checkEnsValid,
+  parseAddressFromEnsSolana,
+  parseEnsFromSolanaAddress
+} from './utils/solana'
 
 declare global {
   interface Window {
@@ -25,24 +46,7 @@ declare global {
   }
 }
 
-interface WalletInterface {
-  isLoading: boolean
-  isConnected: boolean
-  name: null | 'WalletConnect' | 'MetaMask' | 'Phantom'
-  chainId: null | number
-  address: string | null
-  addressShort: string | null
-  addressDomain: null | string
-  web3: Web3 | null // todo: types
-  provider: any // 📌 TODO: add interface
-  restore: Function
-  connect: Function
-  changeNetwork: Function
-  sendTx: Function
-  disconnect: Function
-}
-
-export const WalletContext = createContext<WalletInterface>({
+export const WalletContext = createContext<IWallet>({
   isLoading: false,
   isConnected: false,
   name: null,
@@ -51,6 +55,7 @@ export const WalletContext = createContext<WalletInterface>({
   addressShort: '',
   addressDomain: null,
   web3: null,
+  balance: null,
   provider: null,
   restore: () => {},
   connect: () => {},
@@ -98,20 +103,8 @@ const goPhantom = () => {
   }
 }
 
-interface StateProps {
-  isLoading: boolean
-  isConnected: boolean
-  name: null | 'WalletConnect' | 'MetaMask' | 'Phantom'
-  provider: any
-  web3: Web3 | null
-  chainId: null | number
-  address: string | null
-  addressShort: string | null
-  addressDomain: string | null
-}
-
 const Wallet = props => {
-  const [state, setState] = useState<StateProps>({
+  const [state, setState] = useState<IWalletStoreState>({
     isLoading: false,
     isConnected: false,
     name: null,
@@ -137,6 +130,13 @@ const Wallet = props => {
       console.warn(`Can't get domain, ${e}`)
     }
     return null
+  }
+
+  const getBalance = async ({
+    web3,
+    address
+  }: TGetBalanceOption) => {
+    return await web3?.eth.getBalance(address || '') || null
   }
 
   const restore = async () => {
@@ -209,14 +209,16 @@ const Wallet = props => {
       isMetamaskHandler = true
     }
 
+    //@ts-ignore
+    const web3 = new Web3(provider_);
+
     setState(prev => ({
       ...prev,
       ...{
         isConnected: true,
         name: 'MetaMask',
         provider: provider_,
-        //@ts-ignore
-        web3: new Web3(provider_),
+        web3,
         chainId: chainId_,
         address: address_,
         addressShort: shortenAddress(address_),
@@ -309,7 +311,7 @@ const Wallet = props => {
         const rpcUrl = network.rpc_url
         console.log('rpcUrl', rpcUrl)
         const provider_ = new Web3.providers.HttpProvider(rpcUrl)
-        const web3_ = new Web3(provider_)
+        const web3 = new Web3(provider_)
 
         setState(prev => ({
           ...prev,
@@ -317,7 +319,7 @@ const Wallet = props => {
             isConnected: true,
             name: 'WalletConnect',
             provider: provider_,
-            web3: web3_,
+            web3,
             chainId: walletChainId,
             address: address_,
             addressShort: shortenAddress(address_),
@@ -353,7 +355,7 @@ const Wallet = props => {
           setState(prev => ({
             ...prev,
             ...{
-              chainId: newChainId
+              chainId: newChainId,
             }
           }))
         }
@@ -418,13 +420,14 @@ const Wallet = props => {
       const resp = isRecconect ? await window.solana.connect({ onlyIfTrusted: true }) : await window.solana.connect()
       const address_ = resp.publicKey.toString()
       const domain = await parseEnsFromSolanaAddress(address_)
+      const provider = window.solana;
 
       setState(prev => ({
         ...prev,
         ...{
           isConnected: true,
           name: 'Phantom',
-          provider: window.solana,
+          provider,
           web3: null,
           chainId: chainId,
           address: address_,
@@ -449,7 +452,7 @@ const Wallet = props => {
     return connectWC({ showQR: false })
   }
 
-  const metamaskChainChangeHandler = chainIdHex => {
+  const metamaskChainChangeHandler = async chainIdHex => {
     // todo: fix state
     /*if (!state.isConnected) {
       return
@@ -459,7 +462,7 @@ const Wallet = props => {
     setState(prev => ({
       ...prev,
       ...{
-        chainId: chainId_
+        chainId: chainId_,
       }
     }))
   }
@@ -479,12 +482,14 @@ const Wallet = props => {
 
     const address_ = accounts[0]
     const addressDomain_ = await getDomain(address_)
+    const balance = await getBalance({ web3: state.web3, address: address_ })
 
     setState(prev => ({
       ...prev,
       ...{
         address: address_,
         addressShort: shortenAddress(address_),
+        balance,
         addressDomain: addressDomain_
       }
     }))
@@ -649,10 +654,6 @@ const Wallet = props => {
     }
   }
 
-  /*const request = async (params) => {
-    // from provider
-  }*/
-
   const disconnect = () => {
     console.log('Wallet.disconnect()')
 
@@ -688,6 +689,30 @@ const Wallet = props => {
     localStorage.removeItem('web3-wallets-name')
   }
 
+  const getActualEVMBalance = useCallback(async () => {
+    const balance = await getBalance({ web3: state.web3, address: state.address })
+
+    setState((prev) => ({...prev, balance}))
+  }, [state.address, state.web3])
+
+  useEffect(() => {
+    if (state.isConnected) {
+      switch (state.name) {
+        case 'MetaMask':
+        case 'WalletConnect': {
+          getActualEVMBalance()
+          break;
+        }
+        case 'Phantom': {
+          break;
+        }
+      }
+    }
+  }, [state.web3, state.address, state.isConnected, state.chainId, getActualEVMBalance])
+
+  const [balance] = useBalance()
+
+
   return (
     <WalletContext.Provider
       value={{
@@ -698,6 +723,7 @@ const Wallet = props => {
         address: state.address,
         addressShort: state.addressShort,
         addressDomain: state.addressDomain,
+        balance,
         web3: state.web3,
         provider: state.provider,
         restore,
