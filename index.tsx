@@ -4,8 +4,6 @@ import 'react-toastify/dist/ReactToastify.css'
 
 import {
   createContext,
-  useCallback,
-  useEffect,
   useState
 } from 'react'
 
@@ -32,12 +30,12 @@ import {
   IWalletStoreState,
   TGetBalanceOption
 } from './types'
-import { useBalance } from './utils'
 import {
   checkEnsValid,
   parseAddressFromEnsSolana,
   parseEnsFromSolanaAddress
 } from './utils/solana'
+import { useBalance } from './utils/useBalance'
 
 declare global {
   interface Window {
@@ -689,29 +687,7 @@ const Wallet = props => {
     localStorage.removeItem('web3-wallets-name')
   }
 
-  const getActualEVMBalance = useCallback(async () => {
-    const balance = await getBalance({ web3: state.web3, address: state.address })
-
-    setState((prev) => ({...prev, balance}))
-  }, [state.address, state.web3])
-
-  useEffect(() => {
-    if (state.isConnected) {
-      switch (state.name) {
-        case 'MetaMask':
-        case 'WalletConnect': {
-          getActualEVMBalance()
-          break;
-        }
-        case 'Phantom': {
-          break;
-        }
-      }
-    }
-  }, [state.web3, state.address, state.isConnected, state.chainId, getActualEVMBalance])
-
-  const [balance] = useBalance()
-
+  const [balance] = useBalance(state)
 
   return (
     <WalletContext.Provider
