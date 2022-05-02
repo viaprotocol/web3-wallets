@@ -1,42 +1,29 @@
 /* eslint-disable */
 
-import 'react-toastify/dist/ReactToastify.css'
-
-import {
-  createContext,
-  useState
-} from 'react'
-
-import isMobile from 'ismobilejs'
-import {
-  Slide,
-  toast,
-  ToastContainer
-} from 'react-toastify'
+import React, { useState, createContext } from 'react'
 import Web3 from 'web3'
 
-import { MetaMaskInpageProvider } from '@metamask/providers'
-import {
-  clusterApiUrl,
-  Connection,
-  PublicKey
-} from '@solana/web3.js'
+import isMobile from 'ismobilejs'
+
 import WalletConnect from '@walletconnect/client'
 import QRCodeModal from '@walletconnect/qrcode-modal'
 
+import { ToastContainer, toast, Slide } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+
+import { MetaMaskInpageProvider } from '@metamask/providers'
+
+import { Connection, PublicKey, clusterApiUrl } from '@solana/web3.js'
+
+import * as nearAPI from 'near-api-js'
+import { WalletConnection } from 'near-api-js'
+
 import { getNetworkById } from './networks'
-import {
-  IWallet,
-  IWalletStoreState,
-  TGetBalanceOption
-} from './types'
-import {
-  checkEnsValid,
-  getCluster,
-  parseAddressFromEnsSolana,
-  parseEnsFromSolanaAddress
-} from './utils/solana'
+
+import { checkEnsValid, getCluster, parseAddressFromEnsSolana, parseEnsFromSolanaAddress } from './utils/solana'
+import { IWallet, IWalletStoreState, TGetBalanceOption } from './types'
 import { useBalance } from './utils/useBalance'
+
 
 declare global {
   interface Window {
@@ -71,7 +58,8 @@ export const WalletContext = createContext<IWallet>({
 const names = {
   WalletConnect: 'WalletConnect',
   MetaMask: 'MetaMask',
-  Phantom: 'Phantom'
+  Phantom: 'Phantom',
+  Near: 'Near'
 }
 
 let isMetamaskHandler = false
@@ -152,6 +140,11 @@ const Wallet = props => {
     }
     if (savedName === names.Phantom) {
       return await connectPhantom(-1, true)
+    }
+    if (savedName === names.Near) {
+      const chainId = Number(localStorage.getItem('web3-wallets-near-chainId')!)
+      const contractId = localStorage.getItem('web3-wallets-near-contractId')!
+      return await connectNear(chainId, contractId)
     }
   }
 
@@ -446,6 +439,63 @@ const Wallet = props => {
     }
   }
 
+  const connectNear = async (chainId: number, contractId: string) => {
+    if (chainId !== -2 && chainId !== -1002) {
+      throw new Error(`Unknown Near chainId ${chainId}`)
+    }
+
+    const chainIdAlias = {
+      '-2': 'mainnet',
+      '-1002': 'testnet',
+    }[chainId]
+
+    const { connect, keyStores, WalletConnection } = nearAPI
+
+    const config = {
+      networkId: chainIdAlias,
+      keyStore: new keyStores.BrowserLocalStorageKeyStore(),
+      nodeUrl: `https://rpc.${chainIdAlias}.near.org`,
+      walletUrl: `https://wallet.${chainIdAlias}.near.org`,
+      helperUrl: `https://helper.${chainIdAlias}.near.org`,
+      explorerUrl: `https://explorer.${chainIdAlias}.near.org`,
+      headers: {},
+    }
+
+    const near = await connect(config)
+
+    const wallet = new WalletConnection(near, null)
+
+    if (wallet.isSignedIn()) {
+      setState(prev => ({
+        ...prev,
+        ...{
+          isConnected: true,
+          name: 'Near',
+          provider: wallet,
+          web3: null,
+          chainId: chainId,
+          address: wallet.account().accountId,
+          addressShort: null,
+          addressDomain: null
+        }
+      }))
+      return true
+    }
+
+    // Redirects to login page
+    wallet.requestSignIn(
+      contractId, // contract requesting access
+      // NEAR-TODO:
+      // "Example App", // optional
+      // "http://YOUR-URL.com/success", // optional
+      // "http://YOUR-URL.com/failure" // optional
+    ).then(() => {
+      localStorage.setItem('web3-wallets-name', names.Near)
+      localStorage.setItem('web3-wallets-near-chainId', String(chainId))
+      localStorage.setItem('web3-wallets-near-contractId', contractId)
+    })
+  }
+
   const dropWC = () => {
     return connectWC({ showQR: false })
   }
@@ -493,7 +543,7 @@ const Wallet = props => {
     }))
   }
 
-  const connect = async ({ name, chainId }) => {
+  const connect = async ({ name, chainId, contractId }) => {
     console.log('Wallet.connect()', name, chainId)
     if (!names[name]) {
       console.error(`Unknown wallet name: ${name}`)
@@ -519,6 +569,10 @@ const Wallet = props => {
         return false
       }
       return await connectPhantom(chainId)
+    }
+
+    if (name === 'Near') {
+      return await connectNear(chainId, contractId)
     }
   }
 
@@ -620,6 +674,49 @@ const Wallet = props => {
         console.log('partialSigned')
       }
 
+      const retrySendSignedTransaction = async (
+        connection: Connection, 
+        rawTx: Buffer | Uint8Array | number[]
+      ) => {
+        class TimeoutError extends Error { // TODO: JSON.stringify returns null
+          constructor() {
+            super('')
+          }
+        }
+
+        const MAX_ATTEMPTS = 3
+        const SEND_TIMEOUT_SECS = 12
+
+        for (let i = 0; i < MAX_ATTEMPTS; i++) {
+          if (i > 0) {
+            console.log('Transaction didn\'t reach the node, retrying...')
+          }
+          try {
+            let signature = await connection.sendRawTransaction(rawTx)
+            console.log(`Tx submitted`, signature)
+            console.log(`Waiting for network confirmation...`)
+
+            await Promise.race([
+              connection.confirmTransaction(signature, 'confirmed'),
+              new Promise((_, reject) => setTimeout(() => reject(new TimeoutError()), SEND_TIMEOUT_SECS * 1e3))
+            ])
+          } catch (err) {
+            if (err instanceof TimeoutError) {
+              continue
+            }
+            throw err
+          }
+          return
+        }
+        console.log('Retry limit reached')
+        throw TimeoutError
+      }
+
+      const logError = (err) => {
+        console.warn(err)
+        console.log('[Wallet error] sendTransaction: ' + JSON.stringify(err))
+      }
+
       try {
         const signed = await provider.signTransaction(transaction)
         console.log('signed', signed)
@@ -627,18 +724,23 @@ const Wallet = props => {
         const rawTx = signed.serialize()
         let signature = await connection.sendRawTransaction(rawTx)
         // todo: sendRawTransaction Commitment
-        console.log(`Tx submitted`, signature)
         ;(async () => {
-          console.log(`Waiting for network confirmation...`)
-          await connection.confirmTransaction(signature)
-          console.log('Tx confirmed!', signature)
-          console.log(`See explorer:`)
-          console.log(`https://solscan.io/tx/${signature}${cluster === 'testnet' ? '?cluster=testnet' : ''}`)
+          let success = true
+          await retrySendSignedTransaction(connection, rawTx).catch((err) => { // TODO: Exception is not caught otherwise?
+            success = false
+            logError(err)
+          })
+          if (success) {
+            console.log('Tx confirmed!', signature)
+            console.log(`See explorer:`)
+            console.log(`https://solscan.io/tx/${signature}${cluster === 'testnet' ? '?cluster=testnet' : ''}`)
+          } else {
+            return
+          }
         })()
         return signature
       } catch (err) {
-        console.warn(err)
-        console.log('[Wallet error] sendTransaction: ' + JSON.stringify(err))
+        logError(err)
       }
     }
   }
@@ -660,6 +762,10 @@ const Wallet = props => {
 
     if (state.name === 'Phantom') {
       window.solana.disconnect()
+    }
+
+    if (state.name === 'Near') {
+      state.provider.signOut()
     }
 
     setState(prev => ({
