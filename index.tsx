@@ -13,14 +13,16 @@ import 'react-toastify/dist/ReactToastify.css'
 
 import { MetaMaskInpageProvider } from '@metamask/providers'
 
-import { Connection, PublicKey, Transaction, clusterApiUrl } from '@solana/web3.js'
+import { Connection, PublicKey, clusterApiUrl } from '@solana/web3.js'
 
 import * as nearAPI from 'near-api-js'
 import { WalletConnection } from 'near-api-js'
 
 import { getNetworkById } from './networks'
 
-import { checkEnsValid, parseAddressFromEnsSolana, parseEnsFromSolanaAddress } from './utils/solana'
+import { checkEnsValid, getCluster, parseAddressFromEnsSolana, parseEnsFromSolanaAddress } from './utils/solana'
+import { IWallet, IWalletStoreState, TGetBalanceOption } from './types'
+import { useBalance } from './utils/useBalance'
 
 
 declare global {
@@ -30,24 +32,7 @@ declare global {
   }
 }
 
-interface WalletInterface {
-  isLoading: boolean
-  isConnected: boolean
-  name: null | 'WalletConnect' | 'MetaMask' | 'Phantom' | 'Near'
-  chainId: null | number
-  address: string | null
-  addressShort: string | null
-  addressDomain: null | string
-  web3: Web3 | null // todo: types
-  provider: any // 📌 TODO: add interface
-  restore: Function
-  connect: Function
-  changeNetwork: Function
-  sendTx: Function
-  disconnect: Function
-}
-
-export const WalletContext = createContext<WalletInterface>({
+const INITIAL_STATE: IWalletStoreState = {
   isLoading: false,
   isConnected: false,
   name: null,
@@ -56,7 +41,13 @@ export const WalletContext = createContext<WalletInterface>({
   addressShort: '',
   addressDomain: null,
   web3: null,
+  connection: null,
   provider: null,
+}
+
+export const WalletContext = createContext<IWallet>({
+  ...INITIAL_STATE,
+  balance: null,
   restore: () => {},
   connect: () => {},
   changeNetwork: () => {},
@@ -104,30 +95,8 @@ const goPhantom = () => {
   }
 }
 
-interface StateProps {
-  isLoading: boolean
-  isConnected: boolean
-  name: null | 'WalletConnect' | 'MetaMask' | 'Phantom' | 'Near'
-  provider: any
-  web3: Web3 | null
-  chainId: null | number
-  address: string | null
-  addressShort: string | null
-  addressDomain: string | null
-}
-
 const Wallet = props => {
-  const [state, setState] = useState<StateProps>({
-    isLoading: false,
-    isConnected: false,
-    name: null,
-    provider: null,
-    web3: null,
-    chainId: null,
-    address: null,
-    addressShort: null,
-    addressDomain: null
-  })
+  const [state, setState] = useState<IWalletStoreState>(INITIAL_STATE)
 
   const getDomain = async address => {
     if (!address) {
@@ -143,6 +112,13 @@ const Wallet = props => {
       console.warn(`Can't get domain, ${e}`)
     }
     return null
+  }
+
+  const getBalance = async ({
+    web3,
+    address
+  }: TGetBalanceOption) => {
+    return await web3?.eth.getBalance(address || '') || null
   }
 
   const restore = async () => {
@@ -220,14 +196,16 @@ const Wallet = props => {
       isMetamaskHandler = true
     }
 
+    //@ts-ignore
+    const web3 = new Web3(provider_);
+
     setState(prev => ({
       ...prev,
       ...{
         isConnected: true,
         name: 'MetaMask',
         provider: provider_,
-        //@ts-ignore
-        web3: new Web3(provider_),
+        web3,
         chainId: chainId_,
         address: address_,
         addressShort: shortenAddress(address_),
@@ -320,7 +298,7 @@ const Wallet = props => {
         const rpcUrl = network.rpc_url
         console.log('rpcUrl', rpcUrl)
         const provider_ = new Web3.providers.HttpProvider(rpcUrl)
-        const web3_ = new Web3(provider_)
+        const web3 = new Web3(provider_)
 
         setState(prev => ({
           ...prev,
@@ -328,7 +306,7 @@ const Wallet = props => {
             isConnected: true,
             name: 'WalletConnect',
             provider: provider_,
-            web3: web3_,
+            web3,
             chainId: walletChainId,
             address: address_,
             addressShort: shortenAddress(address_),
@@ -364,7 +342,7 @@ const Wallet = props => {
           setState(prev => ({
             ...prev,
             ...{
-              chainId: newChainId
+              chainId: newChainId,
             }
           }))
         }
@@ -429,16 +407,21 @@ const Wallet = props => {
       const resp = isRecconect ? await window.solana.connect({ onlyIfTrusted: true }) : await window.solana.connect()
       const address_ = resp.publicKey.toString()
       const domain = await parseEnsFromSolanaAddress(address_)
+      const provider = window.solana;
+      const cluster = getCluster(chainId)
+      const solanaNetwork = clusterApiUrl(cluster)
+      const connection = new Connection(solanaNetwork)
 
       setState(prev => ({
         ...prev,
         ...{
           isConnected: true,
           name: 'Phantom',
-          provider: window.solana,
+          provider,
           web3: null,
           chainId: chainId,
           address: address_,
+          connection,
           addressShort: shortenAddress(address_),
           addressDomain: domain
         }
@@ -517,7 +500,7 @@ const Wallet = props => {
     return connectWC({ showQR: false })
   }
 
-  const metamaskChainChangeHandler = chainIdHex => {
+  const metamaskChainChangeHandler = async chainIdHex => {
     // todo: fix state
     /*if (!state.isConnected) {
       return
@@ -527,7 +510,7 @@ const Wallet = props => {
     setState(prev => ({
       ...prev,
       ...{
-        chainId: chainId_
+        chainId: chainId_,
       }
     }))
   }
@@ -547,12 +530,14 @@ const Wallet = props => {
 
     const address_ = accounts[0]
     const addressDomain_ = await getDomain(address_)
+    const stringBalance = await getBalance({ web3: state.web3, address: address_ })
 
     setState(prev => ({
       ...prev,
       ...{
         address: address_,
         addressShort: shortenAddress(address_),
+        balance: Number(stringBalance),
         addressDomain: addressDomain_
       }
     }))
@@ -675,16 +660,7 @@ const Wallet = props => {
     }
 
     if (state.name === 'Phantom') {
-      let cluster
-      if (state.chainId === -1001) {
-        cluster = 'testnet'
-      }
-      if (state.chainId === -1) {
-        cluster = 'mainnet-beta'
-      }
-      if (!cluster) {
-        throw new Error(`Unknown state.chainId ${state.chainId} -> cluster ${cluster}`)
-      }
+      const cluster = getCluster(state.chainId)
       const solanaNetwork = clusterApiUrl(cluster)
       const connection = new Connection(solanaNetwork)
       const provider = window.solana
@@ -769,10 +745,6 @@ const Wallet = props => {
     }
   }
 
-  /*const request = async (params) => {
-    // from provider
-  }*/
-
   const disconnect = () => {
     console.log('Wallet.disconnect()')
 
@@ -805,12 +777,15 @@ const Wallet = props => {
         web3: null,
         chainId: null,
         address: null,
+        connection: null,
         addressShort: null,
         addressDomain: null
       }
     }))
     localStorage.removeItem('web3-wallets-name')
   }
+
+  const balance = useBalance(state)
 
   return (
     <WalletContext.Provider
@@ -822,6 +797,8 @@ const Wallet = props => {
         address: state.address,
         addressShort: state.addressShort,
         addressDomain: state.addressDomain,
+        balance,
+        connection: state.connection,
         web3: state.web3,
         provider: state.provider,
         restore,
