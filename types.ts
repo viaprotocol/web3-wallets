@@ -2,7 +2,7 @@ import Web3 from 'web3'
 
 import { Connection } from '@solana/web3.js'
 
-type AvailableWalletNames = 'WalletConnect' | 'MetaMask' | 'Phantom'
+type AvailableWalletNames = 'WalletConnect' | 'MetaMask' | 'Phantom' | 'Near'
 
 interface IWalletStoreState {
   isLoading: boolean
