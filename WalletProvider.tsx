@@ -313,7 +313,7 @@ function WalletProvider(props) {
     }))
   }
 
-  const changeNetwork = async (chainId: string | number) => {
+  const changeNetwork = async (chainId: number) => {
     console.log('Wallet.changeNetwork()', chainId)
 
     const network = getNetworkById(chainId)

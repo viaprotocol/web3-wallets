@@ -24,7 +24,7 @@ interface IWalletStoreState {
 interface IWallet extends IWalletStoreState {
   restore: () => Promise<boolean>
   connect: ({ name, chainId }: { name: any; chainId: any }) => Promise<boolean>
-  changeNetwork: (chainId: string | number) => Promise<boolean>
+  changeNetwork: (chainId: number) => Promise<boolean>
   sendTx: (transaction: TransactionRequest | Transaction, options?: { signers?: Signer[] }) => Promise<string>
   disconnect: () => void
   estimateGas: (data: TransactionRequest) => Promise<BigNumber | undefined>
