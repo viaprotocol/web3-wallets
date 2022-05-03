@@ -1,48 +1,38 @@
-import {
-  useEffect,
-  useState
-} from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { EVM_WALLETS_CONFIG } from './config'
 import { IUseBalanceOptions } from './types'
 
 function useEVMBalance(options: IUseBalanceOptions) {
-  const { isConnected, web3, name, address, chainId } = options
+  const { isConnected, provider, name, address, chainId } = options
   const isEVMWallet = !!name && EVM_WALLETS_CONFIG.includes(name)
-  const isSubscriptionIsAvailable = isEVMWallet && address && isConnected
+  const isSubscriptionIsAvailable = isEVMWallet && address && isConnected && provider
 
   const [balance, setBalance] = useState<number | null>(null)
 
+  const getBalanceFromProvider = useCallback(() => {
+    if (!isSubscriptionIsAvailable) return
+    provider.getBalance(address).then(res => {
+      if (res) {
+        setBalance(res.toNumber())
+      }
+    })
+  }, [provider, address, isSubscriptionIsAvailable])
+
   // Call balance function on each changing of web3 or address
   useEffect(() => {
-    if (isSubscriptionIsAvailable) {
-      web3?.eth.getBalance(address, (e, rawBalance) => {
-        if (!e) {
-          setBalance(Number(rawBalance))
-        }
-      })
-    }
-  }, [isSubscriptionIsAvailable, address, web3, setBalance, chainId])
+    getBalanceFromProvider()
+  }, [isSubscriptionIsAvailable, address, chainId])
 
   // Subscribe to block changes
   useEffect(() => {
-    const subscription = isSubscriptionIsAvailable && web3?.eth.subscribe('newBlockHeaders', (err) => {
-      if (!err) {
-        web3.eth.getBalance(address, (e, rawBalance) => {
-          if (!e) {
-            setBalance(Number(rawBalance))
-          }
-        })
-      }
-    })
+    if (isSubscriptionIsAvailable) provider.on('block', getBalanceFromProvider)
 
     return () => {
-      if (subscription) {
-        subscription.unsubscribe()
-      }
+      provider?.off('block', getBalanceFromProvider)
     }
-  }, [isSubscriptionIsAvailable, web3, setBalance, address])
-  
+  }, [isSubscriptionIsAvailable, address])
+
   return balance
 }
 
