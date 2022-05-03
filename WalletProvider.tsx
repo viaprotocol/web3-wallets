@@ -308,7 +308,7 @@ function WalletProvider(props) {
         address,
         addressShort: shortenAddress(address),
         addressDomain,
-        balance: balance?.toNumber() ?? null
+        balance: balance?.toString() ?? null
       }
     }))
   }
@@ -403,7 +403,7 @@ function WalletProvider(props) {
 
       let addressDomain
       try {
-        addressDomain = await getDomainAddress(address, state.provider)
+        addressDomain = await getDomainAddress(address)
       } catch (e) {
         console.error(e)
       }
@@ -418,7 +418,7 @@ function WalletProvider(props) {
           address,
           addressShort,
           addressDomain,
-          balance: balance?.toNumber() ?? null
+          balance: balance?.toString() ?? null
         }
       }))
     }
@@ -434,11 +434,6 @@ function WalletProvider(props) {
       // @ts-ignore
       state.provider.provider.on('accountsChanged', metamaskAccountChangeHandler)
 
-      // @ts-ignore
-      state.provider.provider.on('disconnect', (code: number, reason: string) => {
-        console.log('Wallet.onDisconnect()', code, reason)
-        disconnect()
-      })
       // @ts-ignore
       window.provider = state.provider
     }

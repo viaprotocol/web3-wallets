@@ -18,7 +18,7 @@ interface IWalletStoreState {
   address: string | null
   addressShort: string | null
   addressDomain: string | null
-  balance: number | null
+  balance: string | null
 }
 
 interface IWallet extends IWalletStoreState {

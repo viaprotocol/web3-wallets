@@ -8,13 +8,13 @@ function useEVMBalance(options: IUseBalanceOptions) {
   const isEVMWallet = !!name && EVM_WALLETS_CONFIG.includes(name)
   const isSubscriptionIsAvailable = isEVMWallet && address && isConnected && provider
 
-  const [balance, setBalance] = useState<number | null>(null)
+  const [balance, setBalance] = useState<string | null>(null)
 
   const getBalanceFromProvider = useCallback(() => {
     if (!isSubscriptionIsAvailable) return
     provider.getBalance(address).then(res => {
       if (res) {
-        setBalance(res.toNumber())
+        setBalance(res.toString())
       }
     })
   }, [provider, address, isSubscriptionIsAvailable])
