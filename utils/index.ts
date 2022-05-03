@@ -2,8 +2,9 @@ import { PublicKey } from '@solana/web3.js'
 import { isAddress } from 'ethers/lib/utils'
 import { ethers } from 'ethers'
 import isMobile from 'ismobilejs'
+
 import { checkEnsValid, parseAddressFromEnsSolana } from './solana'
-import { getNetworkById } from '@/web3-wallets/networks'
+import { getNetworkById } from '../networks'
 
 export * from './solana'
 export * from './evm'

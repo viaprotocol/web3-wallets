@@ -1,4 +1,4 @@
-import { AvailableWalletNames } from '@/web3-wallets/types'
+import { AvailableWalletNames } from '../../types'
 
 const EVM_WALLETS_CONFIG: AvailableWalletNames[] = ['MetaMask', 'WalletConnect']
 

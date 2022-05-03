@@ -312,6 +312,7 @@ function WalletProvider(props) {
       }
     }))
   }
+
   const changeNetwork = async (chainId: string | number) => {
     console.log('Wallet.changeNetwork()', chainId)
 

@@ -1,5 +1,6 @@
 import { ethers } from 'ethers'
-import { getNetworkById } from '@/web3-wallets/networks'
+
+import { getNetworkById } from '../networks'
 
 export const getDomainAddress = async (address: string) => {
   const rpc = getNetworkById(1).rpc_url
