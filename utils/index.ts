@@ -72,7 +72,7 @@ export const parseAddressFromEns = async (input: string) => {
   if (input.slice(-4) === '.eth') {
     const rpc = getNetworkById(1).rpc_url
     const provider = new ethers.providers.JsonRpcProvider(rpc)
-    return provider.resolveName(input)
+    return provider.resolveName(input) as Promise<string>
   }
   return input
 }
