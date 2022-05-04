@@ -58,20 +58,44 @@ function WalletProvider(props) {
     return state?.provider.getBalance(address || '')
   }
 
-  const connectMetamask = async (providedChainId: string | number): Promise<boolean> => {
+  const connectMetamask = async (chainId: number): Promise<boolean> => {
     if (!window.ethereum || !window.ethereum.isMetaMask) {
       return false
     }
 
     const provider = new ethers.providers.Web3Provider(window.ethereum as unknown as ExternalProvider, 'any')
-    const accounts = (await provider.send('eth_requestAccounts', [])) as string[]
+
+    let accounts
+    try {
+      accounts = (await provider.send('eth_requestAccounts', [])) as string[]
+    } catch (e) {
+      // @ts-ignore
+      if (e.code === 4001) {
+        console.warn('User rejected the request', e)
+        return false
+      } else {
+        throw e
+      }
+    }
     const address = accounts[0]
     const addressDomain = await getDomain(address)
-    const chainId = (() => {
-      const id = providedChainId ?? window.ethereum.chainId
 
-      return typeof id === 'string' ? parseInt(id, 10) : id
-    })()
+    const providerChainIdHex = window.ethereum.chainId
+    const providerChainId = typeof providerChainIdHex === 'string' ? parseInt(providerChainIdHex, 16) : null
+    let connectedChainId = providerChainId
+
+    const isNeedToChangeNetwork = chainId && providerChainId !== chainId
+
+    if (isNeedToChangeNetwork) {
+      const network = getNetworkById(chainId)
+      if (!network.data.params) {
+        throw new Error(`Missing network ${chainId} params`)
+      }
+      const isChanged = await metamaskChangeNetwork(network.data.params)
+      if (isChanged) {
+        connectedChainId = network.chain_id
+      }
+    }
 
     setState(prev => ({
       ...prev,
@@ -80,7 +104,7 @@ function WalletProvider(props) {
         name: 'MetaMask',
         provider,
         walletProvider: window.ethereum,
-        chainId,
+        chainId: connectedChainId,
         address,
         addressShort: shortenAddress(address),
         addressDomain
@@ -235,9 +259,10 @@ function WalletProvider(props) {
   const metamaskChangeNetwork = async (params): Promise<boolean> => {
     const newChainIdHex = params[0].chainId
 
-    if (!state.provider) return false
+    const provider = state.provider || new ethers.providers.Web3Provider(window.ethereum as unknown as ExternalProvider, 'any')
+
     try {
-      await state.provider!.send('wallet_switchEthereumChain', [
+      await provider.send('wallet_switchEthereumChain', [
         {
           chainId: newChainIdHex
         }
@@ -251,7 +276,7 @@ function WalletProvider(props) {
         // the chain has not been added to MetaMask
         try {
           console.log('Try to add the network...', params)
-          await state.provider!.send('wallet_addEthereumChain', params)
+          await provider.send('wallet_addEthereumChain', params)
           // todo:
           // Users can allow adding, but not allowing switching
           return true
