@@ -78,6 +78,8 @@ export const parseAddressFromEns = async (input: string) => {
   return input
 }
 
+export const toHex = (value) => ethers.utils.hexlify(value)
+
 export const goMetamask = () => {
   if (isMobile(window.navigator).any) {
     /*
