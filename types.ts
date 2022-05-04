@@ -1,5 +1,4 @@
 import { MetaMaskInpageProvider } from '@metamask/providers'
-import Web3 from 'web3'
 
 import { TransactionReceipt, TransactionRequest, Web3Provider } from '@ethersproject/providers'
 import { Signer, Transaction, Connection } from '@solana/web3.js'
@@ -31,9 +30,4 @@ interface IWallet extends IWalletStoreState {
   getTransactionReceipt?: (transactionHash: string | Promise<string>) => Promise<TransactionReceipt>
 }
 
-type TGetBalanceOption = {
-  web3: Web3 | null
-  address: string | null
-}
-
-export type { AvailableWalletNames, IWallet, IWalletStoreState, TGetBalanceOption }
+export type { AvailableWalletNames, IWallet, IWalletStoreState }
