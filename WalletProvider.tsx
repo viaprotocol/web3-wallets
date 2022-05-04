@@ -99,14 +99,19 @@ function WalletProvider(props) {
     return true
   }
 
-  const connectWC = async (chainId_: number): Promise<boolean> => {
+  const connectWC = async (chainId: number): Promise<boolean> => {
     const walletConnectProvider = new WalletConnectProvider({
       rpc: rpcMapping,
-      chainId: chainId_
+      chainId
     })
 
     await walletConnectProvider.enable()
     const web3Provider = new ethers.providers.Web3Provider(walletConnectProvider)
+
+    walletConnectProvider.on('disconnect', (code: number, reason: string) => {
+      console.log('Wallet.onDisconnect()', code, reason)
+      disconnect()
+    })
 
     await setState(prev => ({
       ...prev,
@@ -117,6 +122,15 @@ function WalletProvider(props) {
         walletProvider: walletConnectProvider
       }
     }))
+
+    localStorage.setItem('web3-wallets-name', names.WalletConnect)
+    localStorage.setItem(
+      'web3-wallets-data',
+      JSON.stringify({
+        name: names.WalletConnect,
+        chainId
+      })
+    )
 
     return true
   }
