@@ -19,7 +19,7 @@ import { getCluster, parseEnsFromSolanaAddress } from './utils/solana'
 
 import { INITIAL_STATE, WalletContext } from './WalletContext'
 import { IWalletStoreState } from './types'
-import { NETWORK_IDS, WALLET_NAMES } from '@/web3-wallets/constants'
+import { NETWORK_IDS, WALLET_NAMES } from './constants'
 
 declare global {
   interface Window {

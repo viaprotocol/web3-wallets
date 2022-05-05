@@ -1,6 +1,7 @@
 import { getHashedName, getNameAccountKey, NameRegistryState } from '@solana/spl-name-service'
 import { clusterApiUrl, Connection, PublicKey } from '@solana/web3.js'
-import { NETWORK_IDS, SOLANA_ENS_POSTFIX } from '@/web3-wallets/constants'
+
+import { NETWORK_IDS, SOLANA_ENS_POSTFIX } from '../constants'
 
 const SOL_TLD_AUTHORITY = new PublicKey('58PwtjSDuFHuUkYjH9BYnnQKHfwo9reZhC2zMJv9JPkx')
 const solanaNetwork = clusterApiUrl('mainnet-beta')

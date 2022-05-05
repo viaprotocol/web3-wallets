@@ -11,7 +11,7 @@ import {
   NETWORK_IDS,
   SOLANA_BASE_TOKEN_ADDRESS,
   SOLANA_ENS_POSTFIX
-} from '@/web3-wallets/constants'
+} from '../constants'
 
 export * from './solana'
 export * from './evm'
