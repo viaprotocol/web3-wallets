@@ -1,5 +1,5 @@
 /* eslint-disable */
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { BigNumber, ethers } from 'ethers'
 import type { ExternalProvider, TransactionRequest } from '@ethersproject/providers'
 
@@ -53,9 +53,13 @@ function WalletProvider(props) {
     return null
   }
 
-  const getBalance = async (address: string) => {
-    if (!state.provider) return null
-    return state?.provider.getBalance(address || '')
+  const getBalance = async (provider: any, address: string) => {
+    if (!provider) {
+      return null
+    }
+    const balanceRaw = provider.getBalance(address)
+    const balance = balanceRaw?.toString() ?? null
+    return balance
   }
 
   const connectMetamask = async (chainId: number): Promise<boolean> => {
@@ -97,6 +101,9 @@ function WalletProvider(props) {
       }
     }
 
+    window.ethereum.on('chainChanged', metamaskChainChangeHandler)
+    window.ethereum.on('accountsChanged', metamaskAccountChangeHandler)
+
     setState(prev => ({
       ...prev,
       ...{
@@ -132,6 +139,14 @@ function WalletProvider(props) {
     await walletConnectProvider.enable()
     const web3Provider = new ethers.providers.Web3Provider(walletConnectProvider)
 
+    const {
+      chainId: walletChainId,
+      address,
+      addressShort,
+      addressDomain,
+      balance
+    } = await fetchEvmWalletInfo(web3Provider)
+
     walletConnectProvider.on('disconnect', (code: number, reason: string) => {
       console.log('Wallet.onDisconnect()', code, reason)
       disconnect()
@@ -143,7 +158,12 @@ function WalletProvider(props) {
         isConnected: true,
         name: 'WalletConnect',
         provider: web3Provider,
-        walletProvider: walletConnectProvider
+        walletProvider: walletConnectProvider,
+        chainId: walletChainId,
+        address,
+        addressShort,
+        addressDomain,
+        balance
       }
     }))
 
@@ -320,7 +340,9 @@ function WalletProvider(props) {
         chainId: null,
         address: null,
         addressShort: null,
-        addressDomain: null
+        addressDomain: null,
+        balance: null,
+        connection: null
       }
     }))
 
@@ -333,13 +355,12 @@ function WalletProvider(props) {
     console.log('* accountsChanged', accounts)
 
     if (!accounts.length) {
-      // metamask disconnect
       disconnect()
     }
 
     const address = accounts[0]
     const addressDomain = await getDomain(address)
-    const balance = await getBalance(address)
+    const balance = await getBalance(state.provider, address)
 
     setState(prev => ({
       ...prev,
@@ -347,7 +368,7 @@ function WalletProvider(props) {
         address,
         addressShort: shortenAddress(address),
         addressDomain,
-        balance: balance?.toString() ?? null
+        balance
       }
     }))
   }
@@ -436,48 +457,28 @@ function WalletProvider(props) {
     return state.provider?.estimateGas(data)
   }
 
-  const fetchWalletInfo = async () => {
-    if (state.provider) {
-      const address = await state.provider.getSigner().getAddress()
-      const balance = await getBalance(address)
+  const fetchEvmWalletInfo = async (provider) => {
+    const address = await provider.getSigner().getAddress()
+    const balance = await getBalance(provider, address)
 
-      let addressDomain
-      try {
-        addressDomain = await getDomainAddress(address)
-      } catch (e) {
-        console.error(e)
-      }
+    let addressDomain
+    try {
+      addressDomain = await getDomainAddress(address)
+    } catch (e) {
+      console.error(e)
+    }
 
-      const addressShort = shortenAddress(address)
-      const { chainId } = await state.provider.getNetwork()
+    const addressShort = shortenAddress(address)
+    const { chainId } = await provider.getNetwork()
 
-      setState(prev => ({
-        ...prev,
-        ...{
-          chainId,
-          address,
-          addressShort,
-          addressDomain,
-          balance: balance?.toString() ?? null
-        }
-      }))
+    return {
+      chainId,
+      address,
+      addressShort,
+      addressDomain,
+      balance
     }
   }
-
-  useEffect(() => {
-    fetchWalletInfo()
-
-    if (state.provider) {
-      // @ts-ignore
-      state.provider.provider.on('chainChanged', metamaskChainChangeHandler)
-
-      // @ts-ignore
-      state.provider.provider.on('accountsChanged', metamaskAccountChangeHandler)
-
-      // @ts-ignore
-      window.provider = state.provider
-    }
-  }, [state.provider])
 
   const balance = useBalance(state)
 
