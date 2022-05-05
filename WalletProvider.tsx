@@ -126,57 +126,62 @@ function WalletProvider(props) {
   }
 
   const connectWC = async (chainId: number): Promise<boolean> => {
-    const walletConnectProvider = new WalletConnectProvider({
-      rpc: rpcMapping,
-      chainId
-    })
+    try {
+      const walletConnectProvider = new WalletConnectProvider({
+        rpc: rpcMapping,
+        chainId
+      })
 
-    await walletConnectProvider.enable()
-    const web3Provider = new ethers.providers.Web3Provider(walletConnectProvider, 'any')
+      await walletConnectProvider.enable()
+      const web3Provider = new ethers.providers.Web3Provider(walletConnectProvider, 'any')
 
-    const {
-      chainId: walletChainId,
-      address,
-      addressShort,
-      addressDomain,
-      balance
-    } = await fetchEvmWalletInfo(web3Provider)
-
-    const subName = walletConnectProvider.walletMeta?.name ?? null
-
-    walletConnectProvider.on('disconnect', (code, reason) => {
-      console.log('WalletConnectProvider disconnected', code, reason)
-      disconnect() // todo: only clear state (without duplicate code and disconnect events)
-    })
-    walletConnectProvider.on('chainChanged', evmChainChangeHandler)
-    walletConnectProvider.on('accountsChanged', evmAccountChangeHandler)
-
-    setState(prev => ({
-      ...prev,
-      ...{
-        isConnected: true,
-        name: 'WalletConnect',
-        subName,
-        provider: web3Provider,
-        walletProvider: walletConnectProvider,
+      const {
         chainId: walletChainId,
         address,
         addressShort,
         addressDomain,
         balance
-      }
-    }))
+      } = await fetchEvmWalletInfo(web3Provider)
 
-    localStorage.setItem('web3-wallets-name', names.WalletConnect)
-    localStorage.setItem(
-      'web3-wallets-data',
-      JSON.stringify({
-        name: names.WalletConnect,
-        chainId
+      const subName = walletConnectProvider.walletMeta?.name ?? null
+
+      walletConnectProvider.on('disconnect', (code, reason) => {
+        console.log('WalletConnectProvider disconnected', code, reason)
+        disconnect() // todo: only clear state (without duplicate code and disconnect events)
       })
-    )
+      walletConnectProvider.on('chainChanged', evmChainChangeHandler)
+      walletConnectProvider.on('accountsChanged', evmAccountChangeHandler)
 
-    return true
+      setState(prev => ({
+        ...prev,
+        ...{
+          isConnected: true,
+          name: 'WalletConnect',
+          subName,
+          provider: web3Provider,
+          walletProvider: walletConnectProvider,
+          chainId: walletChainId,
+          address,
+          addressShort,
+          addressDomain,
+          balance
+        }
+      }))
+
+      localStorage.setItem('web3-wallets-name', names.WalletConnect)
+      localStorage.setItem(
+        'web3-wallets-data',
+        JSON.stringify({
+          name: names.WalletConnect,
+          chainId
+        })
+      )
+
+      return true
+    } catch (e: any) {
+      console.error('Error when connecting WalletConnect', e)
+      return false
+    }
   }
 
   const connectPhantom = async (chainId = -1, isReconnect = false) => {
