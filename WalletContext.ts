@@ -23,5 +23,5 @@ export const WalletContext = createContext<IWallet>({
   sendTx: () => Promise.reject(),
   disconnect: () => {},
   estimateGas: () => Promise.reject(),
-  getTransactionReceipt: undefined
+  getTransactionReceipt: null
 })

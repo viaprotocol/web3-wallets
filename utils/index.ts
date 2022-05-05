@@ -5,6 +5,13 @@ import isMobile from 'ismobilejs'
 
 import { checkEnsValid, parseAddressFromEnsSolana } from './solana'
 import { getNetworkById } from '../networks'
+import {
+  EVM_BASE_TOKEN_ADDRESS,
+  EVM_ENS_POSTFIX,
+  NETWORK_IDS,
+  SOLANA_BASE_TOKEN_ADDRESS,
+  SOLANA_ENS_POSTFIX
+} from '@/web3-wallets/constants'
 
 export * from './solana'
 export * from './evm'
@@ -12,17 +19,18 @@ export * from './useBalance'
 
 export const isValidAddress = async (chainId: number, address: string) => {
   if (chainId > 0) {
-    if (address.slice(-4) === '.eth') {
-      const rpc = getNetworkById(1).rpc_url
+    // Chain ID > 0 === EVM-like network
+    if (address.slice(-4) === EVM_ENS_POSTFIX) {
+      const rpc = getNetworkById(NETWORK_IDS.Ethereum).rpc_url
       const provider = new ethers.providers.JsonRpcProvider(rpc)
       const result = await provider.resolveName(address)
       return !!result
     }
     return isAddress(address)
   }
-  if (chainId === -1 || chainId === -1001) {
+  if (chainId === NETWORK_IDS.Solana || chainId === NETWORK_IDS.SolanaTestnet) {
     try {
-      if (address.slice(-4) === '.sol') {
+      if (address.slice(-4) === SOLANA_ENS_POSTFIX) {
         await checkEnsValid(address)
         return true
       }
@@ -31,17 +39,15 @@ export const isValidAddress = async (chainId: number, address: string) => {
       return false
     }
   }
-  if (chainId === -3 || chainId === -1003) {
+  if (chainId === NETWORK_IDS.TON || chainId === NETWORK_IDS.TONTestnet) {
     // example:
     // EQBj0KYB_PG6zg_F3sjLwFkJ5C02aw0V10Dhd256c-Sr3BvF
     // EQCudP0_Xu7qi-aCUTCNsjXHvi8PNNL3lGfq2Wcmbg2oN-Jg
     // EQAXqKCSrUFgPKMlCKlfyT2WT7GhVzuHyXiPtDvT9s5FMp5o
+    const prefix = address.slice(0, 2)
     return (
       address.length === 48 &&
-      (address.slice(0, 2) === 'EQ' ||
-        address.slice(0, 2) === 'kQ' ||
-        address.slice(0, 2) === 'Ef' ||
-        address.slice(0, 2) === 'UQ') &&
+      (prefix === 'EQ' || prefix === 'kQ' || prefix === 'Ef' || prefix === 'UQ') &&
       /^[a-zA-Z0-9_-]*$/.test(address)
     )
   }
@@ -51,6 +57,7 @@ export const isValidAddress = async (chainId: number, address: string) => {
 export const shortenAddress = address => {
   if (typeof address === 'string') {
     if (address.at(-4) === '.') {
+      // If ENS - Return ENS name
       return address
     }
     return [address.slice(0, address.slice(0, 2) === '0x' ? 6 : 4), '...', address.slice(address.length - 4)].join('')
@@ -59,36 +66,29 @@ export const shortenAddress = address => {
   return ''
 }
 
-export const nativeTokenAddress = (chainId: number) => {
-  if (chainId === -1 || chainId === -1001) {
-    return 'So11111111111111111111111111111111111111111'
+export const getNativeTokenAddress = (chainId: number) => {
+  if (chainId === NETWORK_IDS.Solana || chainId === NETWORK_IDS.SolanaTestnet) {
+    return SOLANA_BASE_TOKEN_ADDRESS
   }
-  return '0x0000000000000000000000000000000000000000'
+  return EVM_BASE_TOKEN_ADDRESS
 }
 
 export const parseAddressFromEns = async (input: string) => {
-  if (input.slice(-4) === '.sol') {
+  if (input.slice(-4) === SOLANA_ENS_POSTFIX) {
     return parseAddressFromEnsSolana(input)
   }
-  if (input.slice(-4) === '.eth') {
-    const rpc = getNetworkById(1).rpc_url
+  if (input.slice(-4) === EVM_ENS_POSTFIX) {
+    const rpc = getNetworkById(NETWORK_IDS.Ethereum).rpc_url
     const provider = new ethers.providers.JsonRpcProvider(rpc)
     return provider.resolveName(input) as Promise<string>
   }
   return input
 }
 
-export const toHex = (value) => ethers.utils.hexlify(value)
+export const toHex = value => ethers.utils.hexlify(value)
 
 export const goMetamask = () => {
   if (isMobile(window.navigator).any) {
-    /*
-        open app in mobile metamask
-        info: https://docs.metamask.io/guide/mobile-best-practices.html#deeplinking
-        `https://checkout.webill.io/nft/bb811382-1f1b-4376-8884-5f74bd808f83/`
-        ->
-        `https://metamask.app.link/dapp/checkout.webill.io/nft/bb811382-1f1b-4376-8884-5f74bd808f83/`
-      */
     const locationHref = window.location.href
     let locationHrefNoProtocol = locationHref.replace('http://', '')
     locationHrefNoProtocol = locationHrefNoProtocol.replace('https://', '')

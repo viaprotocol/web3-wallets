@@ -19,6 +19,7 @@ import { getCluster, parseEnsFromSolanaAddress } from './utils/solana'
 
 import { INITIAL_STATE, WalletContext } from './WalletContext'
 import { IWalletStoreState } from './types'
+import { NETWORK_IDS, WALLET_NAMES } from '@/web3-wallets/constants'
 
 declare global {
   interface Window {
@@ -26,13 +27,6 @@ declare global {
     solana: any
   }
 }
-
-const names = {
-  WalletConnect: 'WalletConnect',
-  MetaMask: 'MetaMask',
-  Phantom: 'Phantom',
-  Near: 'Near'
-} as const
 
 function WalletProvider(props) {
   const [state, setState] = useState<IWalletStoreState>(INITIAL_STATE)
@@ -42,10 +36,7 @@ function WalletProvider(props) {
       return null
     }
     try {
-      // ENS test
-      //const address = '0xd8da6bf26964af9d7eed9e03e53415d37aa96045'
-      const answer = await (await fetch(`https://domains.1inch.io/reverse-lookup?address=${address}`)).json()
-      const { domain } = answer
+      const { domain } = await (await fetch(`https://domains.1inch.io/reverse-lookup?address=${address}`)).json()
       return domain
     } catch (e) {
       console.warn(`Can't get domain, ${e}`)
@@ -113,11 +104,11 @@ function WalletProvider(props) {
       }
     }))
 
-    localStorage.setItem('web3-wallets-name', names.MetaMask)
+    localStorage.setItem('web3-wallets-name', WALLET_NAMES.MetaMask)
     localStorage.setItem(
       'web3-wallets-data',
       JSON.stringify({
-        name: names.MetaMask,
+        name: WALLET_NAMES.MetaMask,
         chainId
       })
     )
@@ -168,11 +159,11 @@ function WalletProvider(props) {
         }
       }))
 
-      localStorage.setItem('web3-wallets-name', names.WalletConnect)
+      localStorage.setItem('web3-wallets-name', WALLET_NAMES.WalletConnect)
       localStorage.setItem(
         'web3-wallets-data',
         JSON.stringify({
-          name: names.WalletConnect,
+          name: WALLET_NAMES.WalletConnect,
           chainId
         })
       )
@@ -184,8 +175,8 @@ function WalletProvider(props) {
     }
   }
 
-  const connectPhantom = async (chainId = -1, isReconnect = false) => {
-    if (chainId !== -1 && chainId !== -1001) {
+  const connectPhantom = async (chainId = NETWORK_IDS.Solana, isReconnect = false) => {
+    if (chainId !== NETWORK_IDS.Solana && chainId !== NETWORK_IDS.SolanaTestnet) {
       throw new Error(`Unknown Phantom chainId ${chainId}`)
     }
     try {
@@ -211,7 +202,7 @@ function WalletProvider(props) {
         }
       }))
 
-      localStorage.setItem('web3-wallets-name', names.Phantom)
+      localStorage.setItem('web3-wallets-name', WALLET_NAMES.Phantom)
       return true
     } catch (err) {
       // @ts-ignore
@@ -225,7 +216,7 @@ function WalletProvider(props) {
 
   const connect = async ({ name, chainId }): Promise<boolean> => {
     console.log('Wallet.connect()', name, chainId)
-    if (!names[name]) {
+    if (!WALLET_NAMES[name]) {
       console.error(`Unknown wallet name: ${name}`)
       return false
     }
@@ -493,7 +484,7 @@ function WalletProvider(props) {
         estimateGas,
         provider: state.provider,
         walletProvider: state.walletProvider,
-        getTransactionReceipt: state.provider?.getTransactionReceipt?.bind(state.provider),
+        getTransactionReceipt: state.provider?.getTransactionReceipt?.bind(state.provider) ?? null,
         restore,
         connect,
         changeNetwork,
@@ -501,7 +492,6 @@ function WalletProvider(props) {
         disconnect
       }}
     >
-      {/* eslint-disable-next-line react/destructuring-assignment */}
       {props.children}
       <ToastContainer position="top-right" newestOnTop transition={Slide} />
     </WalletContext.Provider>

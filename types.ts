@@ -28,7 +28,7 @@ interface IWallet extends IWalletStoreState {
   sendTx: (transaction: TransactionRequest | Transaction, options?: { signers?: Signer[] }) => Promise<string>
   disconnect: () => void
   estimateGas: (data: TransactionRequest) => Promise<BigNumber | undefined>
-  getTransactionReceipt?: (transactionHash: string | Promise<string>) => Promise<TransactionReceipt>
+  getTransactionReceipt: ((transactionHash: string | Promise<string>) => Promise<TransactionReceipt>) | null
 }
 
 export type { AvailableWalletNames, IWallet, IWalletStoreState }
