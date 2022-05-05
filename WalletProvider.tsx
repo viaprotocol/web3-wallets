@@ -488,7 +488,7 @@ function WalletProvider(props) {
         estimateGas,
         provider: state.provider,
         walletProvider: state.walletProvider,
-        getTransactionReceipt: state.provider?.getTransactionReceipt.bind(state.provider),
+        getTransactionReceipt: state.provider?.getTransactionReceipt?.bind(state.provider),
         restore,
         connect,
         changeNetwork,
