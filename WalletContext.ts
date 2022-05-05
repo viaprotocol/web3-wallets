@@ -4,6 +4,7 @@ import { IWallet, IWalletStoreState } from './types'
 export const INITIAL_STATE: IWalletStoreState = {
   isConnected: false,
   name: null,
+  subName: null,
   chainId: null,
   address: '',
   addressShort: '',

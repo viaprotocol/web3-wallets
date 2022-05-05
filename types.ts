@@ -10,6 +10,7 @@ type AvailableWalletNames = 'WalletConnect' | 'MetaMask' | 'Phantom' | 'Near'
 interface IWalletStoreState {
   isConnected: boolean
   name: null | AvailableWalletNames
+  subName: null | string
   provider: Web3Provider | null
   walletProvider: WalletConnectProvider | MetaMaskInpageProvider | null
   connection: Connection | null

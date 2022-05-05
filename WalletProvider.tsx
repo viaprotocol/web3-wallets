@@ -58,8 +58,7 @@ function WalletProvider(props) {
       return null
     }
     const balanceRaw = provider.getBalance(address)
-    const balance = balanceRaw?.toString() ?? null
-    return balance
+    return balanceRaw?.toString() ?? null
   }
 
   const connectMetamask = async (chainId: number): Promise<boolean> => {
@@ -69,9 +68,8 @@ function WalletProvider(props) {
 
     const provider = new ethers.providers.Web3Provider(window.ethereum as unknown as ExternalProvider, 'any')
 
-    let accounts
     try {
-      accounts = (await provider.send('eth_requestAccounts', [])) as string[]
+      await provider.send('eth_requestAccounts', [])
     } catch (e) {
       // @ts-ignore
       if (e.code === 4001) {
@@ -81,14 +79,10 @@ function WalletProvider(props) {
         throw e
       }
     }
-    const address = accounts[0]
-    const addressDomain = await getDomain(address)
 
-    const providerChainIdHex = window.ethereum.chainId
-    const providerChainId = typeof providerChainIdHex === 'string' ? parseInt(providerChainIdHex, 16) : null
-    let connectedChainId = providerChainId
+    let { chainId: walletChainId, address, addressShort, addressDomain, balance } = await fetchEvmWalletInfo(provider)
 
-    const isNeedToChangeNetwork = chainId && providerChainId !== chainId
+    const isNeedToChangeNetwork = chainId && walletChainId !== chainId
 
     if (isNeedToChangeNetwork) {
       const network = getNetworkById(chainId)
@@ -97,12 +91,12 @@ function WalletProvider(props) {
       }
       const isChanged = await evmChangeNetwork(network.data.params)
       if (isChanged) {
-        connectedChainId = network.chain_id
+        walletChainId = network.chain_id
       }
     }
 
-    window.ethereum.on('chainChanged', metamaskChainChangeHandler)
-    window.ethereum.on('accountsChanged', metamaskAccountChangeHandler)
+    window.ethereum.on('chainChanged', evmChainChangeHandler)
+    window.ethereum.on('accountsChanged', evmAccountChangeHandler)
 
     setState(prev => ({
       ...prev,
@@ -111,10 +105,11 @@ function WalletProvider(props) {
         name: 'MetaMask',
         provider,
         walletProvider: window.ethereum,
-        chainId: connectedChainId,
+        chainId: walletChainId,
         address,
-        addressShort: shortenAddress(address),
-        addressDomain
+        addressShort,
+        addressDomain,
+        balance
       }
     }))
 
@@ -147,16 +142,21 @@ function WalletProvider(props) {
       balance
     } = await fetchEvmWalletInfo(web3Provider)
 
-    walletConnectProvider.on('disconnect', (code: number, reason: string) => {
-      console.log('Wallet.onDisconnect()', code, reason)
-      disconnect()
-    })
+    const subName = walletConnectProvider.walletMeta?.name ?? null
 
-    await setState(prev => ({
+    walletConnectProvider.on('disconnect', (code, reason) => {
+      console.log('WalletConnectProvider disconnected', code, reason)
+      disconnect() // todo: only clear state (without duplicate code and disconnect events)
+    })
+    walletConnectProvider.on('chainChanged', evmChainChangeHandler)
+    walletConnectProvider.on('accountsChanged', evmAccountChangeHandler)
+
+    setState(prev => ({
       ...prev,
       ...{
         isConnected: true,
         name: 'WalletConnect',
+        subName,
         provider: web3Provider,
         walletProvider: walletConnectProvider,
         chainId: walletChainId,
@@ -265,7 +265,7 @@ function WalletProvider(props) {
     return false
   }
 
-  const metamaskChainChangeHandler = async chainIdHex => {
+  const evmChainChangeHandler = async chainIdHex => {
     const chainId = parseInt(chainIdHex)
     console.log('* chainChanged', chainIdHex, chainId)
     setState(prev => ({
@@ -310,12 +310,10 @@ function WalletProvider(props) {
 
     if (state.name !== 'Phantom') {
       if (state.walletProvider) {
-        state.walletProvider.removeListener('chainChanged', metamaskChainChangeHandler)
-        state.walletProvider.removeListener('accountsChanged', metamaskAccountChangeHandler)
-        // @ts-ignore
-        if (state.walletProvider?.close) {
-          // @ts-ignore
-          state.walletProvider?.close()
+        state.walletProvider.removeListener('chainChanged', evmChainChangeHandler)
+        state.walletProvider.removeListener('accountsChanged', evmAccountChangeHandler)
+        if (state.walletProvider instanceof WalletConnectProvider) {
+          state.walletProvider?.disconnect()
         }
       }
     }
@@ -345,7 +343,7 @@ function WalletProvider(props) {
     localStorage.removeItem('isFirstInited')
   }
 
-  const metamaskAccountChangeHandler = async accounts => {
+  const evmAccountChangeHandler = async accounts => {
     console.log('* accountsChanged', accounts)
 
     if (!accounts.length) {
@@ -450,7 +448,7 @@ function WalletProvider(props) {
     return state.provider?.estimateGas(data)
   }
 
-  const fetchEvmWalletInfo = async (provider) => {
+  const fetchEvmWalletInfo = async (provider: ethers.providers.Web3Provider) => {
     const address = await provider.getSigner().getAddress()
     const balance = await getBalance(provider, address)
 
@@ -480,6 +478,7 @@ function WalletProvider(props) {
       value={{
         isConnected: state.isConnected,
         name: state.name,
+        subName: state.subName,
         chainId: state.chainId,
         address: state.address,
         addressShort: state.addressShort,
