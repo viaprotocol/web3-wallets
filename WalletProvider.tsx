@@ -80,7 +80,7 @@ function WalletProvider(props) {
       if (!network.data.params) {
         throw new Error(`Missing network ${chainId} params`)
       }
-      const isChanged = await evmChangeNetwork(network.data.params)
+      const isChanged = await evmChangeNetwork(provider, network.data.params)
       if (isChanged) {
         walletChainId = network.chain_id
       }
@@ -272,13 +272,11 @@ function WalletProvider(props) {
     }))
   }
 
-  const evmChangeNetwork = async (params): Promise<boolean> => {
+  const evmChangeNetwork = async (provider, params): Promise<boolean> => {
     const newChainIdHex = params[0].chainId
 
-    if (!state.provider) return false
-
     try {
-      await state.provider.send('wallet_switchEthereumChain', [
+      await provider.send('wallet_switchEthereumChain', [
         {
           chainId: newChainIdHex
         }
@@ -290,7 +288,7 @@ function WalletProvider(props) {
       // the chain has not been added to MetaMask
       try {
         console.log('Try to add the network...', params)
-        await state.provider.send('wallet_addEthereumChain', params)
+        await provider.send('wallet_addEthereumChain', params)
         // todo:
         // Users can allow adding, but not allowing switching
         return true
@@ -304,7 +302,7 @@ function WalletProvider(props) {
   const disconnect = () => {
     console.log('Wallet.disconnect()')
 
-    if (state.name !== 'Phantom') {
+    if (state.name === 'MetaMask' || state.name === 'WalletConnect') {
       if (state.walletProvider) {
         state.walletProvider.removeListener('chainChanged', evmChainChangeHandler)
         state.walletProvider.removeListener('accountsChanged', evmAccountChangeHandler)
@@ -367,8 +365,8 @@ function WalletProvider(props) {
     const network = getNetworkById(chainId)
     const { params } = network.data
 
-    if (state.name !== 'Phantom') {
-      const isChanged = await evmChangeNetwork(params)
+    if (state.name === 'MetaMask' || state.name === 'WalletConnect') {
+      const isChanged = await evmChangeNetwork(state.provider, params)
       if (isChanged) {
         setState(prev => ({
           ...prev,
