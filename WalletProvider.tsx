@@ -48,7 +48,7 @@ function WalletProvider(props) {
     if (!provider) {
       return null
     }
-    const balanceRaw = provider.getBalance(address)
+    const balanceRaw = await provider.getBalance(address)
     return balanceRaw?.toString() ?? null
   }
 
