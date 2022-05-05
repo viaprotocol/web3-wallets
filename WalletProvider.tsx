@@ -44,7 +44,7 @@ function WalletProvider(props) {
     return null
   }
 
-  const getBalance = async (provider: any, address: string) => {
+  const getEvmBalance = async (provider: any, address: string) => {
     if (!provider) {
       return null
     }
@@ -188,6 +188,8 @@ function WalletProvider(props) {
       const solanaNetwork = clusterApiUrl(cluster)
       const connection = new Connection(solanaNetwork)
 
+      const balance = await connection.getBalance(resp.publicKey, 'confirmed') as unknown as string
+
       setState(prev => ({
         ...prev,
         ...{
@@ -198,7 +200,8 @@ function WalletProvider(props) {
           address,
           connection,
           addressShort: shortenAddress(address),
-          addressDomain: domain
+          addressDomain: domain,
+          balance
         }
       }))
 
@@ -346,7 +349,7 @@ function WalletProvider(props) {
 
     const address = accounts[0]
     const addressDomain = await getDomain(address)
-    const balance = await getBalance(state.provider, address)
+    const balance = await getEvmBalance(state.provider, address)
 
     setState(prev => ({
       ...prev,
@@ -444,7 +447,7 @@ function WalletProvider(props) {
 
   const fetchEvmWalletInfo = async (provider: ethers.providers.Web3Provider) => {
     const address = await provider.getSigner().getAddress()
-    const balance = await getBalance(provider, address)
+    const balance = await getEvmBalance(provider, address)
 
     let addressDomain
     try {
@@ -477,7 +480,7 @@ function WalletProvider(props) {
         address: state.address,
         addressShort: state.addressShort,
         addressDomain: state.addressDomain,
-        balance,
+        balance: balance || state.balance,
         connection: state.connection,
         estimateGas,
         provider: state.provider,
