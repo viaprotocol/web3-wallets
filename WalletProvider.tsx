@@ -95,7 +95,7 @@ function WalletProvider(props) {
       if (!network.data.params) {
         throw new Error(`Missing network ${chainId} params`)
       }
-      const isChanged = await metamaskChangeNetwork(network.data.params)
+      const isChanged = await evmChangeNetwork(network.data.params)
       if (isChanged) {
         connectedChainId = network.chain_id
       }
@@ -137,7 +137,7 @@ function WalletProvider(props) {
     })
 
     await walletConnectProvider.enable()
-    const web3Provider = new ethers.providers.Web3Provider(walletConnectProvider)
+    const web3Provider = new ethers.providers.Web3Provider(walletConnectProvider, 'any')
 
     const {
       chainId: walletChainId,
@@ -276,13 +276,13 @@ function WalletProvider(props) {
     }))
   }
 
-  const metamaskChangeNetwork = async (params): Promise<boolean> => {
+  const evmChangeNetwork = async (params): Promise<boolean> => {
     const newChainIdHex = params[0].chainId
 
-    const provider = state.provider || new ethers.providers.Web3Provider(window.ethereum as unknown as ExternalProvider, 'any')
+    if (!state.provider) return false
 
     try {
-      await provider.send('wallet_switchEthereumChain', [
+      await state.provider.send('wallet_switchEthereumChain', [
         {
           chainId: newChainIdHex
         }
@@ -291,44 +291,37 @@ function WalletProvider(props) {
     } catch (error) {
       console.warn('Cant change network:', error)
 
-      // @ts-ignore
-      if (error.code === 4902) {
-        // the chain has not been added to MetaMask
-        try {
-          console.log('Try to add the network...', params)
-          await provider.send('wallet_addEthereumChain', params)
-          // todo:
-          // Users can allow adding, but not allowing switching
-          return true
-        } catch (addError) {
-          console.warn('Cant add the network:', addError)
-          return false
-        }
+      // the chain has not been added to MetaMask
+      try {
+        console.log('Try to add the network...', params)
+        await state.provider.send('wallet_addEthereumChain', params)
+        // todo:
+        // Users can allow adding, but not allowing switching
+        return true
+      } catch (addError) {
+        console.warn('Cant add the network:', addError)
+        return false
       }
     }
-    return false
   }
 
   const disconnect = () => {
     console.log('Wallet.disconnect()')
 
-    if (state.name === 'MetaMask') {
-      if (state.provider) {
-        state.provider.removeListener('chainChanged', metamaskChainChangeHandler)
-        state.provider.removeListener('accountsChanged', metamaskAccountChangeHandler)
+    if (state.name !== 'Phantom') {
+      if (state.walletProvider) {
+        state.walletProvider.removeListener('chainChanged', metamaskChainChangeHandler)
+        state.walletProvider.removeListener('accountsChanged', metamaskAccountChangeHandler)
+        // @ts-ignore
+        if (state.walletProvider?.close) {
+          // @ts-ignore
+          state.walletProvider?.close()
+        }
       }
     }
 
     if (state.name === 'Phantom') {
       window.solana.disconnect()
-    }
-
-    if (state.name === 'WalletConnect') {
-      // @ts-ignore
-      if (state.provider?.provider.close) {
-        // @ts-ignore
-        state.provider.provider.close()
-      }
     }
 
     setState(prev => ({
@@ -337,6 +330,7 @@ function WalletProvider(props) {
         isConnected: false,
         name: null,
         provider: null,
+        walletProvider: null,
         chainId: null,
         address: null,
         addressShort: null,
@@ -379,8 +373,8 @@ function WalletProvider(props) {
     const network = getNetworkById(chainId)
     const { params } = network.data
 
-    if (state.name === 'MetaMask') {
-      const isChanged = await metamaskChangeNetwork(params)
+    if (state.name !== 'Phantom') {
+      const isChanged = await evmChangeNetwork(params)
       if (isChanged) {
         setState(prev => ({
           ...prev,
@@ -390,10 +384,9 @@ function WalletProvider(props) {
         }))
         return true
       }
-      return false
     }
 
-    return state.name === 'WalletConnect' && typeof chainId === 'number'
+    return false
   }
 
   const sendTx = async (

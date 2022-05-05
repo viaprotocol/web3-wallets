@@ -26,12 +26,14 @@ function useEVMBalance(options: IUseBalanceOptions) {
 
   // Subscribe to block changes
   useEffect(() => {
-    if (isSubscriptionIsAvailable) provider.on('block', getBalanceFromProvider)
+    if (isSubscriptionIsAvailable) {
+      provider.on('block', getBalanceFromProvider)
+    }
 
     return () => {
       provider?.off('block', getBalanceFromProvider)
     }
-  }, [isSubscriptionIsAvailable, address])
+  }, [isSubscriptionIsAvailable, address, chainId])
 
   return balance
 }
