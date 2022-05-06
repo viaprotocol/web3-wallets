@@ -307,8 +307,7 @@ function WalletProvider(props) {
 
     if (state.name === 'MetaMask' || state.name === 'WalletConnect') {
       if (state.walletProvider) {
-        state.walletProvider.removeAllListeners('chainChanged', evmChainChangeHandler)
-        state.walletProvider.removeAllListeners('accountsChanged', evmAccountChangeHandler)
+        state.walletProvider.removeAllListeners()
         if (state.walletProvider instanceof WalletConnectProvider) {
           state.walletProvider?.disconnect()
         }
