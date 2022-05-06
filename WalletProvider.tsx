@@ -19,7 +19,7 @@ import { getCluster, parseEnsFromSolanaAddress } from './utils/solana'
 
 import { INITIAL_STATE, WalletContext } from './WalletContext'
 import { IWalletStoreState } from './types'
-import { NETWORK_IDS, WALLET_NAMES } from './constants'
+import { NETWORK_IDS, WALLET_NAMES, ERRCODE } from './constants'
 
 declare global {
   interface Window {
@@ -61,10 +61,9 @@ function WalletProvider(props) {
 
     try {
       await provider.send('eth_requestAccounts', [])
-    } catch (e) {
-      // @ts-ignore
-      if (e.code === 4001) {
-        console.warn('User rejected the request', e)
+    } catch (e: any) {
+      if (e.code === ERRCODE.UserRejected) {
+        console.warn('[Wallet] User rejected the request')
         return false
       } else {
         throw e
@@ -207,9 +206,8 @@ function WalletProvider(props) {
 
       localStorage.setItem('web3-wallets-name', WALLET_NAMES.Phantom)
       return true
-    } catch (err) {
-      // @ts-ignore
-      if (err.code === 4001) {
+    } catch (err: any) {
+      if (err.code === ERRCODE.UserRejected) {
         console.warn('[Wallet] User rejected the request.')
       }
       console.error('[Wallet]', err)
@@ -285,20 +283,31 @@ function WalletProvider(props) {
         }
       ])
       return true
-    } catch (error) {
-      console.warn('Cant change network:', error)
-
-      // the chain has not been added to MetaMask
-      try {
-        console.log('Try to add the network...', params)
-        await provider.send('wallet_addEthereumChain', params)
-        // todo:
-        // Users can allow adding, but not allowing switching
-        return true
-      } catch (addError) {
-        console.warn('Cant add the network:', addError)
+    } catch (error: any) {
+      if (error.code === ERRCODE.UserRejected) {
+        console.warn('[Wallet] User rejected the request')
         return false
       }
+
+      if (error.code === ERRCODE.UnrecognizedChain || error.code === ERRCODE.UnrecognizedChain2) {
+        // the chain has not been added to MetaMask
+        try {
+          console.log('[Wallet] Try to add the network...', params)
+          await provider.send('wallet_addEthereumChain', params)
+          // todo:
+          // Users can allow adding, but not allowing switching
+          return true
+        } catch (addNetworkError: any) {
+          if (addNetworkError.code === ERRCODE.UserRejected) {
+            console.warn('[Wallet] User rejected the request')
+            return false
+          }
+          console.warn('[Wallet] Cant add the network:', addNetworkError)
+          return false
+        }
+      }
+      console.error('[Wallet] Cant change network:', error)
+      return false
     }
   }
 
@@ -380,7 +389,7 @@ function WalletProvider(props) {
     params?: {
       signers?: Signer[]
     }
-  ): Promise<string> => {
+  ): Promise<string/* | false */> => { // todo: sendTx reject => false
     console.log('[Wallet] sendTx', transaction)
 
     const isSolanaTransaction = transaction instanceof Transaction
@@ -418,18 +427,25 @@ function WalletProvider(props) {
         })()
         return signature
       } catch (err) {
-        console.warn(err)
-        console.log(`[Wallet error] sendTransaction: ${JSON.stringify(err)}`)
-
+        console.error(`[Wallet] sendTx error: ${JSON.stringify(err)}`)
         throw err
       }
-    } else {
+    } else { // EVM tx
       const signer = state.provider!.getSigner()
 
-      const sendedTransaction = await signer?.sendTransaction(transaction)
-
-      return sendedTransaction.hash
+      try {
+        const sendedTransaction = await signer?.sendTransaction(transaction)
+        return sendedTransaction.hash
+      } catch (err: any) {
+        if (err.code === ERRCODE.UserRejected) {
+          console.warn('[Wallet] User rejected the request')
+          throw err //return false // todo: sendTx reject => false
+        }
+        console.error(`[Wallet] sendTx error: ${JSON.stringify(err)}`)
+        throw err
+      }
     }
+    // return false // todo: sendTx reject => false
   }
 
   const estimateGas = async (data: TransactionRequest): Promise<BigNumber | undefined> => {
