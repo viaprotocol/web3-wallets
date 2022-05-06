@@ -168,9 +168,12 @@ function WalletProvider(props) {
       )
 
       return true
-    } catch (e: any) {
-      console.error('Error when connecting WalletConnect', e)
-      return false
+    } catch (err: any) {
+      if (err.toString().includes('User closed modal')) {
+        return false
+      }
+      console.error('[Wallet] connectWC error:', err)
+      throw new Error(err)
     }
   }
 
@@ -216,9 +219,9 @@ function WalletProvider(props) {
   }
 
   const connect = async ({ name, chainId }): Promise<boolean> => {
-    console.log('Wallet.connect()', name, chainId)
+    console.log('[Wallet] connect()', name, chainId)
     if (!WALLET_NAMES[name]) {
-      console.error(`Unknown wallet name: ${name}`)
+      console.error(`[Wallet] Unknown wallet name: ${name}`)
       return false
     }
 
@@ -312,7 +315,7 @@ function WalletProvider(props) {
   }
 
   const disconnect = () => {
-    console.log('Wallet.disconnect()')
+    console.log('[Wallet] disconnect()')
 
     if (state.name === 'MetaMask' || state.name === 'WalletConnect') {
       if (state.walletProvider) {
