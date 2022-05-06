@@ -85,9 +85,9 @@ function WalletProvider(props) {
         walletChainId = network.chain_id
       }
     }
-
-    window.ethereum.on('chainChanged', evmChainChangeHandler)
-    window.ethereum.on('accountsChanged', evmAccountChangeHandler)
+    const walletProvider = window.ethereum
+    walletProvider.on('chainChanged', evmChainChangeHandler)
+    walletProvider.on('accountsChanged', evmAccountChangeHandler)
 
     setState(prev => ({
       ...prev,
@@ -95,7 +95,7 @@ function WalletProvider(props) {
         isConnected: true,
         name: 'MetaMask',
         provider,
-        walletProvider: window.ethereum,
+        walletProvider,
         chainId: walletChainId,
         address,
         addressShort,
@@ -307,8 +307,8 @@ function WalletProvider(props) {
 
     if (state.name === 'MetaMask' || state.name === 'WalletConnect') {
       if (state.walletProvider) {
-        state.walletProvider.removeListener('chainChanged', evmChainChangeHandler)
-        state.walletProvider.removeListener('accountsChanged', evmAccountChangeHandler)
+        state.walletProvider.removeAllListeners('chainChanged', evmChainChangeHandler)
+        state.walletProvider.removeAllListeners('accountsChanged', evmAccountChangeHandler)
         if (state.walletProvider instanceof WalletConnectProvider) {
           state.walletProvider?.disconnect()
         }
