@@ -188,7 +188,7 @@ function WalletProvider(props) {
       const solanaNetwork = clusterApiUrl(cluster)
       const connection = new Connection(solanaNetwork)
 
-      const balance = await connection.getBalance(resp.publicKey, 'confirmed') as unknown as string
+      const balance = (await connection.getBalance(resp.publicKey, 'confirmed')) as unknown as string
 
       setState(prev => ({
         ...prev,
@@ -370,15 +370,7 @@ function WalletProvider(props) {
 
     if (state.name === 'MetaMask' || state.name === 'WalletConnect') {
       const isChanged = await evmChangeNetwork(state.provider, params)
-      if (isChanged) {
-        setState(prev => ({
-          ...prev,
-          ...{
-            chainId: chainId as number
-          }
-        }))
-        return true
-      }
+      return isChanged
     }
 
     return false
