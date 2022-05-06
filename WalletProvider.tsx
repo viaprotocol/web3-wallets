@@ -297,8 +297,7 @@ function WalletProvider(props) {
         try {
           console.log('[Wallet] Try to add the network...', params)
           await provider.send('wallet_addEthereumChain', params)
-          // todo:
-          // Users can allow adding, but not allowing switching
+          // todo: Users can allow adding, but not allowing switching
           return true
         } catch (addNetworkError: any) {
           if (addNetworkError.code === ERRCODE.UserRejected) {
@@ -374,16 +373,26 @@ function WalletProvider(props) {
   }
 
   const changeNetwork = async (chainId: number) => {
-    console.log('Wallet.changeNetwork()', chainId)
+    console.log('[Wallet] changeNetwork()', chainId)
 
     const network = getNetworkById(chainId)
     const { params } = network.data
 
     if (state.name === 'MetaMask' || state.name === 'WalletConnect') {
       const isChanged = await evmChangeNetwork(state.provider, params)
+      if (isChanged) {
+        localStorage.setItem(
+          'web3-wallets-data',
+          JSON.stringify({
+            name: state.name,
+            chainId
+          })
+        )
+      }
       return isChanged
     }
 
+    console.error('[Wallet] changeNetwork error: not implemented')
     return false
   }
 
