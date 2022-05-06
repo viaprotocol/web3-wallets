@@ -14,7 +14,7 @@ const networksRaw = [
     short_name: 'Ethereum',
     logo_url: 'https://etherscan.io/images/ethereum-icon.png',
     explorer_url: 'https://etherscan.io/',
-    rpc_url: `https://mainnet.infura.io/v3/${infuraKey}`,
+    rpc_url: 'https://rpc.ankr.com/eth',
     currency_name: 'Ethereum',
     currency_symbol: 'ETH',
     currency_decimals: 18,
@@ -368,6 +368,11 @@ const networks = networksRaw.map(item => ({
     ]
   }
 }))
+
+export const rpcMapping = networksRaw.reduce((mapper, network) => {
+  mapper[network.chain_id] = network.rpc_url
+  return mapper
+}, {})
 
 export const getNetworkById = (chainId: string | number) => {
   const network = networks.find(net => net.chain_id === chainId)

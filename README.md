@@ -3,7 +3,7 @@
 Universal interface for web3 wallets
 
 ```
-           dapp                     wallets          blockchains
+                                    wallets          blockchains
 
 
                                ╭───[MetaMask]────────[EVM-blockchains]

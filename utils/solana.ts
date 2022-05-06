@@ -1,13 +1,7 @@
-import {
-  getHashedName,
-  getNameAccountKey,
-  NameRegistryState
-} from '@solana/spl-name-service'
-import {
-  clusterApiUrl,
-  Connection,
-  PublicKey
-} from '@solana/web3.js'
+import { getHashedName, getNameAccountKey, NameRegistryState } from '@solana/spl-name-service'
+import { clusterApiUrl, Connection, PublicKey } from '@solana/web3.js'
+
+import { NETWORK_IDS, SOLANA_ENS_POSTFIX } from '../constants'
 
 const SOL_TLD_AUTHORITY = new PublicKey('58PwtjSDuFHuUkYjH9BYnnQKHfwo9reZhC2zMJv9JPkx')
 const solanaNetwork = clusterApiUrl('mainnet-beta')
@@ -21,7 +15,7 @@ const getInputKey = async (input: string) => {
 
 export const checkEnsValid = async (input: string) => {
   let addressTemp = input
-  if (input.slice(-4) === '.sol') {
+  if (input.slice(-4) === SOLANA_ENS_POSTFIX) {
     addressTemp = input.slice(0, -4)
   }
   const { inputDomainKey } = await getInputKey(addressTemp)
@@ -50,14 +44,13 @@ export const parseEnsFromSolanaAddress = async (input: string) => {
 }
 
 export const getCluster = (chainId: number | null) => {
-  if (chainId === -1001) {
+  if (chainId === NETWORK_IDS.SolanaTestnet) {
     return 'testnet'
   }
 
-  if (chainId === -1) {
+  if (chainId === NETWORK_IDS.Solana) {
     return 'mainnet-beta'
   }
 
   throw new Error(`Unknown state.chainId ${chainId} -> no cluster`)
 }
-
