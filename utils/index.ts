@@ -17,6 +17,10 @@ export * from './solana'
 export * from './evm'
 export * from './useBalance'
 
+export const BigNumber = ethers.BigNumber
+
+export const toHex = value => ethers.utils.hexlify(value)
+
 export const isValidAddress = async (chainId: number, address: string) => {
   if (chainId > 0) {
     // Chain ID > 0 === EVM-like network
@@ -84,8 +88,6 @@ export const parseAddressFromEns = async (input: string) => {
   }
   return input
 }
-
-export const toHex = value => ethers.utils.hexlify(value)
 
 export const goMetamask = () => {
   if (isMobile(window.navigator).any) {
