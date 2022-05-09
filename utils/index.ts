@@ -17,7 +17,7 @@ export * from './solana'
 export * from './evm'
 export * from './useBalance'
 
-export const BigNumber = ethers.BigNumber
+export const { BigNumber } = ethers
 
 export const toHex = value => ethers.utils.hexlify(value)
 
