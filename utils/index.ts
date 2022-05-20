@@ -1,10 +1,7 @@
 import { PublicKey } from '@solana/web3.js'
-import { isAddress } from 'ethers/lib/utils'
 import { ethers } from 'ethers'
 import isMobile from 'ismobilejs'
 
-import { checkEnsValid, parseAddressFromEnsSolana } from './solana'
-import { getNetworkById } from '../networks'
 import {
   EVM_BASE_TOKEN_ADDRESS,
   EVM_ENS_POSTFIX,
@@ -12,9 +9,12 @@ import {
   SOLANA_BASE_TOKEN_ADDRESS,
   SOLANA_ENS_POSTFIX
 } from '../constants'
+import { getNetworkById } from '../networks'
 
-export * from './solana'
+import { checkEnsValid, parseAddressFromEnsSolana } from './solana'
+
 export * from './evm'
+export * from './solana'
 export * from './useBalance'
 
 export const { BigNumber } = ethers
@@ -30,7 +30,7 @@ export const isValidAddress = async (chainId: number, address: string) => {
       const result = await provider.resolveName(address)
       return !!result
     }
-    return isAddress(address)
+    return ethers.utils.isAddress(address)
   }
   if (chainId === NETWORK_IDS.Solana || chainId === NETWORK_IDS.SolanaTestnet) {
     try {
@@ -88,6 +88,8 @@ export const parseAddressFromEns = async (input: string) => {
   }
   return input
 }
+
+export const isEvmChain = (chainId: number) => chainId > 0
 
 export const goMetamask = () => {
   if (isMobile(window.navigator).any) {
