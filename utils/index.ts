@@ -9,7 +9,7 @@ import {
   SOLANA_BASE_TOKEN_ADDRESS,
   SOLANA_ENS_POSTFIX
 } from '../constants'
-import { getNetworkById } from '../networks'
+import { getNetworkById, supportedNetworkIds } from '../networks'
 
 import { checkEnsValid, parseAddressFromEnsSolana } from './solana'
 
@@ -68,6 +68,45 @@ export const shortenAddress = address => {
   }
 
   return ''
+}
+
+export const getAddressUrl = (chainId, address) => {
+  if (!chainId || !address || !supportedNetworkIds.includes(chainId)) {
+    return undefined
+  }
+  const network = getNetworkById(chainId)
+  const explorerUrl = network.data.params[0].blockExplorerUrls[0]
+
+  if (network.chain_id > 0) {
+    return `${explorerUrl}/address/${address}`
+  }
+  if (network.chain_id === NETWORK_IDS.Solana) {
+    return `${explorerUrl}/account/${address}`
+  }
+  if (network.chain_id === NETWORK_IDS.SolanaTestnet) {
+    return `${explorerUrl}/account/${address}?cluster=testnet`
+  }
+
+  throw new Error(`getAddressUrl: not implemented for chainId ${chainId}`)
+}
+
+export const getTxUrl = (chainId, txHash): string | undefined => {
+  if (!chainId || !txHash || !supportedNetworkIds.includes(chainId)) {
+    return undefined
+  }
+  const network = getNetworkById(chainId)
+  const explorerUrl = network.data.params[0].blockExplorerUrls[0]
+
+  if (network.chain_id > 0) {
+    return `${explorerUrl}/tx/${txHash}`
+  }
+  if (network.chain_id === NETWORK_IDS.Solana) {
+    return `${explorerUrl}/tx/${txHash}`
+  }
+  if (network.chain_id === NETWORK_IDS.SolanaTestnet) {
+    return `${explorerUrl}/tx/${txHash}?cluster=testnet`
+  }
+  throw new Error(`getTxUrl: not implemented for chainId ${chainId}`)
 }
 
 export const getNativeTokenAddress = (chainId: number) => {
