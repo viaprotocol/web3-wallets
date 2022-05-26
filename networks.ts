@@ -343,6 +343,18 @@ const networksRaw = [
     currency_symbol: 'SOL',
     currency_decimals: 9,
     is_testnet: true
+  },
+  {
+    chain_id: 1313161554,
+    name: 'Aurora',
+    short_name: 'Aurora',
+    logo_url: 'https://webill.sfo3.digitaloceanspaces.com/networks/Aurora.svg',
+    explorer_url: 'https://aurorascan.dev/',
+    rpc_url: 'https://mainnet.aurora.dev/',
+    currency_name: 'Ethereum',
+    currency_symbol: 'ETH',
+    currency_decimals: 18,
+    is_testnet: false
   }
 ]
 
