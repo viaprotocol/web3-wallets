@@ -337,7 +337,7 @@ const networksRaw = [
     name: 'Solana Testnet',
     short_name: 'Solana Testnet',
     logo_url: 'https://solscan.io/static/media/solana-sol-logo.b612f140.svg',
-    explorer_url: 'https://solscan.io/?cluster=testnet', // todo: function?
+    explorer_url: 'https://solscan.io/?cluster=testnet',
     rpc_url: 'https://api.testnet.solana.com',
     currency_name: 'Solana',
     currency_symbol: 'SOL',
@@ -349,7 +349,7 @@ const networksRaw = [
     name: 'Aurora',
     short_name: 'Aurora',
     logo_url: 'https://webill.sfo3.digitaloceanspaces.com/networks/Aurora.svg',
-    explorer_url: 'https://aurorascan.dev/',
+    explorer_url: 'https://aurorascan.dev',
     rpc_url: 'https://mainnet.aurora.dev/',
     currency_name: 'Ethereum',
     currency_symbol: 'ETH',
