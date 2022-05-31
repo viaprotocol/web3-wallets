@@ -8,7 +8,7 @@ export const WALLET_NAMES = {
 export const NETWORK_IDS = {
   Ethereum: 1,
   Rinkeby: 4,
-  Optimism: 5,
+  Optimism: 10,
   OptimismTestnet: 69,
   Binance: 56,
   BinanceTestnet: 97,
