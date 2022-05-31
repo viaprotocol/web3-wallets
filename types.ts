@@ -1,9 +1,8 @@
-import { MetaMaskInpageProvider } from '@metamask/providers'
-
 import { TransactionReceipt, TransactionRequest, Web3Provider } from '@ethersproject/providers'
-import { Signer, Transaction, Connection } from '@solana/web3.js'
-import { BigNumber } from 'ethers'
+import { MetaMaskInpageProvider } from '@metamask/providers'
+import { Connection, Signer, Transaction } from '@solana/web3.js'
 import WalletConnectProvider from '@walletconnect/web3-provider'
+import { BigNumber } from 'ethers'
 
 type AvailableWalletNames = 'WalletConnect' | 'MetaMask' | 'Phantom' | 'Near'
 
@@ -25,10 +24,13 @@ interface IWallet extends IWalletStoreState {
   restore: () => Promise<boolean>
   connect: ({ name, chainId }: { name: any; chainId: any }) => Promise<boolean>
   changeNetwork: (chainId: number) => Promise<boolean>
-  sendTx: (transaction: TransactionRequest | Transaction, options?: { signers?: Signer[] }) => Promise<string/* | false*/> // todo: sendTx reject => false
+  sendTx: (
+    transaction: TransactionRequest | Transaction,
+    options?: { signers?: Signer[] }
+  ) => Promise<string /* | false*/> // todo: sendTx reject => false
   disconnect: () => void
   estimateGas: (data: TransactionRequest) => Promise<BigNumber | undefined>
-  getTransactionReceipt: ((transactionHash: string | Promise<string>) => Promise<TransactionReceipt>) | null
+  waitForTransaction: ((transactionHash: string, confirmations?: number) => Promise<TransactionReceipt>) | null
 }
 
 export type { AvailableWalletNames, IWallet, IWalletStoreState }

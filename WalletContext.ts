@@ -1,4 +1,5 @@
 import { createContext } from 'react'
+
 import { IWallet, IWalletStoreState } from './types'
 
 export const INITIAL_STATE: IWalletStoreState = {
@@ -23,5 +24,5 @@ export const WalletContext = createContext<IWallet>({
   sendTx: () => Promise.reject(),
   disconnect: () => {},
   estimateGas: () => Promise.reject(),
-  getTransactionReceipt: null
+  waitForTransaction: null
 })
