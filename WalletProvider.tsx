@@ -1,25 +1,20 @@
 /* eslint-disable */
-import React, { useState } from 'react'
-import { BigNumber, ethers } from 'ethers'
 import type { ExternalProvider, TransactionRequest } from '@ethersproject/providers'
-
-import WalletConnectProvider from '@walletconnect/web3-provider'
-
-import { Slide, ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
-
 import { MetaMaskInpageProvider } from '@metamask/providers'
-
-import { clusterApiUrl, Connection, Signer, Transaction } from '@solana/web3.js'
-
-import { getNetworkById, rpcMapping } from './networks'
-import { getDomainAddress, goMetamask, goPhantom, shortenAddress, useBalance } from './utils'
-
-import { getCluster, parseEnsFromSolanaAddress } from './utils/solana'
+import { Connection, Signer, Transaction, clusterApiUrl } from '@solana/web3.js'
+import WalletConnectProvider from '@walletconnect/web3-provider'
+import { BigNumber, ethers } from 'ethers'
+import React, { useState } from 'react'
+import { Slide, ToastContainer } from 'react-toastify'
 
 import { INITIAL_STATE, WalletContext } from './WalletContext'
+import { ERRCODE, NETWORK_IDS, WALLET_NAMES } from './constants'
+import { getNetworkById, rpcMapping } from './networks'
 import { IWalletStoreState } from './types'
-import { NETWORK_IDS, WALLET_NAMES, ERRCODE } from './constants'
+import { getDomainAddress, goMetamask, goPhantom, shortenAddress, useBalance } from './utils'
+import { getCluster, parseEnsFromSolanaAddress } from './utils/solana'
+
+import 'react-toastify/dist/ReactToastify.css'
 
 declare global {
   interface Window {
@@ -401,7 +396,8 @@ function WalletProvider(props) {
     params?: {
       signers?: Signer[]
     }
-  ): Promise<string/* | false */> => { // todo: sendTx reject => false
+  ): Promise<string /* | false */> => {
+    // todo: sendTx reject => false
     console.log('[Wallet] sendTx', transaction)
 
     const isSolanaTransaction = transaction instanceof Transaction
@@ -442,7 +438,8 @@ function WalletProvider(props) {
         console.error(`[Wallet] sendTx error: ${JSON.stringify(err)}`)
         throw err
       }
-    } else { // EVM tx
+    } else {
+      // EVM tx
       const signer = state.provider!.getSigner()
 
       try {
@@ -504,7 +501,7 @@ function WalletProvider(props) {
         estimateGas,
         provider: state.provider,
         walletProvider: state.walletProvider,
-        getTransactionReceipt: state.provider?.getTransactionReceipt?.bind(state.provider) ?? null,
+        waitForTransaction: state.provider?.waitForTransaction?.bind(state.provider) ?? null,
         restore,
         connect,
         changeNetwork,
