@@ -11,7 +11,9 @@ function useEVMBalance(options: IUseBalanceOptions) {
   const [balance, setBalance] = useState<string | null>(null)
 
   const getBalanceFromProvider = useCallback(() => {
-    if (!isSubscriptionIsAvailable) return
+    if (!isSubscriptionIsAvailable) {
+      return
+    }
     provider.getBalance(address).then(res => {
       if (res) {
         setBalance(res.toString())
