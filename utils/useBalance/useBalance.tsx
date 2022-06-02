@@ -18,7 +18,7 @@ function useBalance(options: IUseBalanceOptions) {
     return {
       Phantom: solBalance,
       WalletConnect: evmBalance,
-      MetaMask: evmBalance 
+      MetaMask: evmBalance
     }[name]
   }, [name, solBalance, evmBalance])
 

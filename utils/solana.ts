@@ -1,5 +1,5 @@
-import { getHashedName, getNameAccountKey, NameRegistryState } from '@solana/spl-name-service'
-import { clusterApiUrl, Connection, PublicKey } from '@solana/web3.js'
+import { NameRegistryState, getHashedName, getNameAccountKey } from '@solana/spl-name-service'
+import { Connection, PublicKey, clusterApiUrl } from '@solana/web3.js'
 
 import { NETWORK_IDS, SOLANA_ENS_POSTFIX } from '../constants'
 

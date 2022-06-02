@@ -1,9 +1,5 @@
-import {
-  useEffect,
-  useState
-} from 'react'
-
 import { PublicKey } from '@solana/web3.js'
+import { useEffect, useState } from 'react'
 
 import { SOL_WALLETS_CONFIG } from './config'
 import { IUseBalanceOptions } from './types'
@@ -18,11 +14,13 @@ function useSolanaBalance(options: IUseBalanceOptions) {
   const isSubscriptionIsAvailable = isSolWallet && address && isConnected && connection
 
   useEffect(() => {
-    const intervalId = isSubscriptionIsAvailable && setInterval(async () => {
-      const solBalance = await connection.getBalance(new PublicKey(address), 'confirmed')
+    const intervalId =
+      isSubscriptionIsAvailable &&
+      setInterval(async () => {
+        const solBalance = await connection.getBalance(new PublicKey(address), 'confirmed')
 
-      setBalance(solBalance)
-    }, SECONDS_BEFORE_NEXT_UPDATE * 1000)
+        setBalance(solBalance)
+      }, SECONDS_BEFORE_NEXT_UPDATE * 1000)
 
     return () => {
       if (intervalId) {

@@ -1,7 +1,7 @@
 import { ethers } from 'ethers'
 
-import { getNetworkById } from '../networks'
 import { NETWORK_IDS } from '../constants'
+import { getNetworkById } from '../networks'
 
 export const getDomainAddress = async (address: string) => {
   const rpc = getNetworkById(NETWORK_IDS.Ethereum).rpc_url
