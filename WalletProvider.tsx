@@ -103,7 +103,8 @@ function WalletProvider(props) {
       'web3-wallets-data',
       JSON.stringify({
         name: WALLET_NAMES.MetaMask,
-        chainId
+        chainId,
+        address: addressDomain || address
       })
     )
 
@@ -158,7 +159,8 @@ function WalletProvider(props) {
         'web3-wallets-data',
         JSON.stringify({
           name: WALLET_NAMES.WalletConnect,
-          chainId
+          chainId,
+          address: addressDomain || address
         })
       )
 
@@ -380,7 +382,8 @@ function WalletProvider(props) {
           'web3-wallets-data',
           JSON.stringify({
             name: state.name,
-            chainId
+            chainId,
+            address: state.addressDomain || state.address
           })
         )
       }
