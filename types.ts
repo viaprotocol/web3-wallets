@@ -20,6 +20,12 @@ interface IWalletStoreState {
   balance: string | null
 }
 
+type TWalletLocalData = {
+  name: string
+  chainId: string | number
+  address: string
+}
+
 interface IWallet extends IWalletStoreState {
   restore: () => Promise<boolean>
   connect: ({ name, chainId }: { name: any; chainId: any }) => Promise<boolean>
@@ -33,4 +39,4 @@ interface IWallet extends IWalletStoreState {
   waitForTransaction: ((transactionHash: string, confirmations?: number) => Promise<TransactionReceipt>) | null
 }
 
-export type { AvailableWalletNames, IWallet, IWalletStoreState }
+export type { AvailableWalletNames, IWallet, IWalletStoreState, TWalletLocalData }
