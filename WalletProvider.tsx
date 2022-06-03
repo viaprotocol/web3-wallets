@@ -51,12 +51,14 @@ function WalletProvider(props) {
     if (!window.ethereum || !window.ethereum.isMetaMask) {
       return false
     }
+    setState({ ...state, isLoading: true })
 
     const provider = new ethers.providers.Web3Provider(window.ethereum as unknown as ExternalProvider, 'any')
 
     try {
       await provider.send('eth_requestAccounts', [])
     } catch (e: any) {
+      setState({ ...state, isLoading: false })
       if (e.code === ERRCODE.UserRejected) {
         console.warn('[Wallet] User rejected the request')
         return false
@@ -72,6 +74,7 @@ function WalletProvider(props) {
     if (isNeedToChangeNetwork) {
       const network = getNetworkById(chainId)
       if (!network.data.params) {
+        setState({ ...state, isLoading: false })
         throw new Error(`Missing network ${chainId} params`)
       }
       const isChanged = await evmChangeNetwork(provider, network.data.params)
@@ -87,6 +90,7 @@ function WalletProvider(props) {
       ...prev,
       ...{
         isConnected: true,
+        isLoading: false,
         name: 'MetaMask',
         provider,
         walletProvider,
@@ -112,6 +116,7 @@ function WalletProvider(props) {
   }
 
   const connectWC = async (chainId: number): Promise<boolean> => {
+    setState({ ...state, isLoading: true })
     try {
       const walletConnectProvider = new WalletConnectProvider({
         rpc: rpcMapping,
@@ -171,6 +176,8 @@ function WalletProvider(props) {
       }
       console.error('[Wallet] connectWC error:', err)
       throw new Error(err)
+    } finally {
+      setState({ ...state, isLoading: false })
     }
   }
 
@@ -178,6 +185,7 @@ function WalletProvider(props) {
     if (chainId !== NETWORK_IDS.Solana && chainId !== NETWORK_IDS.SolanaTestnet) {
       throw new Error(`Unknown Phantom chainId ${chainId}`)
     }
+    setState({ ...state, isLoading: true })
     try {
       const resp = isReconnect ? await window.solana.connect({ onlyIfTrusted: true }) : await window.solana.connect()
       const address = resp.publicKey.toString()
@@ -212,6 +220,8 @@ function WalletProvider(props) {
       }
       console.error('[Wallet]', err)
       return false
+    } finally {
+      setState({ ...state, isLoading: false })
     }
   }
 
@@ -272,6 +282,7 @@ function WalletProvider(props) {
 
   const evmChangeNetwork = async (provider, params): Promise<boolean> => {
     const newChainIdHex = params[0].chainId
+    setState({ ...state, isLoading: true })
 
     try {
       await provider.send('wallet_switchEthereumChain', [
@@ -304,6 +315,8 @@ function WalletProvider(props) {
       }
       console.error('[Wallet] Cant change network:', error)
       return false
+    } finally {
+      setState({ ...state, isLoading: false })
     }
   }
 
@@ -490,6 +503,7 @@ function WalletProvider(props) {
     <WalletContext.Provider
       value={{
         isConnected: state.isConnected,
+        isLoading: state.isLoading,
         name: state.name,
         subName: state.subName,
         chainId: state.chainId,

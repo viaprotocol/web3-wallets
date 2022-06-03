@@ -3,6 +3,7 @@ import { createContext } from 'react'
 import { IWallet, IWalletStoreState } from './types'
 
 export const INITIAL_STATE: IWalletStoreState = {
+  isLoading: false,
   isConnected: false,
   name: null,
   subName: null,
