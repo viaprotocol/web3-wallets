@@ -8,9 +8,9 @@ import React, { useState } from 'react'
 import { Slide, ToastContainer } from 'react-toastify'
 
 import { INITIAL_STATE, WalletContext } from './WalletContext'
-import { ERRCODE, NETWORK_IDS, WALLET_NAMES } from './constants'
+import { ERRCODE, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, WALLET_NAMES } from './constants'
 import { getNetworkById, rpcMapping } from './networks'
-import { IWalletStoreState } from './types'
+import { IWalletStoreState, TWalletLocalData } from './types'
 import { getDomainAddress, goMetamask, goPhantom, shortenAddress, useBalance } from './utils'
 import { getCluster, parseEnsFromSolanaAddress } from './utils/solana'
 
@@ -100,11 +100,11 @@ function WalletProvider(props) {
 
     localStorage.setItem('web3-wallets-name', WALLET_NAMES.MetaMask)
     localStorage.setItem(
-      'web3-wallets-data',
+      LOCAL_STORAGE_WALLETS_KEY,
       JSON.stringify({
         name: WALLET_NAMES.MetaMask,
         chainId,
-        address: addressDomain || address
+        address: addressDomain || addressShort
       })
     )
 
@@ -156,11 +156,11 @@ function WalletProvider(props) {
 
       localStorage.setItem('web3-wallets-name', WALLET_NAMES.WalletConnect)
       localStorage.setItem(
-        'web3-wallets-data',
+        LOCAL_STORAGE_WALLETS_KEY,
         JSON.stringify({
           name: WALLET_NAMES.WalletConnect,
           chainId,
-          address: addressDomain || address
+          address: addressDomain || addressShort
         })
       )
 
@@ -248,13 +248,10 @@ function WalletProvider(props) {
 
   const restore = async () => {
     console.log('Wallet.restore()')
-    const walletData = localStorage.getItem('web3-wallets-data')
+    const walletData = localStorage.getItem(LOCAL_STORAGE_WALLETS_KEY)
 
     if (walletData) {
-      const { name, chainId } = JSON.parse(walletData) as {
-        name: string
-        chainId: string | number
-      }
+      const { name, chainId } = JSON.parse(walletData) as TWalletLocalData
 
       return connect({ name, chainId })
     }
@@ -343,7 +340,7 @@ function WalletProvider(props) {
     }))
 
     localStorage.removeItem('web3-wallets-name')
-    localStorage.removeItem('web3-wallets-data')
+    localStorage.removeItem(LOCAL_STORAGE_WALLETS_KEY)
     localStorage.removeItem('isFirstInited')
   }
 
@@ -379,11 +376,11 @@ function WalletProvider(props) {
       const isChanged = await evmChangeNetwork(state.provider, params)
       if (isChanged) {
         localStorage.setItem(
-          'web3-wallets-data',
+          LOCAL_STORAGE_WALLETS_KEY,
           JSON.stringify({
             name: state.name,
             chainId,
-            address: state.addressDomain || state.address
+            address: state.addressDomain || state.addressShort
           })
         )
       }

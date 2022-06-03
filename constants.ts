@@ -46,3 +46,5 @@ export const ERRCODE = {
   UnrecognizedChain2: 4902,
   UnrecognizedChain: -32603
 }
+
+export const LOCAL_STORAGE_WALLETS_KEY = 'web3-wallets-data'
