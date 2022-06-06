@@ -24,7 +24,7 @@ declare global {
   }
 }
 
-function WalletProvider({ children }: { children: React.ReactNode }) {
+const WalletProvider = function WalletProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<IWalletStoreState>(INITIAL_STATE)
 
   const getDomain = async (address?: string) => {
@@ -45,7 +45,7 @@ function WalletProvider({ children }: { children: React.ReactNode }) {
       return null
     }
     const balanceRaw = await provider.getBalance(address)
-    return balanceRaw?.toString() ?? null
+    return balanceRaw?.toString() || null
   }
 
   const connectMetamask = async (chainId: number): Promise<boolean> => {
@@ -135,7 +135,7 @@ function WalletProvider({ children }: { children: React.ReactNode }) {
         balance
       } = await fetchEvmWalletInfo(web3Provider)
 
-      const subName = walletConnectProvider.walletMeta?.name ?? null
+      const subName = walletConnectProvider.walletMeta?.name || null
 
       walletConnectProvider.on('disconnect', (code: number, reason: string) => {
         console.log('WalletConnectProvider disconnected', code, reason)
@@ -522,7 +522,7 @@ function WalletProvider({ children }: { children: React.ReactNode }) {
         estimateGas,
         provider: state.provider,
         walletProvider: state.walletProvider,
-        waitForTransaction: state.provider?.waitForTransaction?.bind(state.provider) ?? null,
+        waitForTransaction: state.provider?.waitForTransaction?.bind(state.provider) || null,
         restore,
         connect,
         changeNetwork,
@@ -536,4 +536,4 @@ function WalletProvider({ children }: { children: React.ReactNode }) {
   )
 }
 
-export default WalletProvider
+export {WalletProvider}
