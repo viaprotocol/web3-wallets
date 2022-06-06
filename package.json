@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "author": "Aleksey Lisun<insuline.ru@gmail.com>",
   "description": "Universal interface for web3 wallets",
+  "scripts": {
+    "clean": "shx rm -rf ./lib",
+    "build": "yarn clean && node esbuild.config.mjs && ts-patch i -s && tsc -p tsconfig.build.json"
+  },
   "keywords": [
     "blockchain",
     "ethereum",
@@ -46,11 +50,17 @@
     "@solana/web3.js": "^1.43.5",
     "@walletconnect/web3-provider": "^1.7.8",
     "ethers": "^5.6.8",
-    "react-toastify": "^9.0.3"
+    "react-toastify": "^9.0.3",
+    "ts-patch": "^2.0.1",
+    "typescript": "^4.7.3",
+    "typescript-transform-paths": "^3.3.1"
   },
   "devDependencies": {
     "@types/react": "^18.0.12",
-    "ismobilejs": "^1.1.1"
+    "esbuild": "^0.14.42",
+    "esbuild-node-externals": "^1.4.1",
+    "ismobilejs": "^1.1.1",
+    "shx": "^0.3.4"
   },
   "peerDependencies": {
     "react": "^18.1.0"

@@ -23,7 +23,7 @@ interface IWalletStoreState {
 
 type TWalletLocalData = {
   name: string
-  chainId: string | number
+  chainId: number
   address: string
 }
 
