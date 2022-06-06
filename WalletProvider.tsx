@@ -147,6 +147,7 @@ function WalletProvider(props) {
         ...prev,
         ...{
           isConnected: true,
+          isLoading: false,
           name: 'WalletConnect',
           subName,
           provider: web3Provider,
@@ -171,13 +172,12 @@ function WalletProvider(props) {
 
       return true
     } catch (err: any) {
+      setState({ ...state, isLoading: false })
       if (err.toString().includes('User closed modal')) {
         return false
       }
       console.error('[Wallet] connectWC error:', err)
       throw new Error(err)
-    } finally {
-      setState({ ...state, isLoading: false })
     }
   }
 
@@ -201,6 +201,7 @@ function WalletProvider(props) {
         ...prev,
         ...{
           isConnected: true,
+          isLoading: false,
           name: 'Phantom',
           provider,
           chainId,
@@ -215,13 +216,12 @@ function WalletProvider(props) {
       localStorage.setItem('web3-wallets-name', WALLET_NAMES.Phantom)
       return true
     } catch (err: any) {
+      setState({ ...state, isLoading: false })
       if (err.code === ERRCODE.UserRejected) {
         console.warn('[Wallet] User rejected the request.')
       }
       console.error('[Wallet]', err)
       return false
-    } finally {
-      setState({ ...state, isLoading: false })
     }
   }
 
@@ -290,9 +290,11 @@ function WalletProvider(props) {
           chainId: newChainIdHex
         }
       ])
+      setState({ ...state, isLoading: false })
       return true
     } catch (error: any) {
       if (error.code === ERRCODE.UserRejected) {
+        setState({ ...state, isLoading: false })
         console.warn('[Wallet] User rejected the request')
         return false
       }
@@ -302,9 +304,11 @@ function WalletProvider(props) {
         try {
           console.log('[Wallet] Try to add the network...', params)
           await provider.send('wallet_addEthereumChain', params)
+          setState({ ...state, isLoading: false })
           // todo: Users can allow adding, but not allowing switching
           return true
         } catch (addNetworkError: any) {
+          setState({ ...state, isLoading: false })
           if (addNetworkError.code === ERRCODE.UserRejected) {
             console.warn('[Wallet] User rejected the request')
             return false
@@ -315,8 +319,6 @@ function WalletProvider(props) {
       }
       console.error('[Wallet] Cant change network:', error)
       return false
-    } finally {
-      setState({ ...state, isLoading: false })
     }
   }
 
