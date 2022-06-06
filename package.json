@@ -39,5 +39,20 @@
       "name": "Max Korolev",
       "url": "https://github.com/nrjshka"
     }
-  ]
+  ],
+  "dependencies": {
+    "@metamask/providers": "^8.1.1",
+    "@solana/spl-name-service": "^0.1.4",
+    "@solana/web3.js": "^1.43.5",
+    "@walletconnect/web3-provider": "^1.7.8",
+    "ethers": "^5.6.8",
+    "react-toastify": "^9.0.3"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.12",
+    "ismobilejs": "^1.1.1"
+  },
+  "peerDependencies": {
+    "react": "^18.1.0"
+  }
 }

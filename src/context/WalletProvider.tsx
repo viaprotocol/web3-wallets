@@ -8,11 +8,12 @@ import React, { useState } from 'react'
 import { Slide, ToastContainer } from 'react-toastify'
 
 import { INITIAL_STATE, WalletContext } from './WalletContext'
-import { ERRCODE, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, WALLET_NAMES } from './constants'
-import { getNetworkById, rpcMapping } from './networks'
-import { IWalletStoreState, TWalletLocalData } from './types'
-import { getDomainAddress, goMetamask, goPhantom, shortenAddress, useBalance } from './utils'
-import { getCluster, parseEnsFromSolanaAddress } from './utils/solana'
+import { ERRCODE, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, WALLET_NAMES } from '../constants'
+import { getNetworkById, rpcMapping } from '../networks'
+import { IWalletStoreState, TWalletLocalData } from '../types'
+import { getDomainAddress, goMetamask, goPhantom, shortenAddress } from '../utils'
+import { getCluster, parseEnsFromSolanaAddress } from '../utils'
+import { useBalance } from '../hooks'
 
 import 'react-toastify/dist/ReactToastify.css'
 

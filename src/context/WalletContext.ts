@@ -1,6 +1,6 @@
 import { createContext } from 'react'
 
-import { IWallet, IWalletStoreState } from './types'
+import { IWallet, IWalletStoreState } from '../types'
 
 export const INITIAL_STATE: IWalletStoreState = {
   isLoading: false,
