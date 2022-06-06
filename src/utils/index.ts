@@ -1,5 +1,6 @@
 import { PublicKey } from '@solana/web3.js'
-import { ethers } from 'ethers'
+import { BytesLike, ethers } from 'ethers'
+import { Hexable } from 'ethers/lib/utils'
 import isMobile from 'ismobilejs'
 
 import {
@@ -18,7 +19,7 @@ export * from './solana'
 
 export const { BigNumber } = ethers
 
-export const toHex = value => ethers.utils.hexlify(value)
+export const toHex = (value: BytesLike | Hexable | number | bigint) => ethers.utils.hexlify(value)
 
 export const isValidAddress = async (chainId: number, address: string) => {
   if (chainId > 0) {
@@ -57,7 +58,7 @@ export const isValidAddress = async (chainId: number, address: string) => {
   throw new Error(`Not implemented or wrong chainId ${chainId}`)
 }
 
-export const shortenAddress = address => {
+export const shortenAddress = (address: string) => {
   if (typeof address === 'string') {
     if (address[address.length - 4] === '.') {
       // If ENS - Return ENS name
@@ -69,7 +70,7 @@ export const shortenAddress = address => {
   return ''
 }
 
-export const getAddressUrl = (chainId, address) => {
+export const getAddressUrl = (chainId: number, address: string) => {
   if (!chainId || !address || !supportedNetworkIds.includes(chainId)) {
     return undefined
   }
@@ -89,7 +90,7 @@ export const getAddressUrl = (chainId, address) => {
   throw new Error(`getAddressUrl: not implemented for chainId ${chainId}`)
 }
 
-export const getTxUrl = (chainId, txHash): string | undefined => {
+export const getTxUrl = (chainId: number, txHash: string): string | undefined => {
   if (!chainId || !txHash || !supportedNetworkIds.includes(chainId)) {
     return undefined
   }

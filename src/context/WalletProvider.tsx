@@ -24,10 +24,10 @@ declare global {
   }
 }
 
-function WalletProvider(props) {
+function WalletProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<IWalletStoreState>(INITIAL_STATE)
 
-  const getDomain = async address => {
+  const getDomain = async (address?: string) => {
     if (!address) {
       return null
     }
@@ -78,14 +78,14 @@ function WalletProvider(props) {
         setState({ ...state, isLoading: false })
         throw new Error(`Missing network ${chainId} params`)
       }
-      const isChanged = await evmChangeNetwork(provider, network.data.params)
+      const isChanged = await evmChangeNetwork(network.data.params)
       if (isChanged) {
         walletChainId = network.chain_id
       }
     }
     const walletProvider = window.ethereum
-    walletProvider.on('chainChanged', evmChainChangeHandler)
-    walletProvider.on('accountsChanged', evmAccountChangeHandler)
+    walletProvider.on('chainChanged', evmChainChangeHandler as any)
+    walletProvider.on('accountsChanged', evmAccountChangeHandler as any)
 
     setState(prev => ({
       ...prev,
@@ -137,7 +137,7 @@ function WalletProvider(props) {
 
       const subName = walletConnectProvider.walletMeta?.name ?? null
 
-      walletConnectProvider.on('disconnect', (code, reason) => {
+      walletConnectProvider.on('disconnect', (code: number, reason: string) => {
         console.log('WalletConnectProvider disconnected', code, reason)
         disconnect() // todo: only clear state (without duplicate code and disconnect events)
       })
@@ -182,7 +182,7 @@ function WalletProvider(props) {
     }
   }
 
-  const connectPhantom = async (chainId = NETWORK_IDS.Solana, isReconnect = false) => {
+  const connectPhantom = async (chainId: number = NETWORK_IDS.Solana, isReconnect = false) => {
     if (chainId !== NETWORK_IDS.Solana && chainId !== NETWORK_IDS.SolanaTestnet) {
       throw new Error(`Unknown Phantom chainId ${chainId}`)
     }
@@ -226,9 +226,9 @@ function WalletProvider(props) {
     }
   }
 
-  const connect = async ({ name, chainId }): Promise<boolean> => {
+  const connect = async ({ name, chainId } : { name: string; chainId: number}): Promise<boolean> => {
     console.log('[Wallet] connect()', name, chainId)
-    if (!WALLET_NAMES[name]) {
+    if (!(Object.values(WALLET_NAMES) as string[]).includes(name)) {
       console.error(`[Wallet] Unknown wallet name: ${name}`)
       return false
     }
@@ -270,7 +270,7 @@ function WalletProvider(props) {
     return false
   }
 
-  const evmChainChangeHandler = async chainIdHex => {
+  const evmChainChangeHandler = async (chainIdHex: string) => {
     const chainId = parseInt(chainIdHex)
     console.log('* chainChanged', chainIdHex, chainId)
     setState(prev => ({
@@ -281,7 +281,11 @@ function WalletProvider(props) {
     }))
   }
 
-  const evmChangeNetwork = async (provider, params): Promise<boolean> => {
+  const evmChangeNetwork = async (params: any[]): Promise<boolean> => {
+    const { provider } = state
+    if (!provider) {
+      return false
+    }
     const newChainIdHex = params[0].chainId
     setState({ ...state, isLoading: true })
 
@@ -360,7 +364,7 @@ function WalletProvider(props) {
     localStorage.removeItem('isFirstInited')
   }
 
-  const evmAccountChangeHandler = async accounts => {
+  const evmAccountChangeHandler = async (accounts: string[]) => {
     console.log('* accountsChanged', accounts)
 
     if (!accounts.length) {
@@ -389,7 +393,7 @@ function WalletProvider(props) {
     const { params } = network.data
 
     if (state.name === 'MetaMask' || state.name === 'WalletConnect') {
-      const isChanged = await evmChangeNetwork(state.provider, params)
+      const isChanged = await evmChangeNetwork(params)
       if (isChanged) {
         localStorage.setItem(
           LOCAL_STORAGE_WALLETS_KEY,
@@ -481,7 +485,7 @@ function WalletProvider(props) {
     const address = await provider.getSigner().getAddress()
     const balance = await getEvmBalance(provider, address)
 
-    let addressDomain
+    let addressDomain = null
     try {
       addressDomain = await getDomainAddress(address)
     } catch (e) {
@@ -526,7 +530,7 @@ function WalletProvider(props) {
         disconnect
       }}
     >
-      {props.children}
+      {children}
       <ToastContainer position="top-right" newestOnTop transition={Slide} />
     </WalletContext.Provider>
   )
