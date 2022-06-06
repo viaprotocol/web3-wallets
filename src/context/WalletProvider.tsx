@@ -27,19 +27,6 @@ declare global {
 const WalletProvider = function WalletProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<IWalletStoreState>(INITIAL_STATE)
 
-  const getDomain = async (address?: string) => {
-    if (!address) {
-      return null
-    }
-    try {
-      const { domain } = await (await fetch(`https://domains.1inch.io/reverse-lookup?address=${address}`)).json()
-      return domain
-    } catch (e) {
-      console.warn(`Can't get domain, ${e}`)
-    }
-    return null
-  }
-
   const getEvmBalance = async (provider: any, address: string) => {
     if (!provider) {
       return null
@@ -372,7 +359,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     }
 
     const address = accounts[0]
-    const addressDomain = await getDomain(address)
+    const addressDomain = await getDomainAddress(address)
     const balance = await getEvmBalance(state.provider, address)
 
     setState(prev => ({
