@@ -1,11 +1,14 @@
 {
-  "name": "web3-wallets",
+  "name": "@viaprotocol/web3-wallets",
   "version": "1.0.0",
   "author": "Aleksey Lisun<insuline.ru@gmail.com>",
   "description": "Universal interface for web3 wallets",
   "scripts": {
     "clean": "shx rm -rf ./lib",
-    "build": "yarn clean && node esbuild.config.mjs && ts-patch i -s && tsc -p tsconfig.build.json"
+    "build": "yarn clean && node esbuild.config.mjs && ts-patch i -s && tsc -p tsconfig.build.json",
+    "package": "shx cp -R package.json ./lib && shx cp -R README.md ./lib",
+    "publish:pre": "yarn build && yarn package",
+    "publish:yalc": "yarn build && yarn package && cd lib && yalc publish --no-script --push"
   },
   "keywords": [
     "blockchain",

@@ -1,2 +1,10 @@
 node_modules
 lib
+.env
+
+# Yarn
+yarn-error.log
+
+# Yalc
+.yalc
+yalc.lock
