@@ -1,0 +1,43 @@
+{
+  "name": "web3-wallets",
+  "version": "1.0.0",
+  "author": "Aleksey Lisun<insuline.ru@gmail.com>",
+  "description": "Universal interface for web3 wallets",
+  "keywords": [
+    "blockchain",
+    "ethereum",
+    "react",
+    "solana",
+    "web3",
+    "typescript"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/viaprotocol/web3-wallets/issues"
+  },
+  "repository": "https://github.com/viaprotocol/web3-wallets.git",
+  "main": "index.js",
+  "module": "index.js",
+  "types": "index.d.ts",
+  "engines": {
+    "node": ">=12",
+    "npm": ">=6"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "contributors": [
+    {
+      "name": "Aleksey Lisun",
+      "url": "https://github.com/insulineru"
+    },
+    {
+      "name": "Iower",
+      "url": "https://github.com/iower"
+    },
+    {
+      "name": "Max Korolev",
+      "url": "https://github.com/nrjshka"
+    }
+  ]
+}
