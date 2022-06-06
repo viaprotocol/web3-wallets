@@ -15,7 +15,6 @@ import { checkEnsValid, parseAddressFromEnsSolana } from './solana'
 
 export * from './evm'
 export * from './solana'
-export * from './useBalance'
 
 export const { BigNumber } = ethers
 
