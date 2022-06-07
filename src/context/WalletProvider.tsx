@@ -166,13 +166,11 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     try {
       const resp = isReconnect ? await window.solana.connect({ onlyIfTrusted: true }) : await window.solana.connect()
       const address = resp.publicKey.toString()
-      const domain = await parseEnsFromSolanaAddress(address)
+      const addressDomain = await parseEnsFromSolanaAddress(address)
       const provider = window.solana
       const cluster = getCluster(chainId)
       const solanaNetwork = clusterApiUrl(cluster)
       const connection = new Connection(solanaNetwork)
-
-      const balance = (await connection.getBalance(resp.publicKey, 'confirmed')) as unknown as string
 
       setState(prev => ({
         ...prev,
@@ -185,7 +183,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
           address,
           connection,
           addressShort: shortenAddress(address),
-          addressDomain: domain
+          addressDomain
         }
       }))
 
