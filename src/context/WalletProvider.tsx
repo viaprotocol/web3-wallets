@@ -27,14 +27,6 @@ declare global {
 const WalletProvider = function WalletProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<IWalletStoreState>(INITIAL_STATE)
 
-  const getEvmBalance = async (provider: any, address: string) => {
-    if (!provider) {
-      return null
-    }
-    const balanceRaw = await provider.getBalance(address)
-    return balanceRaw?.toString() || null
-  }
-
   const connectMetamask = async (chainId: number): Promise<boolean> => {
     if (!window.ethereum || !window.ethereum.isMetaMask) {
       return false
@@ -55,7 +47,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       }
     }
 
-    let { chainId: walletChainId, address, addressShort, addressDomain, balance } = await fetchEvmWalletInfo(provider)
+    let { chainId: walletChainId, address, addressShort, addressDomain } = await fetchEvmWalletInfo(provider)
 
     const isNeedToChangeNetwork = chainId && walletChainId !== chainId
 
@@ -85,8 +77,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         chainId: walletChainId,
         address,
         addressShort,
-        addressDomain,
-        balance
+        addressDomain
       }
     }))
 
@@ -118,8 +109,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         chainId: walletChainId,
         address,
         addressShort,
-        addressDomain,
-        balance
+        addressDomain
       } = await fetchEvmWalletInfo(web3Provider)
 
       const subName = walletConnectProvider.walletMeta?.name || null
@@ -143,8 +133,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
           chainId: walletChainId,
           address,
           addressShort,
-          addressDomain,
-          balance
+          addressDomain
         }
       }))
 
@@ -196,8 +185,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
           address,
           connection,
           addressShort: shortenAddress(address),
-          addressDomain: domain,
-          balance
+          addressDomain: domain
         }
       }))
 
@@ -360,7 +348,6 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
     const address = accounts[0]
     const addressDomain = await getDomainAddress(address)
-    const balance = await getEvmBalance(state.provider, address)
 
     setState(prev => ({
       ...prev,
@@ -368,7 +355,6 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         address,
         addressShort: shortenAddress(address),
         addressDomain,
-        balance
       }
     }))
   }
@@ -470,7 +456,6 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
   const fetchEvmWalletInfo = async (provider: ethers.providers.Web3Provider) => {
     const address = await provider.getSigner().getAddress()
-    const balance = await getEvmBalance(provider, address)
 
     let addressDomain = null
     try {
@@ -487,7 +472,6 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       address,
       addressShort,
       addressDomain,
-      balance
     }
   }
 

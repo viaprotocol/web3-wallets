@@ -9,7 +9,7 @@ const SECONDS_BEFORE_NEXT_UPDATE = 2
 function useSolanaBalance(options: IUseBalanceOptions) {
   const { name, address, isConnected, connection } = options
 
-  const [balance, setBalance] = useState<number | null>(null)
+  const [balance, setBalance] = useState<string | null>(null)
   const isSolWallet = !!name && SOL_WALLETS_CONFIG.includes(name)
   const isSubscriptionIsAvailable = isSolWallet && address && isConnected && connection
 
@@ -19,7 +19,7 @@ function useSolanaBalance(options: IUseBalanceOptions) {
       setInterval(async () => {
         const solBalance = await connection.getBalance(new PublicKey(address), 'confirmed')
 
-        setBalance(solBalance)
+        setBalance(String(solBalance))
       }, SECONDS_BEFORE_NEXT_UPDATE * 1000)
 
     return () => {

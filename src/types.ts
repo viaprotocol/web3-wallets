@@ -18,7 +18,7 @@ interface IWalletStoreState {
   address: string | null
   addressShort: string | null
   addressDomain: string | null
-  balance: string | number | null | undefined
+  balance: string | null
 }
 
 type TWalletLocalData = {
