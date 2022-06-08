@@ -16,6 +16,7 @@ Universal interface for web3 wallets
 
 ```
 
+
 ## Used `chainId`'s
 
 - `1` - Ethereum
