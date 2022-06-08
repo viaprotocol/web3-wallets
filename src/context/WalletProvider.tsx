@@ -5,7 +5,6 @@ import { Connection, Signer, Transaction, clusterApiUrl } from '@solana/web3.js'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 import { BigNumber, ethers } from 'ethers'
 import React, { useState } from 'react'
-import { Slide, ToastContainer } from 'react-toastify'
 
 import { INITIAL_STATE, WalletContext } from './WalletContext'
 import { ERRCODE, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, WALLET_NAMES } from '../constants'
@@ -14,8 +13,6 @@ import { IWalletStoreState, TWalletLocalData } from '../types'
 import { getDomainAddress, goMetamask, goPhantom, shortenAddress } from '../utils'
 import { getCluster, parseEnsFromSolanaAddress } from '../utils'
 import { useBalance } from '../hooks'
-
-import 'react-toastify/dist/ReactToastify.css'
 
 declare global {
   interface Window {
@@ -500,7 +497,6 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       }}
     >
       {children}
-      <ToastContainer position="top-right" newestOnTop transition={Slide} />
     </WalletContext.Provider>
   )
 }
