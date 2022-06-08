@@ -18,7 +18,7 @@ esbuild
       './src/constants.ts',
       './src/networks.ts'
     ],
-    outdir: 'lib',
+    outdir: 'build',
     bundle: true,
     minifyWhitespace: true,
     minifySyntax: true,

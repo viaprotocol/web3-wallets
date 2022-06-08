@@ -5,12 +5,12 @@
   "author": "Aleksey Lisun<insuline.ru@gmail.com>",
   "description": "Universal interface for web3 wallets",
   "scripts": {
-    "clean": "shx rm -rf ./lib",
+    "clean": "shx rm -rf ./build",
     "build": "yarn clean && node esbuild.config.mjs && ts-patch i -s && tsc -p tsconfig.build.json",
-    "package": "shx cp -R package.json ./lib && shx cp -R README.md ./lib",
+    "package": "shx cp -R package.json ./build && shx cp -R README.md ./build",
     "publish:pre": "yarn build && yarn package",
-    "publish:yalc": "yarn build && yarn package && cd lib && yalc publish --no-script --push",
-    "publish:latest": "yarn build && yarn package && cd lib && npm publish --tag latest --access public"
+    "publish:yalc": "yarn build && yarn package && cd build && yalc publish --no-script --push",
+    "publish:latest": "yarn build && yarn package && cd build && npm publish --tag latest --access public"
   },
   "keywords": [
     "blockchain",
