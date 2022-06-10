@@ -1,11 +1,3 @@
-/* eslint-disable */
-
-const infuraKey = process.env.REACT_APP_INFURA_KEY
-
-if (!infuraKey) {
-  throw new Error('Missing env REACT_APP_INFURA_KEY')
-}
-
 const networksRaw = [
   // Ethereum
   {
@@ -26,7 +18,7 @@ const networksRaw = [
     short_name: 'Rinkeby Testnet',
     logo_url: 'https://etherscan.io/images/ethereum-icon.png',
     explorer_url: 'https://rinkeby.etherscan.io',
-    rpc_url: `https://rinkeby.infura.io/v3/${infuraKey}`,
+    rpc_url: `https://rpc.ankr.com/eth_rinkeby`,
     currency_name: 'Ethereum',
     currency_symbol: 'ETH',
     currency_decimals: 18,
@@ -381,7 +373,7 @@ const networks = networksRaw.map(item => ({
   }
 }))
 
-export const rpcMapping = networksRaw.reduce((mapper, network) => {
+export const rpcMapping = networksRaw.reduce((mapper: { [chainId: number]: string }, network) => {
   mapper[network.chain_id] = network.rpc_url
   return mapper
 }, {})

@@ -5,16 +5,14 @@ import { Connection, Signer, Transaction, clusterApiUrl } from '@solana/web3.js'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 import { BigNumber, ethers } from 'ethers'
 import React, { useState } from 'react'
-import { Slide, ToastContainer } from 'react-toastify'
 
 import { INITIAL_STATE, WalletContext } from './WalletContext'
-import { ERRCODE, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, WALLET_NAMES } from './constants'
-import { getNetworkById, rpcMapping } from './networks'
-import { IWalletStoreState, TWalletLocalData } from './types'
-import { getDomainAddress, goMetamask, goPhantom, shortenAddress, useBalance } from './utils'
-import { getCluster, parseEnsFromSolanaAddress } from './utils/solana'
-
-import 'react-toastify/dist/ReactToastify.css'
+import { ERRCODE, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, WALLET_NAMES } from '../constants'
+import { getNetworkById, rpcMapping } from '../networks'
+import { IWalletStoreState, TWalletLocalData } from '../types'
+import { getDomainAddress, goMetamask, goPhantom, shortenAddress } from '../utils'
+import { getCluster, parseEnsFromSolanaAddress } from '../utils'
+import { useBalance } from '../hooks'
 
 declare global {
   interface Window {
@@ -23,29 +21,8 @@ declare global {
   }
 }
 
-function WalletProvider(props) {
+const WalletProvider = function WalletProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<IWalletStoreState>(INITIAL_STATE)
-
-  const getDomain = async address => {
-    if (!address) {
-      return null
-    }
-    try {
-      const { domain } = await (await fetch(`https://domains.1inch.io/reverse-lookup?address=${address}`)).json()
-      return domain
-    } catch (e) {
-      console.warn(`Can't get domain, ${e}`)
-    }
-    return null
-  }
-
-  const getEvmBalance = async (provider: any, address: string) => {
-    if (!provider) {
-      return null
-    }
-    const balanceRaw = await provider.getBalance(address)
-    return balanceRaw?.toString() ?? null
-  }
 
   const connectMetamask = async (chainId: number): Promise<boolean> => {
     if (!window.ethereum || !window.ethereum.isMetaMask) {
@@ -67,7 +44,7 @@ function WalletProvider(props) {
       }
     }
 
-    let { chainId: walletChainId, address, addressShort, addressDomain, balance } = await fetchEvmWalletInfo(provider)
+    let { chainId: walletChainId, address, addressShort, addressDomain } = await fetchEvmWalletInfo(provider)
 
     const isNeedToChangeNetwork = chainId && walletChainId !== chainId
 
@@ -77,14 +54,14 @@ function WalletProvider(props) {
         setState({ ...state, isLoading: false })
         throw new Error(`Missing network ${chainId} params`)
       }
-      const isChanged = await evmChangeNetwork(provider, network.data.params)
+      const isChanged = await evmChangeNetwork(network.data.params)
       if (isChanged) {
         walletChainId = network.chain_id
       }
     }
     const walletProvider = window.ethereum
-    walletProvider.on('chainChanged', evmChainChangeHandler)
-    walletProvider.on('accountsChanged', evmAccountChangeHandler)
+    walletProvider.on('chainChanged', evmChainChangeHandler as any)
+    walletProvider.on('accountsChanged', evmAccountChangeHandler as any)
 
     setState(prev => ({
       ...prev,
@@ -97,8 +74,7 @@ function WalletProvider(props) {
         chainId: walletChainId,
         address,
         addressShort,
-        addressDomain,
-        balance
+        addressDomain
       }
     }))
 
@@ -130,13 +106,12 @@ function WalletProvider(props) {
         chainId: walletChainId,
         address,
         addressShort,
-        addressDomain,
-        balance
+        addressDomain
       } = await fetchEvmWalletInfo(web3Provider)
 
-      const subName = walletConnectProvider.walletMeta?.name ?? null
+      const subName = walletConnectProvider.walletMeta?.name || null
 
-      walletConnectProvider.on('disconnect', (code, reason) => {
+      walletConnectProvider.on('disconnect', (code: number, reason: string) => {
         console.log('WalletConnectProvider disconnected', code, reason)
         disconnect() // todo: only clear state (without duplicate code and disconnect events)
       })
@@ -155,8 +130,7 @@ function WalletProvider(props) {
           chainId: walletChainId,
           address,
           addressShort,
-          addressDomain,
-          balance
+          addressDomain
         }
       }))
 
@@ -181,7 +155,7 @@ function WalletProvider(props) {
     }
   }
 
-  const connectPhantom = async (chainId = NETWORK_IDS.Solana, isReconnect = false) => {
+  const connectPhantom = async (chainId: number = NETWORK_IDS.Solana, isReconnect = false) => {
     if (chainId !== NETWORK_IDS.Solana && chainId !== NETWORK_IDS.SolanaTestnet) {
       throw new Error(`Unknown Phantom chainId ${chainId}`)
     }
@@ -189,13 +163,11 @@ function WalletProvider(props) {
     try {
       const resp = isReconnect ? await window.solana.connect({ onlyIfTrusted: true }) : await window.solana.connect()
       const address = resp.publicKey.toString()
-      const domain = await parseEnsFromSolanaAddress(address)
+      const addressDomain = await parseEnsFromSolanaAddress(address)
       const provider = window.solana
       const cluster = getCluster(chainId)
       const solanaNetwork = clusterApiUrl(cluster)
       const connection = new Connection(solanaNetwork)
-
-      const balance = (await connection.getBalance(resp.publicKey, 'confirmed')) as unknown as string
 
       setState(prev => ({
         ...prev,
@@ -208,8 +180,7 @@ function WalletProvider(props) {
           address,
           connection,
           addressShort: shortenAddress(address),
-          addressDomain: domain,
-          balance
+          addressDomain
         }
       }))
 
@@ -225,9 +196,9 @@ function WalletProvider(props) {
     }
   }
 
-  const connect = async ({ name, chainId }): Promise<boolean> => {
+  const connect = async ({ name, chainId } : { name: string; chainId: number}): Promise<boolean> => {
     console.log('[Wallet] connect()', name, chainId)
-    if (!WALLET_NAMES[name]) {
+    if (!(Object.values(WALLET_NAMES) as string[]).includes(name)) {
       console.error(`[Wallet] Unknown wallet name: ${name}`)
       return false
     }
@@ -269,7 +240,7 @@ function WalletProvider(props) {
     return false
   }
 
-  const evmChainChangeHandler = async chainIdHex => {
+  const evmChainChangeHandler = async (chainIdHex: string) => {
     const chainId = parseInt(chainIdHex)
     console.log('* chainChanged', chainIdHex, chainId)
     setState(prev => ({
@@ -280,7 +251,11 @@ function WalletProvider(props) {
     }))
   }
 
-  const evmChangeNetwork = async (provider, params): Promise<boolean> => {
+  const evmChangeNetwork = async (params: any[]): Promise<boolean> => {
+    const { provider } = state
+    if (!provider) {
+      return false
+    }
     const newChainIdHex = params[0].chainId
     setState({ ...state, isLoading: true })
 
@@ -359,7 +334,7 @@ function WalletProvider(props) {
     localStorage.removeItem('isFirstInited')
   }
 
-  const evmAccountChangeHandler = async accounts => {
+  const evmAccountChangeHandler = async (accounts: string[]) => {
     console.log('* accountsChanged', accounts)
 
     if (!accounts.length) {
@@ -367,8 +342,7 @@ function WalletProvider(props) {
     }
 
     const address = accounts[0]
-    const addressDomain = await getDomain(address)
-    const balance = await getEvmBalance(state.provider, address)
+    const addressDomain = await getDomainAddress(address)
 
     setState(prev => ({
       ...prev,
@@ -376,7 +350,6 @@ function WalletProvider(props) {
         address,
         addressShort: shortenAddress(address),
         addressDomain,
-        balance
       }
     }))
   }
@@ -388,7 +361,7 @@ function WalletProvider(props) {
     const { params } = network.data
 
     if (state.name === 'MetaMask' || state.name === 'WalletConnect') {
-      const isChanged = await evmChangeNetwork(state.provider, params)
+      const isChanged = await evmChangeNetwork(params)
       if (isChanged) {
         localStorage.setItem(
           LOCAL_STORAGE_WALLETS_KEY,
@@ -478,9 +451,8 @@ function WalletProvider(props) {
 
   const fetchEvmWalletInfo = async (provider: ethers.providers.Web3Provider) => {
     const address = await provider.getSigner().getAddress()
-    const balance = await getEvmBalance(provider, address)
 
-    let addressDomain
+    let addressDomain = null
     try {
       addressDomain = await getDomainAddress(address)
     } catch (e) {
@@ -495,7 +467,6 @@ function WalletProvider(props) {
       address,
       addressShort,
       addressDomain,
-      balance
     }
   }
 
@@ -517,7 +488,7 @@ function WalletProvider(props) {
         estimateGas,
         provider: state.provider,
         walletProvider: state.walletProvider,
-        waitForTransaction: state.provider?.waitForTransaction?.bind(state.provider) ?? null,
+        waitForTransaction: state.provider?.waitForTransaction?.bind(state.provider) || null,
         restore,
         connect,
         changeNetwork,
@@ -525,10 +496,9 @@ function WalletProvider(props) {
         disconnect
       }}
     >
-      {props.children}
-      <ToastContainer position="top-right" newestOnTop transition={Slide} />
+      {children}
     </WalletContext.Provider>
   )
 }
 
-export default WalletProvider
+export {WalletProvider}

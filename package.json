@@ -1,0 +1,72 @@
+{
+  "name": "@viaprotocol/web3-wallets",
+  "private": false,
+  "version": "1.0.2",
+  "author": "Via Protocol (https://via.exchange)",
+  "description": "Universal interface for web3 wallets",
+  "scripts": {
+    "clean": "shx rm -rf ./build",
+    "build": "yarn clean && node esbuild.config.mjs && ts-patch i -s && tsc -p tsconfig.build.json",
+    "package": "shx cp -R package.json ./build && shx cp -R README.md ./build",
+    "publish:pre": "yarn build && yarn package",
+    "publish:yalc": "yarn build && yarn package && cd build && yalc publish --no-script --push",
+    "publish:latest": "yarn build && yarn package && cd build && npm publish --tag latest --access public"
+  },
+  "keywords": [
+    "blockchain",
+    "ethereum",
+    "react",
+    "solana",
+    "web3",
+    "typescript"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/viaprotocol/web3-wallets/issues"
+  },
+  "repository": "https://github.com/viaprotocol/web3-wallets.git",
+  "main": "index.js",
+  "module": "index.js",
+  "types": "index.d.ts",
+  "engines": {
+    "node": ">=12",
+    "npm": ">=6"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "contributors": [
+    {
+      "name": "Aleksey Lisun",
+      "url": "https://github.com/insulineru"
+    },
+    {
+      "name": "Iower",
+      "url": "https://github.com/iower"
+    },
+    {
+      "name": "Max Korolev",
+      "url": "https://github.com/nrjshka"
+    }
+  ],
+  "dependencies": {
+    "@metamask/providers": "^8.1.1",
+    "@solana/spl-name-service": "^0.1.4",
+    "@solana/web3.js": "^1.43.5",
+    "@walletconnect/web3-provider": "^1.7.8",
+    "ethers": "^5.6.8",
+    "ts-patch": "^2.0.1",
+    "typescript": "^4.7.3",
+    "typescript-transform-paths": "^3.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.12",
+    "esbuild": "^0.14.42",
+    "esbuild-node-externals": "^1.4.1",
+    "ismobilejs": "^1.1.1",
+    "shx": "^0.3.4"
+  },
+  "peerDependencies": {
+    "react": "^18.1.0"
+  }
+}

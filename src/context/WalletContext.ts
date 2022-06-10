@@ -1,8 +1,8 @@
 import { createContext } from 'react'
 
-import { IWallet, IWalletStoreState } from './types'
+import { IWallet, IWalletStoreState } from '../types'
 
-export const INITIAL_STATE: IWalletStoreState = {
+const INITIAL_STATE: IWalletStoreState = {
   isLoading: false,
   isConnected: false,
   name: null,
@@ -17,7 +17,7 @@ export const INITIAL_STATE: IWalletStoreState = {
   walletProvider: null
 }
 
-export const WalletContext = createContext<IWallet>({
+const WalletContext = createContext<IWallet>({
   ...INITIAL_STATE,
   restore: () => Promise.reject(),
   connect: () => Promise.reject(),
@@ -27,3 +27,5 @@ export const WalletContext = createContext<IWallet>({
   estimateGas: () => Promise.reject(),
   waitForTransaction: null
 })
+
+export { WalletContext, INITIAL_STATE }
