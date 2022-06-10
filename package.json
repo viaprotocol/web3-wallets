@@ -2,7 +2,7 @@
   "name": "@viaprotocol/web3-wallets",
   "private": false,
   "version": "1.0.1",
-  "author": "Aleksey Lisun<insuline.ru@gmail.com>",
+  "author": "Via Protocol (https://via.exchange)",
   "description": "Universal interface for web3 wallets",
   "scripts": {
     "clean": "shx rm -rf ./build",
