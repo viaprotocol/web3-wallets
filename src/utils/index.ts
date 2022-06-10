@@ -59,7 +59,7 @@ export const isValidAddress = async (chainId: number, address: string) => {
 }
 
 export const shortenAddress = (address: string) => {
-  if (typeof address === 'string') {
+  if (address.length) {
     if (address[address.length - 4] === '.') {
       // If ENS - Return ENS name
       return address
