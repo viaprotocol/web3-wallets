@@ -12,6 +12,7 @@ function tsPathResolver(content) {
 esbuild
   .build({
     entryPoints: [
+      './src/index.ts',
       './src/context/index.ts',
       './src/types.ts',
       './src/utils/index.ts',
