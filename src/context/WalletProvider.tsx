@@ -470,6 +470,24 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     }
   }
 
+  const waitForTransaction = async (hash: string, confirmations?: number) => {
+    // Status 0 === Tx Reverted
+    // @see https://docs.ethers.io/v5/api/providers/types/#providers-TransactionReceipt
+    const REVERTED_STATUS = 0
+
+    if (!state.provider) {
+      throw new Error('[Wallet] waitForTransaction error: no provider')
+    }
+
+    const tx = await state.provider.waitForTransaction(hash, confirmations)
+    if (tx.confirmations && tx.status !== REVERTED_STATUS) {
+      return tx
+    } else {
+      throw new Error(`[Wallet] waitForTransaction error: execution reverted`)
+    }
+
+  }
+
   const balance = useBalance(state)
 
   return (
@@ -488,7 +506,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         estimateGas,
         provider: state.provider,
         walletProvider: state.walletProvider,
-        waitForTransaction: state.provider?.waitForTransaction?.bind(state.provider) || null,
+        waitForTransaction,
         restore,
         connect,
         changeNetwork,
