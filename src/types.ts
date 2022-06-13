@@ -37,7 +37,7 @@ interface IWallet extends IWalletStoreState {
   ) => Promise<string /* | false*/> // todo: sendTx reject => false
   disconnect: () => void
   estimateGas: (data: TransactionRequest) => Promise<BigNumber | undefined>
-  waitForTransaction: ((transactionHash: string, confirmations?: number) => Promise<TransactionReceipt>) | null
+  waitForTransaction: (transactionHash: string, confirmations?: number) => Promise<TransactionReceipt>
 }
 
 export type { AvailableWalletNames, IWallet, IWalletStoreState, TWalletLocalData }
