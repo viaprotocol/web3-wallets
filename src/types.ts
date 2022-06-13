@@ -6,9 +6,16 @@ import { BigNumber } from 'ethers'
 
 type AvailableWalletNames = 'WalletConnect' | 'MetaMask' | 'Phantom' | 'Near'
 
+enum WalletStatusEnum {
+  NOT_INITED = 'NOT_INITED',
+  CONNECTING = 'CONNECTING',
+  LOADING = 'LOADING',
+  READY = 'READY',
+}
+
 interface IWalletStoreState {
   isConnected: boolean
-  isLoading: boolean
+  status: WalletStatusEnum
   name: null | AvailableWalletNames
   subName: null | string
   provider: Web3Provider | null
@@ -41,3 +48,4 @@ interface IWallet extends IWalletStoreState {
 }
 
 export type { AvailableWalletNames, IWallet, IWalletStoreState, TWalletLocalData }
+export { WalletStatusEnum }

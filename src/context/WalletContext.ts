@@ -1,10 +1,10 @@
 import { createContext } from 'react'
 
-import { IWallet, IWalletStoreState } from '../types'
+import { IWallet, IWalletStoreState, WalletStatusEnum } from '../types'
 
 const INITIAL_STATE: IWalletStoreState = {
-  isLoading: false,
-  isConnected: false,
+  status: WalletStatusEnum.NOT_INITED,
+  isConnected: false, // TODO: Remove (use status)
   name: null,
   subName: null,
   chainId: null,
