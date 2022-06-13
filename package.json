@@ -29,8 +29,8 @@
   "module": "index.js",
   "types": "index.d.ts",
   "engines": {
-    "node": ">=12",
-    "npm": ">=6"
+    "node": ">=16",
+    "npm": ">=7"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
