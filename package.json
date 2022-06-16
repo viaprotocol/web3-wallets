@@ -50,6 +50,7 @@
     }
   ],
   "dependencies": {
+    "@coinbase/wallet-sdk": "^3.3.0",
     "@metamask/providers": "^8.1.1",
     "@solana/spl-name-service": "^0.1.4",
     "@solana/web3.js": "^1.43.5",
@@ -58,6 +59,7 @@
     "ismobilejs": "^1.1.1"
   },
   "devDependencies": {
+    "@types/node-fetch": "^2.6.2",
     "@types/react": "^18.0.12",
     "esbuild": "^0.14.42",
     "esbuild-node-externals": "^1.4.1",

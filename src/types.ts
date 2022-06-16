@@ -1,10 +1,12 @@
+import type { CoinbaseWalletProvider } from '@coinbase/wallet-sdk';
 import { TransactionReceipt, TransactionRequest, Web3Provider } from '@ethersproject/providers'
 import { MetaMaskInpageProvider } from '@metamask/providers'
 import { Connection, Signer, Transaction } from '@solana/web3.js'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 import { BigNumber } from 'ethers'
+import type { WALLET_NAMES } from './constants'
 
-type AvailableWalletNames = 'WalletConnect' | 'MetaMask' | 'Phantom' | 'Near'
+type AvailableWalletNames = keyof typeof WALLET_NAMES
 
 enum WalletStatusEnum {
   NOT_INITED = 'NOT_INITED',
@@ -19,7 +21,7 @@ interface IWalletStoreState {
   name: null | AvailableWalletNames
   subName: null | string
   provider: Web3Provider | null
-  walletProvider: WalletConnectProvider | MetaMaskInpageProvider | null
+  walletProvider: WalletConnectProvider | MetaMaskInpageProvider | WalletConnectProvider | CoinbaseWalletProvider | null
   connection: Connection | null
   chainId: null | number
   address: string | null
