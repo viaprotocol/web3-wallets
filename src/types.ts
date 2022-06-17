@@ -21,7 +21,7 @@ interface IWalletStoreState {
   name: null | AvailableWalletNames
   subName: null | string
   provider: Web3Provider | null
-  walletProvider: WalletConnectProvider | MetaMaskInpageProvider | WalletConnectProvider | CoinbaseWalletProvider | null
+  walletProvider: WalletConnectProvider | MetaMaskInpageProvider | CoinbaseWalletProvider | null
   connection: Connection | null
   chainId: null | number
   address: string | null
