@@ -274,6 +274,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       const cluster = getCluster(chainId)
       const solanaNetwork = clusterApiUrl(cluster)
       const connection = new Connection(solanaNetwork)
+      const addressShort = shortenAddress(address)
 
       setState(prev => ({
         ...prev,
@@ -285,12 +286,20 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
           chainId,
           address,
           connection,
-          addressShort: shortenAddress(address),
+          addressShort,
           addressDomain
         }
       }))
 
       localStorage.setItem('web3-wallets-name', WALLET_NAMES.Phantom)
+      localStorage.setItem(
+        LOCAL_STORAGE_WALLETS_KEY,
+        JSON.stringify({
+          name: WALLET_NAMES.Phantom,
+          chainId,
+          address: addressDomain || addressShort
+        })
+      )
       return true
     } catch (err: any) {
       setState({ ...state, status: WalletStatusEnum.NOT_INITED })
