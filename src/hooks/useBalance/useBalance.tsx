@@ -19,6 +19,7 @@ function useBalance(options: IUseBalanceOptions) {
       Phantom: solBalance,
       WalletConnect: evmBalance,
       MetaMask: evmBalance,
+      Coinbase: evmBalance,
       Near: null,
     }[name]
   }, [name, solBalance, evmBalance])

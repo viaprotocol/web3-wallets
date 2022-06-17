@@ -16,7 +16,6 @@ import { useBalance } from '../hooks'
 
 declare global {
   interface Window {
-    ethereum: MetaMaskInpageProvider
     solana: any
   }
 }
@@ -24,13 +23,120 @@ declare global {
 const WalletProvider = function WalletProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<IWalletStoreState>(INITIAL_STATE)
 
-  const connectMetamask = async (chainId: number): Promise<boolean> => {
-    if (!window.ethereum || !window.ethereum.isMetaMask) {
+  const connectCoinbase = async (chainId: number): Promise<boolean> => {
+    if (!window.ethereum) {
       return false
     }
+
+    const ethereum: any  = window.ethereum
     setState({ ...state, status: WalletStatusEnum.LOADING })
 
-    const provider = new ethers.providers.Web3Provider(window.ethereum as unknown as ExternalProvider, 'any')
+    const findedProvider = () => {
+      if (ethereum.providers?.length) {
+        const provider = ethereum?.providers.find((prov: any) => prov?.isCoinbaseWallet)
+        if (!provider) {
+          throw new Error('[WalletProvider] No provider found')
+        }
+
+        return provider
+      }
+
+      return ethereum
+    }
+
+    try {
+      const CoinbaseWalletSDK = (await import('@coinbase/wallet-sdk')).default
+      const coinbase = new CoinbaseWalletSDK({
+        appName: document.title
+      })
+
+      const rpcUrl = rpcMapping[chainId]
+      const walletProvider = coinbase.makeWeb3Provider(rpcUrl, chainId)
+
+      const provider = new ethers.providers.Web3Provider(walletProvider as unknown as ExternalProvider, 'any')
+      await provider.send('eth_requestAccounts', [])
+
+
+      let { chainId: walletChainId, address, addressShort, addressDomain } = await fetchEvmWalletInfo(provider)
+
+      const isNeedToChangeNetwork = chainId && walletChainId !== chainId
+
+      if (isNeedToChangeNetwork) {
+        const network = getNetworkById(chainId)
+        if (!network.data.params) {
+          setState({ ...state, status: WalletStatusEnum.NOT_INITED })
+          throw new Error(`Missing network ${chainId} params`)
+        }
+        const isChanged = await evmChangeNetwork(network.data.params)
+        if (isChanged) {
+          walletChainId = network.chain_id
+        }
+      }
+
+      walletProvider.on('chainChanged', evmChainChangeHandler as any)
+      walletProvider.on('accountsChanged', evmAccountChangeHandler as any)
+
+      setState(prev => ({
+        ...prev,
+        ...{
+          isConnected: true,
+          status: WalletStatusEnum.READY,
+          name: WALLET_NAMES.Coinbase,
+          provider,
+          walletProvider,
+          chainId: walletChainId,
+          address,
+          addressShort,
+          addressDomain
+        }
+      }))
+
+      localStorage.setItem('web3-wallets-name', WALLET_NAMES.Coinbase)
+      localStorage.setItem(
+        LOCAL_STORAGE_WALLETS_KEY,
+        JSON.stringify({
+          name: WALLET_NAMES.Coinbase,
+          chainId,
+          address: addressDomain || addressShort
+        })
+      )
+
+      return true
+    } catch (e: any) {
+      setState({ ...state, status: WalletStatusEnum.NOT_INITED })
+      if (e.code === ERRCODE.UserRejected) {
+        console.warn('[Wallet] User rejected the request')
+        return false
+      } else {
+        throw e
+      }
+    }
+  }
+
+  const connectMetamask = async (chainId: number): Promise<boolean> => {
+    if (!window.ethereum) {
+      return false
+    }
+
+    const ethereum: any  = window.ethereum
+    setState({ ...state, status: WalletStatusEnum.LOADING })
+
+    const findedProvider = () => {
+      if (ethereum.providers?.length) {
+        const provider = ethereum?.providers.find((prov: any) => prov?.isMetaMask)
+        if (!provider) {
+          throw new Error('[WalletProvider] No provider found')
+        }
+
+        return provider
+      }
+
+      return ethereum
+    }
+
+    const walletProvider = findedProvider()
+
+    const provider = new ethers.providers.Web3Provider(walletProvider as ExternalProvider, 'any')
 
     try {
       await provider.send('eth_requestAccounts', [])
@@ -59,7 +165,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         walletChainId = network.chain_id
       }
     }
-    const walletProvider = window.ethereum
+
     walletProvider.on('chainChanged', evmChainChangeHandler as any)
     walletProvider.on('accountsChanged', evmAccountChangeHandler as any)
 
@@ -168,6 +274,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       const cluster = getCluster(chainId)
       const solanaNetwork = clusterApiUrl(cluster)
       const connection = new Connection(solanaNetwork)
+      const addressShort = shortenAddress(address)
 
       setState(prev => ({
         ...prev,
@@ -179,12 +286,20 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
           chainId,
           address,
           connection,
-          addressShort: shortenAddress(address),
+          addressShort,
           addressDomain
         }
       }))
 
       localStorage.setItem('web3-wallets-name', WALLET_NAMES.Phantom)
+      localStorage.setItem(
+        LOCAL_STORAGE_WALLETS_KEY,
+        JSON.stringify({
+          name: WALLET_NAMES.Phantom,
+          chainId,
+          address: addressDomain || addressShort
+        })
+      )
       return true
     } catch (err: any) {
       setState({ ...state, status: WalletStatusEnum.NOT_INITED })
@@ -203,19 +318,27 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       return false
     }
 
-    if (name === 'MetaMask') {
-      if (!window.ethereum || !window.ethereum.isMetaMask) {
+    if (name === WALLET_NAMES.MetaMask) {
+      if (!window.ethereum) {
         goMetamask()
         return false
       }
       return connectMetamask(chainId)
     }
 
-    if (name === 'WalletConnect') {
+    if (name === WALLET_NAMES.Coinbase) {
+      if (!window.ethereum) {
+        // TODO: Add link to coinbase
+        return false
+      }
+      return connectCoinbase(chainId)
+    }
+
+    if (name === WALLET_NAMES.WalletConnect) {
       return connectWC(chainId)
     }
 
-    if (name === 'Phantom') {
+    if (name === WALLET_NAMES.Phantom) {
       const isPhantomInstalled = window.solana && window.solana.isPhantom
       if (!isPhantomInstalled) {
         goPhantom()
