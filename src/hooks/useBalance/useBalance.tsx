@@ -1,10 +1,10 @@
 import { useMemo } from 'react'
 
-import type { IUseBalanceOptions } from './types'
+import type { TUseBalanceOptions } from './types'
 import { useEVMBalance } from './useEVMBalance'
 import { useSolanaBalance } from './useSolanaBalance'
 
-function useBalance(options: IUseBalanceOptions) {
+function useBalance(options: TUseBalanceOptions) {
   const { name } = options
 
   const evmBalance = useEVMBalance(options)

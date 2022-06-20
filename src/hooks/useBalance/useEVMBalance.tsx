@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import { EVM_WALLETS_CONFIG } from './config'
-import type { IUseBalanceOptions } from './types'
+import type { TUseBalanceOptions } from './types'
 
-function useEVMBalance(options: IUseBalanceOptions) {
+function useEVMBalance(options: TUseBalanceOptions) {
   const { isConnected, provider, name, address, chainId } = options
   const isEVMWallet = !!name && EVM_WALLETS_CONFIG.includes(name)
   const isSubscriptionIsAvailable = isEVMWallet && address && isConnected && provider

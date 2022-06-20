@@ -1,5 +1,5 @@
 import type { TWalletStoreState } from '../../types'
 
-type IUseBalanceOptions = {} & TWalletStoreState
+type TUseBalanceOptions = {} & TWalletStoreState
 
-export type { IUseBalanceOptions }
+export type { TUseBalanceOptions }
