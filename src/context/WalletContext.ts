@@ -1,6 +1,7 @@
 import { createContext } from 'react'
 
-import { IWallet, IWalletStoreState, WalletStatusEnum } from '../types'
+import type { IWallet, IWalletStoreState } from '../types'
+import { WalletStatusEnum } from '../types'
 
 const INITIAL_STATE: IWalletStoreState = {
   status: WalletStatusEnum.NOT_INITED,

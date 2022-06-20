@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import { EVM_WALLETS_CONFIG } from './config'
-import { IUseBalanceOptions } from './types'
+import type { IUseBalanceOptions } from './types'
 
 function useEVMBalance(options: IUseBalanceOptions) {
   const { isConnected, provider, name, address, chainId } = options
@@ -14,7 +14,8 @@ function useEVMBalance(options: IUseBalanceOptions) {
     if (!isSubscriptionIsAvailable) {
       return
     }
-    provider.getBalance(address).then(res => {
+
+    provider.getBalance(address).then((res) => {
       if (res) {
         setBalance(res.toString())
       }

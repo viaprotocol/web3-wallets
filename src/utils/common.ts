@@ -1,6 +1,7 @@
 import { PublicKey } from '@solana/web3.js'
-import { BytesLike, ethers } from 'ethers'
-import { Hexable } from 'ethers/lib/utils'
+import type { BytesLike } from 'ethers'
+import { ethers } from 'ethers'
+import type { Hexable } from 'ethers/lib/utils'
 import isMobile from 'ismobilejs'
 
 import {
@@ -47,9 +48,9 @@ export const isValidAddress = async (chainId: number, address: string) => {
     // EQAXqKCSrUFgPKMlCKlfyT2WT7GhVzuHyXiPtDvT9s5FMp5o
     const prefix = address.slice(0, 2)
     return (
-      address.length === 48 &&
-      (prefix === 'EQ' || prefix === 'kQ' || prefix === 'Ef' || prefix === 'UQ') &&
-      /^[a-zA-Z0-9_-]*$/.test(address)
+      address.length === 48
+      && (prefix === 'EQ' || prefix === 'kQ' || prefix === 'Ef' || prefix === 'UQ')
+      && /^[a-zA-Z0-9_-]*$/.test(address)
     )
   }
   throw new Error(`Not implemented or wrong chainId ${chainId}`)
@@ -71,15 +72,18 @@ export const getAddressUrl = (chainId: number, address: string) => {
   if (!chainId || !address || !supportedNetworkIds.includes(chainId)) {
     return undefined
   }
+
   const network = getNetworkById(chainId)
   const explorerUrl = network.data.params[0].blockExplorerUrls[0]
 
   if (network.chain_id > 0) {
     return `${explorerUrl}/address/${address}`
   }
+
   if (network.chain_id === NETWORK_IDS.Solana) {
     return `${explorerUrl}/account/${address}`
   }
+
   if (network.chain_id === NETWORK_IDS.SolanaTestnet) {
     return `${explorerUrl}/account/${address}?cluster=testnet`
   }
@@ -91,18 +95,22 @@ export const getTxUrl = (chainId: number, txHash: string): string | undefined =>
   if (!chainId || !txHash || !supportedNetworkIds.includes(chainId)) {
     return undefined
   }
+
   const network = getNetworkById(chainId)
   const explorerUrl = network.data.params[0].blockExplorerUrls[0]
 
   if (network.chain_id > 0) {
     return `${explorerUrl}/tx/${txHash}`
   }
+
   if (network.chain_id === NETWORK_IDS.Solana) {
     return `${explorerUrl}/tx/${txHash}`
   }
+
   if (network.chain_id === NETWORK_IDS.SolanaTestnet) {
     return `${explorerUrl}/tx/${txHash}?cluster=testnet`
   }
+
   throw new Error(`getTxUrl: not implemented for chainId ${chainId}`)
 }
 
@@ -110,6 +118,7 @@ export const getNativeTokenAddress = (chainId: number) => {
   if (chainId === NETWORK_IDS.Solana || chainId === NETWORK_IDS.SolanaTestnet) {
     return SOLANA_BASE_TOKEN_ADDRESS
   }
+
   return EVM_BASE_TOKEN_ADDRESS
 }
 
@@ -117,6 +126,7 @@ export const parseAddressFromEns = async (input: string) => {
   if (input.slice(-4) === SOLANA_ENS_POSTFIX) {
     return parseAddressFromEnsSolana(input)
   }
+
   if (input.slice(-4) === EVM_ENS_POSTFIX) {
     const rpc = getNetworkById(NETWORK_IDS.Ethereum).rpc_url
     const provider = new ethers.providers.JsonRpcProvider(rpc)

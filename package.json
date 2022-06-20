@@ -27,6 +27,8 @@
   "scripts": {
     "clean": "shx rm -rf ./build",
     "build": "yarn clean && node esbuild.config.mjs && ts-patch i -s && tsc -p tsconfig.build.json",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "package": "shx cp -R package.json ./build && shx cp -R README.md ./build",
     "publish:pre": "yarn build && yarn package",
     "publish:yalc": "yarn build && yarn package && cd build && yalc publish --no-script --push",
