@@ -2,11 +2,11 @@ import { PublicKey } from '@solana/web3.js'
 import { useEffect, useState } from 'react'
 
 import { SOL_WALLETS_CONFIG } from './config'
-import { IUseBalanceOptions } from './types'
+import type { TUseBalanceOptions } from './types'
 
 const SECONDS_BEFORE_NEXT_UPDATE = 2
 
-function useSolanaBalance(options: IUseBalanceOptions) {
+function useSolanaBalance(options: TUseBalanceOptions) {
   const { name, address, isConnected, connection } = options
 
   const [balance, setBalance] = useState<string | null>(null)
@@ -14,9 +14,9 @@ function useSolanaBalance(options: IUseBalanceOptions) {
   const isSubscriptionIsAvailable = isSolWallet && address && isConnected && connection
 
   useEffect(() => {
-    const intervalId =
-      isSubscriptionIsAvailable &&
-      setInterval(async () => {
+    const intervalId
+      = isSubscriptionIsAvailable
+      && setInterval(async () => {
         const solBalance = await connection.getBalance(new PublicKey(address), 'confirmed')
 
         setBalance(String(solBalance))

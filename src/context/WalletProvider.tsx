@@ -1,48 +1,41 @@
-/* eslint-disable */
+/* 🚧 NEED TO BE REFACTORED 🚧 */
+/* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-use-before-define */
+/* eslint-disable prefer-const */
+
 import type { ExternalProvider, TransactionRequest } from '@ethersproject/providers'
-import { MetaMaskInpageProvider } from '@metamask/providers'
-import { Connection, Signer, Transaction, clusterApiUrl } from '@solana/web3.js'
+import type { Signer } from '@solana/web3.js'
+import { Connection, Transaction, clusterApiUrl } from '@solana/web3.js'
 import WalletConnectProvider from '@walletconnect/web3-provider'
-import { BigNumber, ethers } from 'ethers'
+import type { BigNumber } from 'ethers'
+import { ethers } from 'ethers'
 import React, { useState } from 'react'
 
-import { INITIAL_STATE, WalletContext } from './WalletContext'
 import { ERRCODE, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, WALLET_NAMES } from '../constants'
 import { getNetworkById, rpcMapping } from '../networks'
-import { IWalletStoreState, TWalletLocalData, WalletStatusEnum } from '../types'
-import { getDomainAddress, goMetamask, goPhantom, shortenAddress } from '../utils'
-import { getCluster, parseEnsFromSolanaAddress } from '../utils'
+import type { TWalletLocalData, TWalletStoreState } from '../types'
+import { WalletStatusEnum } from '../types'
+import { getCluster, getDomainAddress, goMetamask, goPhantom, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
 import { useBalance } from '../hooks'
+import { INITIAL_STATE, WalletContext } from './WalletContext'
+import { EVM_WALLETS_CONFIG, SOL_WALLETS_CONFIG } from '@/hooks/useBalance/config'
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface Window {
     solana: any
   }
 }
 
 const WalletProvider = function WalletProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<IWalletStoreState>(INITIAL_STATE)
+  const [state, setState] = useState<TWalletStoreState>(INITIAL_STATE)
 
   const connectCoinbase = async (chainId: number): Promise<boolean> => {
     if (!window.ethereum) {
       return false
     }
 
-    const ethereum: any  = window.ethereum
-    setState({ ...state, status: WalletStatusEnum.LOADING })
-
-    const findedProvider = () => {
-      if (ethereum.providers?.length) {
-        const provider = ethereum?.providers.find((prov: any) => prov?.isCoinbaseWallet)
-        if (!provider) {
-          throw new Error('[WalletProvider] No provider found')
-        }
-
-        return provider
-      }
-
-      return ethereum
-    }
+    setState(prev => ({ ...prev, status: WalletStatusEnum.LOADING }))
 
     try {
       const CoinbaseWalletSDK = (await import('@coinbase/wallet-sdk')).default
@@ -56,7 +49,6 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       const provider = new ethers.providers.Web3Provider(walletProvider as unknown as ExternalProvider, 'any')
       await provider.send('eth_requestAccounts', [])
 
-
       let { chainId: walletChainId, address, addressShort, addressDomain } = await fetchEvmWalletInfo(provider)
 
       const isNeedToChangeNetwork = chainId && walletChainId !== chainId
@@ -64,7 +56,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       if (isNeedToChangeNetwork) {
         const network = getNetworkById(chainId)
         if (!network.data.params) {
-          setState({ ...state, status: WalletStatusEnum.NOT_INITED })
+          setState(prev => ({ ...prev, status: WalletStatusEnum.NOT_INITED }))
           throw new Error(`Missing network ${chainId} params`)
         }
         const isChanged = await evmChangeNetwork(network.data.params)
@@ -103,7 +95,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
       return true
     } catch (e: any) {
-      setState({ ...state, status: WalletStatusEnum.NOT_INITED })
+      setState(prev => ({ ...prev, status: WalletStatusEnum.NOT_INITED }))
       if (e.code === ERRCODE.UserRejected) {
         console.warn('[Wallet] User rejected the request')
         return false
@@ -118,8 +110,8 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       return false
     }
 
-    const ethereum: any  = window.ethereum
-    setState({ ...state, status: WalletStatusEnum.LOADING })
+    const ethereum: any = window.ethereum
+    setState(prev => ({ ...prev, status: WalletStatusEnum.LOADING }))
 
     const findedProvider = () => {
       if (ethereum.providers?.length) {
@@ -141,7 +133,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     try {
       await provider.send('eth_requestAccounts', [])
     } catch (e: any) {
-      setState({ ...state, status: WalletStatusEnum.NOT_INITED })
+      setState(prev => ({ ...prev, status: WalletStatusEnum.NOT_INITED }))
       if (e.code === ERRCODE.UserRejected) {
         console.warn('[Wallet] User rejected the request')
         return false
@@ -157,7 +149,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     if (isNeedToChangeNetwork) {
       const network = getNetworkById(chainId)
       if (!network.data.params) {
-        setState({ ...state, status: WalletStatusEnum.NOT_INITED })
+        setState(prev => ({ ...prev, status: WalletStatusEnum.NOT_INITED }))
         throw new Error(`Missing network ${chainId} params`)
       }
       const isChanged = await evmChangeNetwork(network.data.params)
@@ -174,7 +166,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       ...{
         isConnected: true,
         status: WalletStatusEnum.READY,
-        name: 'MetaMask',
+        name: WALLET_NAMES.MetaMask,
         provider,
         walletProvider,
         chainId: walletChainId,
@@ -198,7 +190,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
   }
 
   const connectWC = async (chainId: number): Promise<boolean> => {
-    setState({ ...state, status: WalletStatusEnum.LOADING })
+    setState(prev => ({ ...prev, status: WalletStatusEnum.LOADING }))
     try {
       const walletConnectProvider = new WalletConnectProvider({
         rpc: rpcMapping,
@@ -229,7 +221,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         ...{
           isConnected: true,
           status: WalletStatusEnum.READY,
-          name: 'WalletConnect',
+          name: WALLET_NAMES.WalletConnect,
           subName,
           provider: web3Provider,
           walletProvider: walletConnectProvider,
@@ -252,7 +244,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
       return true
     } catch (err: any) {
-      setState({ ...state, status: WalletStatusEnum.NOT_INITED })
+      setState(prev => ({ ...prev, status: WalletStatusEnum.NOT_INITED }))
       if (err.toString().includes('User closed modal')) {
         return false
       }
@@ -265,7 +257,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     if (chainId !== NETWORK_IDS.Solana && chainId !== NETWORK_IDS.SolanaTestnet) {
       throw new Error(`Unknown Phantom chainId ${chainId}`)
     }
-    setState({ ...state, status: WalletStatusEnum.LOADING })
+    setState(prev => ({ ...prev, status: WalletStatusEnum.LOADING }))
     try {
       const resp = isReconnect ? await window.solana.connect({ onlyIfTrusted: true }) : await window.solana.connect()
       const address = resp.publicKey.toString()
@@ -302,7 +294,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       )
       return true
     } catch (err: any) {
-      setState({ ...state, status: WalletStatusEnum.NOT_INITED })
+      setState(prev => ({ ...prev, status: WalletStatusEnum.NOT_INITED }))
       if (err.code === ERRCODE.UserRejected) {
         console.warn('[Wallet] User rejected the request.')
       }
@@ -311,7 +303,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     }
   }
 
-  const connect = async ({ name, chainId } : { name: string; chainId: number}): Promise<boolean> => {
+  const connect = async ({ name, chainId }: { name: string; chainId: number }): Promise<boolean> => {
     console.log('[Wallet] connect()', name, chainId)
     if (!(Object.values(WALLET_NAMES) as string[]).includes(name)) {
       console.error(`[Wallet] Unknown wallet name: ${name}`)
@@ -366,12 +358,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
   const evmChainChangeHandler = async (chainIdHex: string) => {
     const chainId = parseInt(chainIdHex)
     console.log('* chainChanged', chainIdHex, chainId)
-    setState(prev => ({
-      ...prev,
-      ...{
-        chainId
-      }
-    }))
+    setState(prev => ({ ...prev, chainId }))
   }
 
   const evmChangeNetwork = async (params: any[]): Promise<boolean> => {
@@ -380,7 +367,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       return false
     }
     const newChainIdHex = params[0].chainId
-    setState({ ...state, status: WalletStatusEnum.LOADING })
+    setState(prev => ({ ...prev, status: WalletStatusEnum.LOADING }))
 
     try {
       await provider.send('wallet_switchEthereumChain', [
@@ -388,25 +375,25 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
           chainId: newChainIdHex
         }
       ])
-      setState({ ...state, status: WalletStatusEnum.READY })
+      setState(prev => ({ ...prev, status: WalletStatusEnum.READY }))
       return true
     } catch (error: any) {
       if (error.code === ERRCODE.UserRejected) {
-        setState({ ...state, status: WalletStatusEnum.READY })
+        setState(prev => ({ ...prev, status: WalletStatusEnum.READY }))
         console.warn('[Wallet] User rejected the request')
         return false
       }
 
       if (error.code === ERRCODE.UnrecognizedChain || error.code === ERRCODE.UnrecognizedChain2) {
-        // the chain has not been added to MetaMask
+        // the chain has not been added to wallet
         try {
           console.log('[Wallet] Try to add the network...', params)
           await provider.send('wallet_addEthereumChain', params)
-          setState({ ...state, status: WalletStatusEnum.READY })
+          setState(prev => ({ ...prev, status: WalletStatusEnum.READY }))
           // todo: Users can allow adding, but not allowing switching
           return true
         } catch (addNetworkError: any) {
-          setState({ ...state, status: WalletStatusEnum.READY })
+          setState(prev => ({ ...prev, status: WalletStatusEnum.READY }))
           if (addNetworkError.code === ERRCODE.UserRejected) {
             console.warn('[Wallet] User rejected the request')
             return false
@@ -423,7 +410,11 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
   const disconnect = () => {
     console.log('[Wallet] disconnect()')
 
-    if (state.name === 'MetaMask' || state.name === 'WalletConnect') {
+    if (!state.name) {
+      return false
+    }
+
+    if (EVM_WALLETS_CONFIG.includes(state.name)) {
       if (state.walletProvider) {
         state.walletProvider.removeAllListeners()
         if (state.walletProvider instanceof WalletConnectProvider) {
@@ -432,7 +423,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       }
     }
 
-    if (state.name === 'Phantom') {
+    if (SOL_WALLETS_CONFIG.includes(state.name)) {
       window.solana.disconnect()
     }
 
@@ -472,18 +463,21 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       ...{
         address,
         addressShort: shortenAddress(address),
-        addressDomain,
+        addressDomain
       }
     }))
   }
 
   const changeNetwork = async (chainId: number) => {
     console.log('[Wallet] changeNetwork()', chainId)
+    if (!state.name) {
+      return false
+    }
 
     const network = getNetworkById(chainId)
     const { params } = network.data
 
-    if (state.name === 'MetaMask' || state.name === 'WalletConnect') {
+    if (EVM_WALLETS_CONFIG.includes(state.name)) {
       const isChanged = await evmChangeNetwork(params)
       if (isChanged) {
         localStorage.setItem(
@@ -518,9 +512,9 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       const solanaNetwork = clusterApiUrl(cluster)
       const connection = new Connection(solanaNetwork)
 
-      // @ts-ignore
+      // @ts-expect-error need types for state provider
       transaction.feePayer = state.provider.publicKey
-      console.log('Getting recent blockhash')
+      console.warn('Getting recent blockhash')
       transaction.recentBlockhash = transaction.recentBlockhash || (await connection.getLatestBlockhash()).blockhash
 
       if (params?.signers?.length) {
@@ -529,19 +523,19 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       }
 
       try {
-        // @ts-ignore
+        // @ts-expect-error Solana need to be refactored
         const signed = await state.provider.signTransaction(transaction)
         console.log('signed', signed)
         console.log('Got signature, submitting transaction...')
         const rawTx = signed.serialize()
         const signature = await connection.sendRawTransaction(rawTx)
         // todo: sendRawTransaction Commitment
-        console.log(`Tx submitted`, signature)
+        console.log('Tx submitted', signature)
         await (async () => {
-          console.log(`Waiting for network confirmation...`)
+          console.log('Waiting for network confirmation...')
           await connection.confirmTransaction(signature)
           console.log('Tx confirmed!', signature)
-          console.log(`See explorer:`)
+          console.log('See explorer:')
           console.log(`https://solscan.io/tx/${signature}${cluster === 'testnet' ? '?cluster=testnet' : ''}`)
         })()
         return signature
@@ -559,7 +553,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       } catch (err: any) {
         if (err.code === ERRCODE.UserRejected) {
           console.warn('[Wallet] User rejected the request')
-          throw err //return false // todo: sendTx reject => false
+          throw err // return false // todo: sendTx reject => false
         }
         console.error(`[Wallet] sendTx error: ${JSON.stringify(err)}`)
         throw err
@@ -589,7 +583,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       chainId,
       address,
       addressShort,
-      addressDomain,
+      addressDomain
     }
   }
 
@@ -606,9 +600,8 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     if (tx.confirmations && tx.status !== REVERTED_STATUS) {
       return tx
     } else {
-      throw new Error(`[Wallet] waitForTransaction error: execution reverted`)
+      throw new Error('[Wallet] waitForTransaction error: execution reverted')
     }
-
   }
 
   const balance = useBalance(state)
@@ -642,4 +635,4 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
   )
 }
 
-export {WalletProvider}
+export { WalletProvider }

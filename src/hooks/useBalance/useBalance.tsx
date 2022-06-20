@@ -1,10 +1,10 @@
 import { useMemo } from 'react'
 
-import { IUseBalanceOptions } from './types'
+import type { TUseBalanceOptions } from './types'
 import { useEVMBalance } from './useEVMBalance'
 import { useSolanaBalance } from './useSolanaBalance'
 
-function useBalance(options: IUseBalanceOptions) {
+function useBalance(options: TUseBalanceOptions) {
   const { name } = options
 
   const evmBalance = useEVMBalance(options)
@@ -20,7 +20,7 @@ function useBalance(options: IUseBalanceOptions) {
       WalletConnect: evmBalance,
       MetaMask: evmBalance,
       Coinbase: evmBalance,
-      Near: null,
+      Near: null
     }[name]
   }, [name, solBalance, evmBalance])
 

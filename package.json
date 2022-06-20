@@ -1,16 +1,13 @@
 {
   "name": "@viaprotocol/web3-wallets",
-  "private": false,
   "version": "1.0.6",
-  "author": "Via Protocol (https://via.exchange)",
+  "private": false,
   "description": "Universal interface for web3 wallets",
-  "scripts": {
-    "clean": "shx rm -rf ./build",
-    "build": "yarn clean && node esbuild.config.mjs && ts-patch i -s && tsc -p tsconfig.build.json",
-    "package": "shx cp -R package.json ./build && shx cp -R README.md ./build",
-    "publish:pre": "yarn build && yarn package",
-    "publish:yalc": "yarn build && yarn package && cd build && yalc publish --no-script --push",
-    "publish:latest": "yarn build && yarn package && cd build && npm publish --tag latest --access public"
+  "author": "Via Protocol (https://via.exchange)",
+  "license": "MIT",
+  "repository": "https://github.com/viaprotocol/web3-wallets.git",
+  "bugs": {
+    "url": "https://github.com/viaprotocol/web3-wallets/issues"
   },
   "keywords": [
     "blockchain",
@@ -20,17 +17,22 @@
     "web3",
     "typescript"
   ],
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/viaprotocol/web3-wallets/issues"
-  },
-  "repository": "https://github.com/viaprotocol/web3-wallets.git",
   "main": "index.js",
   "module": "index.js",
   "types": "index.d.ts",
   "engines": {
     "node": ">=16",
     "npm": ">=7"
+  },
+  "scripts": {
+    "clean": "shx rm -rf ./build",
+    "build": "yarn clean && node esbuild.config.mjs && ts-patch i -s && tsc -p tsconfig.build.json",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "package": "shx cp -R package.json ./build && shx cp -R README.md ./build",
+    "publish:pre": "yarn build && yarn package",
+    "publish:yalc": "yarn build && yarn package && cd build && yalc publish --no-script --push",
+    "publish:latest": "yarn build && yarn package && cd build && npm publish --tag latest --access public"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
@@ -49,6 +51,9 @@
       "url": "https://github.com/nrjshka"
     }
   ],
+  "peerDependencies": {
+    "react": "^18.1.0"
+  },
   "dependencies": {
     "@coinbase/wallet-sdk": "^3.3.0",
     "@metamask/providers": "^8.1.1",
@@ -59,16 +64,15 @@
     "ismobilejs": "^1.1.1"
   },
   "devDependencies": {
+    "@antfu/eslint-config": "^0.25.1",
     "@types/node-fetch": "^2.6.2",
     "@types/react": "^18.0.12",
     "esbuild": "^0.14.42",
     "esbuild-node-externals": "^1.4.1",
+    "eslint": "^8.18.0",
     "shx": "^0.3.4",
     "ts-patch": "^2.0.1",
     "typescript": "^4.7.3",
     "typescript-transform-paths": "^3.3.1"
-  },
-  "peerDependencies": {
-    "react": "^18.1.0"
   }
 }

@@ -1,8 +1,9 @@
 import { createContext } from 'react'
 
-import { IWallet, IWalletStoreState, WalletStatusEnum } from '../types'
+import type { TWallet, TWalletStoreState } from '../types'
+import { WalletStatusEnum } from '../types'
 
-const INITIAL_STATE: IWalletStoreState = {
+const INITIAL_STATE: TWalletStoreState = {
   status: WalletStatusEnum.NOT_INITED,
   isConnected: false, // TODO: Remove (use status)
   name: null,
@@ -17,7 +18,7 @@ const INITIAL_STATE: IWalletStoreState = {
   walletProvider: null
 }
 
-const WalletContext = createContext<IWallet>({
+const WalletContext = createContext<TWallet>({
   ...INITIAL_STATE,
   restore: () => Promise.reject(),
   connect: () => Promise.reject(),

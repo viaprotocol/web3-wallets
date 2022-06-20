@@ -1,5 +1,5 @@
-import { IWalletStoreState } from '../../types'
+import type { TWalletStoreState } from '../../types'
 
-interface IUseBalanceOptions extends IWalletStoreState {}
+type TUseBalanceOptions = {} & TWalletStoreState
 
-export type { IUseBalanceOptions }
+export type { TUseBalanceOptions }

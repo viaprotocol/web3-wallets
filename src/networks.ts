@@ -18,7 +18,7 @@ const networksRaw = [
     short_name: 'Rinkeby Testnet',
     logo_url: 'https://etherscan.io/images/ethereum-icon.png',
     explorer_url: 'https://rinkeby.etherscan.io',
-    rpc_url: `https://rpc.ankr.com/eth_rinkeby`,
+    rpc_url: 'https://rpc.ankr.com/eth_rinkeby',
     currency_name: 'Ethereum',
     currency_symbol: 'ETH',
     currency_decimals: 18,
@@ -272,7 +272,7 @@ const networksRaw = [
     currency_decimals: 18,
     is_testnet: false
   },
-  /*{ // Testnet not ready
+  /* { // Testnet not ready
     chain_id: 100,
     name: 'Gnosis Chain Testnet',
     short_name: 'Gnosis Testnet',
@@ -283,7 +283,7 @@ const networksRaw = [
     currency_symbol: 'xDAI',
     currency_decimals: 18,
     is_testnet: false
-  },*/
+  }, */
 
   // Moonriver
   {
@@ -359,7 +359,7 @@ const networks = networksRaw.map(item => ({
   data: {
     params: [
       {
-        chainId: '0x' + item.chain_id.toString(16),
+        chainId: `0x${item.chain_id.toString(16)}`,
         chainName: item.name,
         nativeCurrency: {
           name: item.currency_name,
@@ -383,6 +383,7 @@ export const getNetworkById = (chainId: string | number) => {
   if (network) {
     return network
   }
+
   throw new Error(`Unknown chainId ${chainId}`)
 }
 

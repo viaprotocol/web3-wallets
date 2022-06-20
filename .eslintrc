@@ -1,0 +1,31 @@
+{
+  "extends": "@antfu",
+  "rules": {
+    "brace-style": [
+      "error",
+      "1tbs"
+    ],
+    "@typescript-eslint/brace-style": [
+      "error",
+      "1tbs"
+    ],
+    "curly": [
+      "error",
+      "all"
+    ],
+    "prefer-promise-reject-errors": [
+      "error",
+      {
+        "allowEmptyReject": true
+      }
+    ],
+    "@typescript-eslint/comma-dangle": [
+      "error",
+      "never"
+    ],
+    "@typescript-eslint/consistent-type-definitions": [
+      "error",
+      "type"
+    ]
+  }
+}

@@ -18,6 +18,7 @@ export const checkEnsValid = async (input: string) => {
   if (input.slice(-4) === SOLANA_ENS_POSTFIX) {
     addressTemp = input.slice(0, -4)
   }
+
   const { inputDomainKey } = await getInputKey(addressTemp)
   const registry = await NameRegistryState.retrieve(connection, inputDomainKey)
 
