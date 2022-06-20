@@ -13,7 +13,7 @@ import React, { useState } from 'react'
 
 import { ERRCODE, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, WALLET_NAMES } from '../constants'
 import { getNetworkById, rpcMapping } from '../networks'
-import type { IWalletStoreState, TWalletLocalData } from '../types'
+import type { TWalletLocalData, TWalletStoreState } from '../types'
 import { WalletStatusEnum } from '../types'
 import { getCluster, getDomainAddress, goMetamask, goPhantom, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
 import { useBalance } from '../hooks'
@@ -28,7 +28,7 @@ declare global {
 }
 
 const WalletProvider = function WalletProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<IWalletStoreState>(INITIAL_STATE)
+  const [state, setState] = useState<TWalletStoreState>(INITIAL_STATE)
 
   const connectCoinbase = async (chainId: number): Promise<boolean> => {
     if (!window.ethereum) {

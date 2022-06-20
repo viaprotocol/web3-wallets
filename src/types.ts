@@ -6,7 +6,7 @@ import type WalletConnectProvider from '@walletconnect/web3-provider'
 import type { BigNumber } from 'ethers'
 import type { WALLET_NAMES } from './constants'
 
-type AvailableWalletNames = keyof typeof WALLET_NAMES
+type TAvailableWalletNames = keyof typeof WALLET_NAMES
 
 enum WalletStatusEnum {
   NOT_INITED = 'NOT_INITED',
@@ -15,10 +15,10 @@ enum WalletStatusEnum {
   READY = 'READY'
 }
 
-type IWalletStoreState = {
+type TWalletStoreState = {
   isConnected: boolean
   status: WalletStatusEnum
-  name: null | AvailableWalletNames
+  name: null | TAvailableWalletNames
   subName: null | string
   provider: Web3Provider | null
   walletProvider: WalletConnectProvider | MetaMaskInpageProvider | CoinbaseWalletProvider | null
@@ -36,7 +36,7 @@ type TWalletLocalData = {
   address: string
 }
 
-type IWallet = {
+type TWallet = {
   restore: () => Promise<boolean>
   connect: ({ name, chainId }: { name: any; chainId: any }) => Promise<boolean>
   changeNetwork: (chainId: number) => Promise<boolean>
@@ -47,7 +47,7 @@ type IWallet = {
   disconnect: () => void
   estimateGas: (data: TransactionRequest) => Promise<BigNumber | undefined>
   waitForTransaction: (transactionHash: string, confirmations?: number) => Promise<TransactionReceipt>
-} & IWalletStoreState
+} & TWalletStoreState
 
-export type { AvailableWalletNames, IWallet, IWalletStoreState, TWalletLocalData }
+export type { TAvailableWalletNames, TWallet, TWalletStoreState, TWalletLocalData }
 export { WalletStatusEnum }
