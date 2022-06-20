@@ -3,16 +3,18 @@
 Universal interface for web3 wallets
 
 ```
-                                    wallets          blockchains
+                                    wallets           blockchains
 
 
-                               ╭───[MetaMask]────────[EVM-blockchains]
+                               ╭───[MetaMask]─────────[EVM-blockchains]
                                │
-                               ├───[WalletConnect]───[EVM-blockchains]
-[your dapp]───[web3-wallets]───┤
-                               ├───[Phantom]─────────[Solana]
+                               ├───[WalletConnect]────[EVM-blockchains]
                                │
-                               ╰───[NEAR Wallet]─────[NEAR]
+[your dapp]───[web3-wallets]───┼───[Coinbase Wallet]──[EVM-blockchains]
+                               │
+                               ├───[Phantom]──────────[Solana]
+                               │
+                               ╰───[NEAR Wallet]──────[NEAR]
 
 ```
 
