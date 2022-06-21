@@ -27,6 +27,7 @@ export const NETWORK_IDS = {
   HecoTestnet: 256,
   Okex: 66,
   OkexTestnet: 65,
+  Candle: 534,
   Gnosis: 100,
   Moonriver: 1285,
   MoonriverTestnet: 1287,

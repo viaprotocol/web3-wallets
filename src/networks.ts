@@ -347,6 +347,19 @@ const networksRaw = [
     currency_symbol: 'ETH',
     currency_decimals: 18,
     is_testnet: false
+  },
+  // Candle
+  {
+    chain_id: 534,
+    name: 'Candle',
+    short_name: 'Candle',
+    logo_url: 'https://i.ibb.co/86yLQRZ/candlelogo.png',
+    explorer_url: 'https://candleexplorer.com',
+    rpc_url: 'https://rpc.cndlchain.com',
+    currency_name: 'Candle',
+    currency_symbol: 'CNDL',
+    currency_decimals: 18,
+    is_testnet: false
   }
 ]
 
