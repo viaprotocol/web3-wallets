@@ -49,5 +49,7 @@ type TWallet = {
   waitForTransaction: (transactionHash: string, confirmations?: number) => Promise<TransactionReceipt>
 } & TWalletStoreState
 
-export type { TAvailableWalletNames, TWallet, TWalletStoreState, TWalletLocalData }
+type TWalletValues = keyof typeof WALLET_NAMES
+
+export type { TAvailableWalletNames, TWallet, TWalletStoreState, TWalletLocalData, TWalletValues }
 export { WalletStatusEnum }
