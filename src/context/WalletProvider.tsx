@@ -587,20 +587,32 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     }
   }
 
-  const waitForTransaction = async (hash: string, confirmations?: number) => {
-    // Status 0 === Tx Reverted
-    // @see https://docs.ethers.io/v5/api/providers/types/#providers-TransactionReceipt
-    const REVERTED_STATUS = 0
+  const waitForTransaction = async (hash: string, confirmations?: number): Promise<void> => {
+    const { chainId } = state
 
-    if (!state.provider) {
-      throw new Error('[Wallet] waitForTransaction error: no provider')
-    }
+    if (chainId === NETWORK_IDS.Solana) {
+      const cluster = getCluster(state.chainId)
+      const solanaNetwork = clusterApiUrl(cluster)
+      const connection = new Connection(solanaNetwork)
 
-    const tx = await state.provider.waitForTransaction(hash, confirmations)
-    if (tx.confirmations && tx.status !== REVERTED_STATUS) {
-      return tx
+      try {
+        await connection.getTransaction(hash)
+      } catch (e) {
+        throw new Error('[Wallet] waitForTransaction error: execution reverted')
+      }
     } else {
-      throw new Error('[Wallet] waitForTransaction error: execution reverted')
+      // Status 0 === Tx Reverted
+      // @see https://docs.ethers.io/v5/api/providers/types/#providers-TransactionReceipt
+      const REVERTED_STATUS = 0
+
+      if (!state.provider) {
+        throw new Error('[Wallet] waitForTransaction error: no provider')
+      }
+
+      const tx = await state.provider.waitForTransaction(hash, confirmations)
+      if (!tx.confirmations || tx.status === REVERTED_STATUS) {
+        throw new Error('[Wallet] waitForTransaction error: execution reverted')
+      }
     }
   }
 
