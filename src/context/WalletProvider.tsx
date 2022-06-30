@@ -596,7 +596,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       const connection = new Connection(solanaNetwork)
 
       try {
-        await connection.getTransaction('12345678901234567890123456789012')
+        await connection.getTransaction(hash)
       } catch (e) {
         throw new Error('[Wallet] waitForTransaction error: execution reverted')
       }
