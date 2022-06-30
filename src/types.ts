@@ -46,7 +46,7 @@ type TWallet = {
   ) => Promise<string /* | false */> // todo: sendTx reject => false
   disconnect: () => void
   estimateGas: (data: TransactionRequest) => Promise<BigNumber | undefined>
-  waitForTransaction: (transactionHash: string, confirmations?: number) => Promise<TransactionReceipt>
+  waitForTransaction: (transactionHash: string, confirmations?: number) => Promise<void>
 } & TWalletStoreState
 
 type TWalletValues = keyof typeof WALLET_NAMES
