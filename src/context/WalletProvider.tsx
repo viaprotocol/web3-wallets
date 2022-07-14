@@ -367,7 +367,6 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       return false
     }
     const newChainIdHex = params[0].chainId
-    setState(prev => ({ ...prev, status: WalletStatusEnum.LOADING }))
 
     try {
       await provider.send('wallet_switchEthereumChain', [
@@ -375,11 +374,9 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
           chainId: newChainIdHex
         }
       ])
-      setState(prev => ({ ...prev, status: WalletStatusEnum.READY }))
       return true
     } catch (error: any) {
       if (error.code === ERRCODE.UserRejected) {
-        setState(prev => ({ ...prev, status: WalletStatusEnum.READY }))
         console.warn('[Wallet] User rejected the request')
         return false
       }
@@ -389,11 +386,9 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         try {
           console.log('[Wallet] Try to add the network...', params)
           await provider.send('wallet_addEthereumChain', params)
-          setState(prev => ({ ...prev, status: WalletStatusEnum.READY }))
           // todo: Users can allow adding, but not allowing switching
           return true
         } catch (addNetworkError: any) {
-          setState(prev => ({ ...prev, status: WalletStatusEnum.READY }))
           if (addNetworkError.code === ERRCODE.UserRejected) {
             console.warn('[Wallet] User rejected the request')
             return false
