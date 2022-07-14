@@ -1,5 +1,5 @@
 import type { CoinbaseWalletProvider } from '@coinbase/wallet-sdk'
-import type { TransactionReceipt, TransactionRequest, Web3Provider } from '@ethersproject/providers'
+import type { TransactionRequest, Web3Provider } from '@ethersproject/providers'
 import type { MetaMaskInpageProvider } from '@metamask/providers'
 import type { Connection, Signer, Transaction } from '@solana/web3.js'
 import type WalletConnectProvider from '@walletconnect/web3-provider'
