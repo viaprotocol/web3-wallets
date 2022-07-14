@@ -13,6 +13,18 @@ const networksRaw = [
     is_testnet: false
   },
   {
+    chain_id: 5,
+    name: 'Ethereum Goerli',
+    short_name: 'Ethereum',
+    logo_url: 'https://etherscan.io/images/ethereum-icon.png',
+    explorer_url: 'https://goerli.etherscan.io/',
+    rpc_url: 'https://rpc.ankr.com/eth_goerli',
+    currency_name: 'Ethereum',
+    currency_symbol: 'GoerliETH',
+    currency_decimals: 18,
+    is_testnet: true
+  },
+  {
     chain_id: 4,
     name: 'Rinkeby Testnet',
     short_name: 'Rinkeby Testnet',
