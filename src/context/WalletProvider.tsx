@@ -51,20 +51,6 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
       let { chainId: walletChainId, address, addressShort, addressDomain } = await fetchEvmWalletInfo(provider)
 
-      const isNeedToChangeNetwork = chainId && walletChainId !== chainId
-
-      if (isNeedToChangeNetwork) {
-        const network = getNetworkById(chainId)
-        if (!network.data.params) {
-          setState(prev => ({ ...prev, status: WalletStatusEnum.NOT_INITED }))
-          throw new Error(`Missing network ${chainId} params`)
-        }
-        const isChanged = await evmChangeNetwork(network.data.params)
-        if (isChanged) {
-          walletChainId = network.chain_id
-        }
-      }
-
       walletProvider.on('chainChanged', evmChainChangeHandler as any)
       walletProvider.on('accountsChanged', evmAccountChangeHandler as any)
 
@@ -143,20 +129,6 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     }
 
     let { chainId: walletChainId, address, addressShort, addressDomain } = await fetchEvmWalletInfo(provider)
-
-    const isNeedToChangeNetwork = chainId && walletChainId !== chainId
-
-    if (isNeedToChangeNetwork) {
-      const network = getNetworkById(chainId)
-      if (!network.data.params) {
-        setState(prev => ({ ...prev, status: WalletStatusEnum.NOT_INITED }))
-        throw new Error(`Missing network ${chainId} params`)
-      }
-      const isChanged = await evmChangeNetwork(network.data.params)
-      if (isChanged) {
-        walletChainId = network.chain_id
-      }
-    }
 
     walletProvider.on('chainChanged', evmChainChangeHandler as any)
     walletProvider.on('accountsChanged', evmAccountChangeHandler as any)
