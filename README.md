@@ -1,4 +1,4 @@
-# Web 3 wallets
+# Web3 wallets
 > Universal adapter to Ethereum and Solana
 
 [![NPM Version][npm-image]][npm-url]
@@ -48,7 +48,7 @@ function App() {
 ## Supported wallets
 
 - MetaMask
-- WalletConnect (all wallets inside WalletConnect are supported)
+- WalletConnect (all WalletConnect-compatible wallets are supported, >100 wallets!)
 - Coinbase Wallet
 - Phantom (Solana)
 
@@ -109,7 +109,7 @@ We use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#sum
 
 ## Any questions?
 
-You can write us in [Discord]([https://discord.gg/viaexchange]) with any questions about usage, integrations, adding new wallets, etc.
+You can write us in [Discord](https://discord.gg/viaexchange) with any questions about usage, integrations, adding new wallets, etc.
 
 <!-- Markdown link & img dfn's -->
 [npm-image]: https://img.shields.io/npm/v/@viaprotocol/web3-wallets.svg?style=flat-square
