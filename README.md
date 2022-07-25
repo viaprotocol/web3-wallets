@@ -3,6 +3,7 @@
 
 [![NPM Version][npm-image]][npm-url]
 [![Downloads Stats][npm-downloads]][npm-url]
+[![Discord][discord-image]][discord-url]
 [![Gitmoji support][gitmoji-image]][gitmoji-url]
 
 ## Features
@@ -105,9 +106,16 @@ We use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#sum
 4. Push to the branch (`git push origin feature/fooBar`)
 5. Create a new Pull Request
 
+
+## Any questions?
+
+You can write us in [Discord]([https://discord.gg/viaexchange]) with any questions about usage, integrations, adding new wallets, etc.
+
 <!-- Markdown link & img dfn's -->
 [npm-image]: https://img.shields.io/npm/v/@viaprotocol/web3-wallets.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/@viaprotocol/web3-wallets
 [npm-downloads]: https://img.shields.io/npm/dm/@viaprotocol/web3-wallets?style=flat-square
 [gitmoji-url]: https://gitmoji.dev
 [gitmoji-image]: https://img.shields.io/badge/gitmoji-%20😜%20😍-FFDD67.svg?style=flat-square
+[discord-url]: https://discord.gg/viaexchange
+[discord-image]: https://badgen.net/discord/members/viaexchange
