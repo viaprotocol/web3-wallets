@@ -3,7 +3,7 @@ import type { TransactionRequest, Web3Provider } from '@ethersproject/providers'
 import type { MetaMaskInpageProvider } from '@metamask/providers'
 import type { Connection, Signer, Transaction } from '@solana/web3.js'
 import type WalletConnectProvider from '@walletconnect/web3-provider'
-import type { BigNumber } from 'ethers'
+import type { BigNumber, ethers } from 'ethers'
 import type { WALLET_NAMES } from './constants'
 
 type TAvailableWalletNames = keyof typeof WALLET_NAMES
@@ -47,6 +47,7 @@ type TWallet = {
   disconnect: () => void
   estimateGas: (data: TransactionRequest) => Promise<BigNumber | undefined>
   waitForTransaction: (transactionHash: string, confirmations?: number) => Promise<void>
+  getTransaction: (transactionHash: string) => Promise<ethers.providers.TransactionReceipt>
 } & TWalletStoreState
 
 type TWalletValues = keyof typeof WALLET_NAMES
