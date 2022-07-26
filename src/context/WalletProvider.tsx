@@ -583,6 +583,29 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     }
   }
 
+  const getTransaction = async (hash: string) => {
+    const { chainId } = state
+
+    if (chainId === NETWORK_IDS.Solana) {
+      throw new Error('[Wallet] getTransaction error: method not supported in Solana yet')
+    } else {
+      // Status 0 === Tx Reverted
+      // @see https://docs.ethers.io/v5/api/providers/types/#providers-TransactionReceipt
+      const REVERTED_STATUS = 0
+
+      if (!state.provider) {
+        throw new Error('[Wallet] getTransaction error: no provider')
+      }
+
+      const tx = await state.provider.getTransactionReceipt(hash)
+      if (!tx.confirmations || tx.status === REVERTED_STATUS) {
+        throw new Error('[Wallet] getTransaction error: execution reverted')
+      }
+
+      return tx
+    }
+  }
+
   const balance = useBalance(state)
 
   return (
@@ -602,6 +625,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         provider: state.provider,
         walletProvider: state.walletProvider,
         waitForTransaction,
+        getTransaction,
         restore,
         connect,
         changeNetwork,
