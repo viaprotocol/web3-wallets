@@ -297,6 +297,20 @@ const networksRaw = [
     is_testnet: false
   }, */
 
+  // Moonbeam
+  {
+    chain_id: 1284,
+    name: 'Moonbeam',
+    short_name: 'Moonbeam',
+    logo_url: 'https://webill.sfo3.digitaloceanspaces.com/networks/Moonbeam.png',
+    explorer_url: 'https://moonscan.io',
+    rpc_url: 'https://rpc.ankr.com/moonbeam',
+    currency_name: 'Moonbeam',
+    currency_symbol: 'GLMR',
+    currency_decimals: 18,
+    is_testnet: false
+  },
+
   // Moonriver
   {
     chain_id: 1285,
