@@ -386,6 +386,19 @@ const networksRaw = [
     currency_symbol: 'CNDL',
     currency_decimals: 18,
     is_testnet: false
+  },
+  // Cronos
+  {
+    chain_id: 25,
+    name: 'Cronos',
+    short_name: 'Cronos',
+    logo_url: 'https://cdn.via.exchange/networks/Cronos.svg',
+    explorer_url: 'https://cronoscan.com',
+    rpc_url: 'https://evm.cronos.org',
+    currency_name: 'Cronos',
+    currency_symbol: 'CRO',
+    currency_decimals: 18,
+    is_testnet: false
   }
 ]
 
