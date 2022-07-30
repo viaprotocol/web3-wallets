@@ -276,6 +276,23 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     }
   }
 
+  const connectKeplr = async (chainId: number) => {
+    console.log('chainId', chainId)
+    if (window.keplr) {
+      setState(prev => ({ ...prev, status: WalletStatusEnum.LOADING }))
+
+      const testChainId = 'cosmoshub-4'
+
+      await window.keplr.enable(testChainId)
+
+      const offlineSigner = window.keplr.getOfflineSigner(testChainId)
+
+      return true
+    }
+
+    return false
+  }
+
   const connect = async ({ name, chainId }: { name: string; chainId: number }): Promise<boolean> => {
     console.log('[Wallet] connect()', name, chainId)
     if (!(Object.values(WALLET_NAMES) as string[]).includes(name)) {
@@ -313,13 +330,14 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     }
 
     if (name === WALLET_NAMES.Keplr) {
+      console.log('Keplr loading')
       const isKeplrInstalled = window.keplr
 
       if (!isKeplrInstalled) {
         goKeplr()
         return false
       }
-      return false
+      return connectKeplr(chainId)
     }
 
     return false
