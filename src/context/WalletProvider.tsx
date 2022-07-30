@@ -11,18 +11,19 @@ import type { BigNumber } from 'ethers'
 import { ethers } from 'ethers'
 import React, { useState } from 'react'
 
+import type { Window as KeplrWindow } from '@keplr-wallet/types'
 import { ERRCODE, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, WALLET_NAMES } from '../constants'
 import { getNetworkById, rpcMapping } from '../networks'
 import type { TWalletLocalData, TWalletStoreState } from '../types'
 import { WalletStatusEnum } from '../types'
-import { getCluster, getDomainAddress, goMetamask, goPhantom, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
+import { getCluster, getDomainAddress, goKeplr, goMetamask, goPhantom, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
 import { useBalance } from '../hooks'
 import { INITIAL_STATE, WalletContext } from './WalletContext'
 import { EVM_WALLETS_CONFIG, SOL_WALLETS_CONFIG } from '@/hooks/useBalance/config'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-  interface Window {
+  interface Window extends KeplrWindow {
     solana: any
   }
 }
@@ -309,6 +310,16 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         return false
       }
       return connectPhantom(chainId)
+    }
+
+    if (name === WALLET_NAMES.Keplr) {
+      const isKeplrInstalled = window.keplr
+
+      if (!isKeplrInstalled) {
+        goKeplr()
+        return false
+      }
+      return false
     }
 
     return false

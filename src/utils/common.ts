@@ -137,6 +137,8 @@ export const parseAddressFromEns = async (input: string) => {
 
 export const isEvmChain = (chainId: number) => chainId > 0
 
+const openLink = (url: string) => window?.open(url, '_blank')
+
 export const goMetamask = () => {
   if (isMobile(window.navigator).any) {
     const locationHref = window.location.href
@@ -144,13 +146,10 @@ export const goMetamask = () => {
     locationHrefNoProtocol = locationHrefNoProtocol.replace('https://', '')
     window.location.href = `https://metamask.app.link/dapp/${locationHrefNoProtocol}`
   } else {
-    window.open('https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn')
+    openLink('https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn')
   }
 }
 
-export const goPhantom = () => {
-  const url = 'https://chrome.google.com/webstore/detail/phantom/bfnaelmomeimhlpmgjnjophhpkkoljpa'
-  if (window) {
-    window.open(url, '_blank')
-  }
-}
+export const goPhantom = () => openLink('https://chrome.google.com/webstore/detail/phantom/bfnaelmomeimhlpmgjnjophhpkkoljpa')
+
+export const goKeplr = () => openLink('https://chrome.google.com/webstore/detail/keplr/dmkamcknogkgcdfhhbddcghachkejeap')
