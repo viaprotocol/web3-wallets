@@ -406,7 +406,7 @@ const networksRaw = [
     name: 'Fuse',
     short_name: 'Fuse',
     logo_url: 'https://cdn.via.exchange/networks/Fuse.svg',
-    explorer_url: 'https://explorer.fuse.io/',
+    explorer_url: 'https://explorer.fuse.io',
     rpc_url: 'https://rpc.fuse.io/',
     currency_name: 'Fuse',
     currency_symbol: 'FUSE',
