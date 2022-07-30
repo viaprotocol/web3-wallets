@@ -399,6 +399,19 @@ const networksRaw = [
     currency_symbol: 'CRO',
     currency_decimals: 18,
     is_testnet: false
+  },
+  // Fuse
+  {
+    chain_id: 122,
+    name: 'Fuse',
+    short_name: 'Fuse',
+    logo_url: 'https://cdn.via.exchange/networks/Fuse.svg',
+    explorer_url: 'https://explorer.fuse.io',
+    rpc_url: 'https://rpc.fuse.io/',
+    currency_name: 'Fuse',
+    currency_symbol: 'FUSE',
+    currency_decimals: 18,
+    is_testnet: false
   }
 ]
 
