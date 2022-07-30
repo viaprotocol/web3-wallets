@@ -3,7 +3,8 @@ export const WALLET_NAMES = {
   MetaMask: 'MetaMask',
   Phantom: 'Phantom',
   Near: 'Near',
-  Coinbase: 'Coinbase'
+  Coinbase: 'Coinbase',
+  Keplr: 'Keplr'
 } as const
 
 export const NETWORK_IDS = {

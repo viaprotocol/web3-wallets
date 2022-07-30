@@ -20,7 +20,8 @@ function useBalance(options: TUseBalanceOptions) {
       WalletConnect: evmBalance,
       MetaMask: evmBalance,
       Coinbase: evmBalance,
-      Near: null
+      Near: null,
+      Keplr: null
     }[name]
   }, [name, solBalance, evmBalance])
 
