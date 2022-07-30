@@ -6,8 +6,12 @@ import type { Connection, Signer, Transaction } from '@solana/web3.js'
 import type WalletConnectProvider from '@walletconnect/web3-provider'
 import type { BigNumber, ethers } from 'ethers'
 import type { WALLET_NAMES } from './constants'
+import type { COSMOS_WALLETS_CONFIG, EVM_WALLETS_CONFIG, SOL_WALLETS_CONFIG } from './hooks/useBalance/config'
 
 type TAvailableWalletNames = keyof typeof WALLET_NAMES
+type TAvailableEvmWalletNames = typeof EVM_WALLETS_CONFIG[number]
+type TAvailableSolWalletNames = typeof SOL_WALLETS_CONFIG[number]
+type TAvailableCosmosWalletNames = typeof COSMOS_WALLETS_CONFIG[number]
 
 enum WalletStatusEnum {
   NOT_INITED = 'NOT_INITED',
@@ -16,13 +20,22 @@ enum WalletStatusEnum {
   READY = 'READY'
 }
 
-type TNameTypes = {
-  name: null | Exclude<TAvailableWalletNames, 'Keplr'>
+type TEvmWallet = {
+  name: TAvailableEvmWalletNames
   provider: Web3Provider | null
-} | {
-  name: 'Keplr'
+}
+
+type TSolWallet = {
+  name: TAvailableSolWalletNames
+  provider: any
+}
+
+type TCosmosWallet = {
+  name: TAvailableCosmosWalletNames
   provider: Keplr
 }
+
+type TWalletBody = TEvmWallet | TSolWallet | TCosmosWallet
 
 type TWalletStoreState = {
   isConnected: boolean
@@ -35,7 +48,7 @@ type TWalletStoreState = {
   addressShort: string | null
   addressDomain: string | null
   balance: string | null
-} & TNameTypes
+} & TWalletBody
 
 type TWalletLocalData = {
   name: string
