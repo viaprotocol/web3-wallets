@@ -285,7 +285,19 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
       await window.keplr.enable(testChainId)
 
+      const provider = window.keplr
+
       const offlineSigner = window.keplr.getOfflineSigner(testChainId)
+
+      setState(prev => ({
+        ...prev,
+        ...{
+          isConnected: true,
+          status: WalletStatusEnum.READY,
+          name: 'Keplr',
+          provider
+        }
+      }))
 
       return true
     }

@@ -1,5 +1,6 @@
 import type { CoinbaseWalletProvider } from '@coinbase/wallet-sdk'
 import type { TransactionRequest, Web3Provider } from '@ethersproject/providers'
+import type { Keplr } from '@keplr-wallet/types'
 import type { MetaMaskInpageProvider } from '@metamask/providers'
 import type { Connection, Signer, Transaction } from '@solana/web3.js'
 import type WalletConnectProvider from '@walletconnect/web3-provider'
@@ -15,12 +16,18 @@ enum WalletStatusEnum {
   READY = 'READY'
 }
 
+type TNameTypes = {
+  name: null | Exclude<TAvailableWalletNames, 'Keplr'>
+  provider: Web3Provider | null
+} | {
+  name: 'Keplr'
+  provider: Keplr
+}
+
 type TWalletStoreState = {
   isConnected: boolean
   status: WalletStatusEnum
-  name: null | TAvailableWalletNames
   subName: null | string
-  provider: Web3Provider | null
   walletProvider: WalletConnectProvider | MetaMaskInpageProvider | CoinbaseWalletProvider | null
   connection: Connection | null
   chainId: null | number
@@ -28,7 +35,7 @@ type TWalletStoreState = {
   addressShort: string | null
   addressDomain: string | null
   balance: string | null
-}
+} & TNameTypes
 
 type TWalletLocalData = {
   name: string
