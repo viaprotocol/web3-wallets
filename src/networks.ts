@@ -412,6 +412,19 @@ const networksRaw = [
     currency_symbol: 'FUSE',
     currency_decimals: 18,
     is_testnet: false
+  },
+  // Boba
+  {
+    chain_id: 288,
+    name: 'Boba',
+    short_name: 'Boba',
+    logo_url: 'https://webill.sfo3.digitaloceanspaces.com/networks/Boba.svg',
+    explorer_url: 'https://bobascan.com',
+    rpc_url: 'https://mainnet.boba.network',
+    currency_name: 'Ethereum',
+    currency_symbol: 'ETH',
+    currency_decimals: 18,
+    is_testnet: false
   }
 ]
 
