@@ -425,6 +425,19 @@ const networksRaw = [
     currency_symbol: 'ETH',
     currency_decimals: 18,
     is_testnet: false
+  },
+  // Celo
+  {
+    chain_id: 42220,
+    name: 'Celo',
+    short_name: 'Celo',
+    logo_url: 'https://cdn.via.exchange/networks/Celo.svg',
+    explorer_url: 'https://explorer.celo.org',
+    rpc_url: 'https://rpc.ankr.com/celo',
+    currency_name: 'Celo',
+    currency_symbol: 'CELO',
+    currency_decimals: 18,
+    is_testnet: false
   }
 ]
 
