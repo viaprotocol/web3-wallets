@@ -418,7 +418,7 @@ const networksRaw = [
     chain_id: 288,
     name: 'Boba',
     short_name: 'Boba',
-    logo_url: 'https://cdn.via.exchange/networks/Boba.svg',
+    logo_url: 'https://webill.sfo3.digitaloceanspaces.com/networks/Boba.svg',
     explorer_url: 'https://bobascan.com',
     rpc_url: 'https://mainnet.boba.network',
     currency_name: 'Ethereum',
