@@ -2,6 +2,7 @@ import type { CoinbaseWalletProvider } from '@coinbase/wallet-sdk'
 import type { TransactionRequest, Web3Provider } from '@ethersproject/providers'
 import type { Keplr } from '@keplr-wallet/types'
 import type { MetaMaskInpageProvider } from '@metamask/providers'
+import type { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom'
 import type { Connection, Signer, Transaction } from '@solana/web3.js'
 import type WalletConnectProvider from '@walletconnect/web3-provider'
 import type { BigNumber, ethers } from 'ethers'
@@ -20,24 +21,7 @@ enum WalletStatusEnum {
   READY = 'READY'
 }
 
-type TEvmWallet = {
-  name: TAvailableEvmWalletNames
-  provider: Web3Provider | null
-}
-
-type TSolWallet = {
-  name: TAvailableSolWalletNames
-  provider: any
-}
-
-type TCosmosWallet = {
-  name: TAvailableCosmosWalletNames
-  provider: Keplr
-}
-
-type TWalletBody = TEvmWallet | TSolWallet | TCosmosWallet
-
-type TWalletStoreState = {
+type TWalletStateDefault = {
   isConnected: boolean
   status: WalletStatusEnum
   subName: null | string
@@ -48,7 +32,29 @@ type TWalletStoreState = {
   addressShort: string | null
   addressDomain: string | null
   balance: string | null
-} & TWalletBody
+}
+
+type TEvmWalletStore = {
+  name: TAvailableEvmWalletNames
+  provider: Web3Provider
+} & TWalletStateDefault
+
+type TSolWalletStore = {
+  name: TAvailableSolWalletNames
+  provider: PhantomWalletAdapter
+} & TWalletStateDefault
+
+type TCosmosWalletStore = {
+  name: TAvailableCosmosWalletNames
+  provider: Keplr
+} & TWalletStateDefault
+
+type TWalletBodyDefaultState = {
+  name: null
+  provider: null
+} & TWalletStateDefault
+
+type TWalletStoreState = TEvmWalletStore | TSolWalletStore | TCosmosWalletStore | TWalletBodyDefaultState
 
 type TWalletLocalData = {
   name: string
@@ -72,5 +78,5 @@ type TWallet = {
 
 type TWalletValues = keyof typeof WALLET_NAMES
 
-export type { TAvailableWalletNames, TWallet, TWalletStoreState, TWalletLocalData, TWalletValues }
+export type { TAvailableWalletNames, TWallet, TWalletStoreState, TWalletLocalData, TWalletValues, TAvailableEvmWalletNames, TAvailableSolWalletNames, TEvmWalletStore, TSolWalletStore, TCosmosWalletStore }
 export { WalletStatusEnum }

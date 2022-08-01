@@ -919,6 +919,20 @@
     buffer-layout "^1.2.0"
     dotenv "8.2.0"
 
+"@solana/wallet-adapter-base@^0.9.9":
+  version "0.9.9"
+  resolved "https://registry.yarnpkg.com/@solana/wallet-adapter-base/-/wallet-adapter-base-0.9.9.tgz#110f99bc9eee18af2625fd6170264e4363e25ffd"
+  integrity sha512-Z0zB+36JWRytE2OzMiB2DACRyVwiUdEg2Xy1nPR0rESCTXKI8wQGTb4g6ELjmTTU7+elKqsPE+fhFsJykn76pQ==
+  dependencies:
+    eventemitter3 "^4.0.0"
+
+"@solana/wallet-adapter-phantom@^0.9.8":
+  version "0.9.8"
+  resolved "https://registry.yarnpkg.com/@solana/wallet-adapter-phantom/-/wallet-adapter-phantom-0.9.8.tgz#d2323fd16ebf40536c6932c77a460dfacfc71617"
+  integrity sha512-pq3+hbl7mUUJp9CFJBE81kzA/YmkAzU/uQTEfoG8GyoQS5w/ZB2lAzr10t8RYzsK+Q+kw6VhYYleYKA6Lzujww==
+  dependencies:
+    "@solana/wallet-adapter-base" "^0.9.9"
+
 "@solana/web3.js@^1.11.0", "@solana/web3.js@^1.43.5", "@solana/web3.js@^1.9.1":
   version "1.43.5"
   resolved "https://registry.yarnpkg.com/@solana/web3.js/-/web3.js-1.43.5.tgz#ab12bb6ab3fff0a08e8c7453b4fc4cda9f66df11"
@@ -3040,7 +3054,7 @@ ethjs-util@0.1.6, ethjs-util@^0.1.3:
     is-hex-prefixed "1.0.0"
     strip-hex-prefix "1.0.0"
 
-eventemitter3@4.0.7, eventemitter3@^4.0.7:
+eventemitter3@4.0.7, eventemitter3@^4.0.0, eventemitter3@^4.0.7:
   version "4.0.7"
   resolved "https://registry.yarnpkg.com/eventemitter3/-/eventemitter3-4.0.7.tgz#2de9b68f6528d5644ef5c59526a1b4a07306169f"
   integrity sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw==
