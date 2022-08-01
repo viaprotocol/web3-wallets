@@ -293,9 +293,9 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
       const offlineSigner = window.keplr.getOfflineSigner(testChainId)
 
-      const address = await offlineSigner.getAccounts()
-
-      console.log('wallet connected', chainId)
+      const addressesList = await offlineSigner.getAccounts()
+      const { address } = addressesList[0]
+      const addressShort = shortenAddress(address)
 
       setState(prev => ({
         ...prev,
@@ -304,10 +304,21 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
           status: WalletStatusEnum.READY,
           name: 'Keplr',
           chainId,
-          address: address[0].address,
+          address,
+          addressShort,
           provider
         }
       }))
+
+      localStorage.setItem('web3-wallets-name', WALLET_NAMES.Keplr)
+      localStorage.setItem(
+        LOCAL_STORAGE_WALLETS_KEY,
+        JSON.stringify({
+          name: WALLET_NAMES.Keplr,
+          chainId,
+          address: addressShort
+        })
+      )
 
       return true
     }
