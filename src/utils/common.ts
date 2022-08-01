@@ -76,12 +76,8 @@ export const getAddressUrl = (chainId: number, address: string) => {
   const network = getNetworkById(chainId)
   const explorerUrl = network.data.params[0].blockExplorerUrls[0]
 
-  if (network.chain_id > 0) {
+  if (network.chain_id > 0 || [NETWORK_IDS.Solana, NETWORK_IDS.CosmosHub].includes(network.chain_id as any)) {
     return `${explorerUrl}/address/${address}`
-  }
-
-  if (network.chain_id === NETWORK_IDS.Solana) {
-    return `${explorerUrl}/account/${address}`
   }
 
   if (network.chain_id === NETWORK_IDS.SolanaTestnet) {

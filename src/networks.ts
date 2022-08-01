@@ -412,6 +412,19 @@ const networksRaw = [
     currency_symbol: 'FUSE',
     currency_decimals: 18,
     is_testnet: false
+  },
+  // TEST: cosmoshub-4
+  {
+    chain_id: -100,
+    name: 'CosmosHub',
+    short_name: 'Cosmos',
+    logo_url: 'https://cdn.via.exchange/networks/Cronos.svg',
+    explorer_url: 'https://hub.mintscan.io',
+    rpc_url: 'https://v1.cosmos.network/rpc/v0.41.4',
+    currency_name: 'ATOM',
+    currency_symbol: 'ATOM',
+    currency_decimals: 18,
+    is_testnet: false
   }
 ]
 

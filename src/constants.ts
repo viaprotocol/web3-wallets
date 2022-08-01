@@ -35,6 +35,7 @@ export const NETWORK_IDS = {
   MoonriverTestnet: 1287,
   Solana: -1,
   SolanaTestnet: -1001,
+  CosmosHub: -100,
   TON: -3,
   TONTestnet: -1003
 } as const

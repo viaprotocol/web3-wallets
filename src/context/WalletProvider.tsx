@@ -291,7 +291,11 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
       const provider = window.keplr
 
-      // const offlineSigner = window.keplr.getOfflineSigner(testChainId)
+      const offlineSigner = window.keplr.getOfflineSigner(testChainId)
+
+      const address = await offlineSigner.getAccounts()
+
+      console.log('wallet connected', chainId)
 
       setState(prev => ({
         ...prev,
@@ -299,6 +303,8 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
           isConnected: true,
           status: WalletStatusEnum.READY,
           name: 'Keplr',
+          chainId,
+          address: address[0].address,
           provider
         }
       }))
