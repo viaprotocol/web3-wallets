@@ -1,6 +1,6 @@
 import { WALLET_NAMES } from '@/constants'
 
-const EVM_WALLETS_CONFIG = ['MetaMask', 'WalletConnect', 'Coinbase'] as const
+const EVM_WALLETS_CONFIG = [WALLET_NAMES.MetaMask, WALLET_NAMES.WalletConnect, WALLET_NAMES.Coinbase]
 
 const SOL_WALLETS_CONFIG = [WALLET_NAMES.Phantom]
 

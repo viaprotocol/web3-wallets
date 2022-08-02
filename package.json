@@ -56,6 +56,7 @@
   },
   "dependencies": {
     "@coinbase/wallet-sdk": "^3.3.0",
+    "@cosmjs/stargate": "^0.27.0",
     "@keplr-wallet/types": "^0.10.13",
     "@metamask/providers": "^8.1.1",
     "@solana/spl-name-service": "^0.1.4",

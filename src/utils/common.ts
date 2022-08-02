@@ -89,7 +89,7 @@ export const getAddressUrl = (chainId: number, address: string) => {
   const network = getNetworkById(chainId)
   const explorerUrl = network.data.params[0].blockExplorerUrls[0]
 
-  if (network.chain_id > 0 || [NETWORK_IDS.Solana, NETWORK_IDS.CosmosHub].includes(network.chain_id as any)) {
+  if (network.chain_id > 0 || [NETWORK_IDS.Solana, NETWORK_IDS.Cosmos, NETWORK_IDS.Osmosis, NETWORK_IDS.Sifchain].includes(network.chain_id as any)) {
     return `${explorerUrl}/address/${address}`
   }
 

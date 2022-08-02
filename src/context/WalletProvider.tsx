@@ -285,7 +285,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     if (window.keplr) {
       setState(prev => ({ ...prev, status: WalletStatusEnum.LOADING }))
 
-      const testChainId = 'cosmoshub-4'
+      const testChainId = 'osmosis-1'
 
       await window.keplr.enable(testChainId)
 
