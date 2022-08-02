@@ -449,7 +449,7 @@ const networksRaw = [
     rpc_url: 'https://api.cosmos.network/',
     currency_name: 'ATOM',
     currency_symbol: 'ATOM',
-    currency_decimals: 18,
+    currency_decimals: 6,
     is_testnet: false
   },
   // Osmosis
@@ -462,7 +462,7 @@ const networksRaw = [
     rpc_url: 'https://rpc.osmosis.zone/',
     currency_name: 'OSMO',
     currency_symbol: 'OSMO',
-    currency_decimals: 18,
+    currency_decimals: 6,
     is_testnet: false
   },
   // Sifchain
