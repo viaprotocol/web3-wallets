@@ -438,6 +438,45 @@ const networksRaw = [
     currency_symbol: 'CELO',
     currency_decimals: 18,
     is_testnet: false
+  },
+  // Cosmos
+  {
+    chain_id: -100,
+    name: 'Cosmos',
+    short_name: 'Cosmos',
+    logo_url: 'https://cdn.via.exchange/networks/Cosmos.svg',
+    explorer_url: 'https://atomscan.com/',
+    rpc_url: 'https://api.cosmos.network/',
+    currency_name: 'ATOM',
+    currency_symbol: 'ATOM',
+    currency_decimals: 6,
+    is_testnet: false
+  },
+  // Osmosis
+  {
+    chain_id: -101,
+    name: 'Osmosis',
+    short_name: 'Osmosis',
+    logo_url: 'https://cdn.via.exchange/networks/Osmosis.svg',
+    explorer_url: 'https://atomscan.com/osmosis',
+    rpc_url: 'https://rpc.osmosis.zone/',
+    currency_name: 'OSMO',
+    currency_symbol: 'OSMO',
+    currency_decimals: 6,
+    is_testnet: false
+  },
+  // Sifchain
+  {
+    chain_id: -102,
+    name: 'Sifchain',
+    short_name: 'Sifchain',
+    logo_url: 'https://cdn.via.exchange/networks/Sifchain.svg',
+    explorer_url: 'https://atomscan.com/sifchain',
+    rpc_url: 'https://rpc.sifchain.finance/',
+    currency_name: 'ROWAN',
+    currency_symbol: 'ROWAN',
+    currency_decimals: 18,
+    is_testnet: false
   }
 ]
 

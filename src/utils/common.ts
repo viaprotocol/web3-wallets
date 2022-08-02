@@ -19,6 +19,14 @@ export const { BigNumber } = ethers
 
 export const toHex = (value: BytesLike | Hexable | number | bigint) => ethers.utils.hexlify(value)
 
+const addressRegExpList = {
+  [NETWORK_IDS.TON]: /^[a-zA-Z0-9_-]*$/,
+  [NETWORK_IDS.TONTestnet]: /^[a-zA-Z0-9_-]*$/,
+  [NETWORK_IDS.Cosmos]: /^(cosmos1)[0-9a-z]{38}$/,
+  [NETWORK_IDS.Osmosis]: /^(osmo1)[0-9a-z]{38}$/,
+  [NETWORK_IDS.Sifchain]: /^(sif1)[0-9a-z]{38}$/
+}
+
 export const isValidAddress = async (chainId: number, address: string) => {
   if (chainId > 0) {
     // Chain ID > 0 === EVM-like network
@@ -50,9 +58,14 @@ export const isValidAddress = async (chainId: number, address: string) => {
     return (
       address.length === 48
       && (prefix === 'EQ' || prefix === 'kQ' || prefix === 'Ef' || prefix === 'UQ')
-      && /^[a-zA-Z0-9_-]*$/.test(address)
+      && addressRegExpList[chainId].test(address)
     )
   }
+
+  if (chainId === NETWORK_IDS.Cosmos || chainId === NETWORK_IDS.Osmosis || chainId === NETWORK_IDS.Sifchain) {
+    return addressRegExpList[chainId]
+  }
+
   throw new Error(`Not implemented or wrong chainId ${chainId}`)
 }
 
