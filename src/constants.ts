@@ -35,6 +35,9 @@ export const NETWORK_IDS = {
   Solana: -1,
   SolanaTestnet: -1001,
   TON: -3,
+  Cosmos: -100,
+  Osmosis: -101,
+  Sifchain: -102,
   TONTestnet: -1003
 } as const
 
