@@ -413,16 +413,68 @@ const networksRaw = [
     currency_decimals: 18,
     is_testnet: false
   },
-  // TEST: cosmoshub-4
+  // Boba
+  {
+    chain_id: 288,
+    name: 'Boba',
+    short_name: 'Boba',
+    logo_url: 'https://webill.sfo3.digitaloceanspaces.com/networks/Boba.svg',
+    explorer_url: 'https://bobascan.com',
+    rpc_url: 'https://mainnet.boba.network',
+    currency_name: 'Ethereum',
+    currency_symbol: 'ETH',
+    currency_decimals: 18,
+    is_testnet: false
+  },
+  // Celo
+  {
+    chain_id: 42220,
+    name: 'Celo',
+    short_name: 'Celo',
+    logo_url: 'https://cdn.via.exchange/networks/Celo.svg',
+    explorer_url: 'https://explorer.celo.org',
+    rpc_url: 'https://rpc.ankr.com/celo',
+    currency_name: 'Celo',
+    currency_symbol: 'CELO',
+    currency_decimals: 18,
+    is_testnet: false
+  },
+  // Cosmos
   {
     chain_id: -100,
-    name: 'CosmosHub',
+    name: 'Cosmos',
     short_name: 'Cosmos',
-    logo_url: 'https://cdn.via.exchange/networks/Cronos.svg',
-    explorer_url: 'https://hub.mintscan.io',
-    rpc_url: 'https://v1.cosmos.network/rpc/v0.41.4',
+    logo_url: 'https://cdn.via.exchange/networks/Cosmos.svg',
+    explorer_url: 'https://atomscan.com/',
+    rpc_url: 'https://api.cosmos.network/',
     currency_name: 'ATOM',
     currency_symbol: 'ATOM',
+    currency_decimals: 6,
+    is_testnet: false
+  },
+  // Osmosis
+  {
+    chain_id: -101,
+    name: 'Osmosis',
+    short_name: 'Osmosis',
+    logo_url: 'https://cdn.via.exchange/networks/Osmosis.svg',
+    explorer_url: 'https://atomscan.com/osmosis',
+    rpc_url: 'https://rpc.osmosis.zone/',
+    currency_name: 'OSMO',
+    currency_symbol: 'OSMO',
+    currency_decimals: 6,
+    is_testnet: false
+  },
+  // Sifchain
+  {
+    chain_id: -102,
+    name: 'Sifchain',
+    short_name: 'Sifchain',
+    logo_url: 'https://cdn.via.exchange/networks/Sifchain.svg',
+    explorer_url: 'https://atomscan.com/sifchain',
+    rpc_url: 'https://rpc.sifchain.finance/',
+    currency_name: 'ROWAN',
+    currency_symbol: 'ROWAN',
     currency_decimals: 18,
     is_testnet: false
   }
