@@ -3,6 +3,8 @@ import { StargateClient } from '@cosmjs/stargate'
 import type { TUseBalanceOptions } from './types'
 import { isCosmosWallet } from '@/utils/wallet'
 
+const SECONDS_BEFORE_NEXT_UPDATE = 10
+
 function useCosmosBalance(options: TUseBalanceOptions) {
   const isCosmos = isCosmosWallet(options)
 
@@ -21,8 +23,19 @@ function useCosmosBalance(options: TUseBalanceOptions) {
   }, [clientPromise, options.address])
 
   useEffect(() => {
+    let intervalId: null | NodeJS.Timer = null
+
     if (isCosmos) {
       checkCosmosBalance()
+
+      // Infinity balance loading
+      intervalId = setInterval(checkCosmosBalance, SECONDS_BEFORE_NEXT_UPDATE * 1000)
+    }
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId)
+      }
     }
   }, [isCosmos, checkCosmosBalance])
 
