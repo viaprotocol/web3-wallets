@@ -53,6 +53,11 @@ export const isValidAddress = async (chainId: number, address: string) => {
       && /^[a-zA-Z0-9_-]*$/.test(address)
     )
   }
+
+  if (chainId === NETWORK_IDS.Cosmos || chainId === NETWORK_IDS.Osmosis || chainId === NETWORK_IDS.Sifchain) {
+    return true
+  }
+
   throw new Error(`Not implemented or wrong chainId ${chainId}`)
 }
 
