@@ -14,12 +14,12 @@ import React, { useState } from 'react'
 
 import type { Window as KeplrWindow } from '@keplr-wallet/types'
 import { ERRCODE, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, WALLET_NAMES } from '../constants'
-import { getNetworkById, rpcMapping } from '../networks'
 import type { TWalletLocalData, TWalletStoreState } from '../types'
 import { WalletStatusEnum } from '../types'
-import { getCluster, getDomainAddress, goKeplr, goMetamask, goPhantom, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
+import { cosmosChainsMap, getCluster, getDomainAddress, goKeplr, goMetamask, goPhantom, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
 import { useBalance } from '../hooks'
 import { INITIAL_STATE, WalletContext } from './WalletContext'
+import { getNetworkById, rpcMapping } from '@/networks'
 import { EVM_WALLETS_CONFIG, SOL_WALLETS_CONFIG } from '@/hooks/useBalance/config'
 import { isEvmWallet } from '@/utils/wallet'
 
@@ -281,17 +281,20 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
   }
 
   const connectKeplr = async (chainId: number) => {
-    console.log('chainId', chainId)
+    if (!(chainId in cosmosChainsMap)) {
+      throw new Error(`Keplr chainId ${chainId} is not supported`)
+    }
+
     if (window.keplr) {
       setState(prev => ({ ...prev, status: WalletStatusEnum.LOADING }))
 
-      const testChainId = 'osmosis-1'
+      const chainName = cosmosChainsMap[chainId as keyof typeof cosmosChainsMap]
 
-      await window.keplr.enable(testChainId)
+      await window.keplr.enable(chainName)
 
       const provider = window.keplr
 
-      const offlineSigner = window.keplr.getOfflineSigner(testChainId)
+      const offlineSigner = window.keplr.getOfflineSigner(chainName)
 
       const addressesList = await offlineSigner.getAccounts()
       const { address } = addressesList[0]
@@ -365,7 +368,6 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     }
 
     if (name === WALLET_NAMES.Keplr) {
-      console.log('Keplr loading')
       const isKeplrInstalled = window.keplr
 
       if (!isKeplrInstalled) {

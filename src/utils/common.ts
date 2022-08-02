@@ -11,9 +11,8 @@ import {
   SOLANA_BASE_TOKEN_ADDRESS,
   SOLANA_ENS_POSTFIX
 } from '../constants'
-import { getNetworkById, supportedNetworkIds } from '../networks'
-
 import { checkEnsValid, parseAddressFromEnsSolana } from './solana'
+import { getNetworkById, supportedNetworkIds } from '@/networks'
 
 export const { BigNumber } = ethers
 
