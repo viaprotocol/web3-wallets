@@ -439,6 +439,7 @@ const networksRaw = [
     currency_decimals: 18,
     is_testnet: false
   },
+  // Cosmos
   {
     chain_id: -100,
     name: 'Cosmos',
@@ -451,6 +452,7 @@ const networksRaw = [
     currency_decimals: 18,
     is_testnet: false
   },
+  // Osmosis
   {
     chain_id: -101,
     name: 'Osmosis',
@@ -463,6 +465,7 @@ const networksRaw = [
     currency_decimals: 18,
     is_testnet: false
   },
+  // Sifchain
   {
     chain_id: -102,
     name: 'Sifchain',
