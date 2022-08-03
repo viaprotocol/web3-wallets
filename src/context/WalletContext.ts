@@ -15,7 +15,8 @@ const INITIAL_STATE: TWalletStoreState = {
   balance: null,
   connection: null,
   provider: null,
-  walletProvider: null
+  walletProvider: null,
+  connectedWallets: []
 }
 
 const WalletContext = createContext<TWallet>({

@@ -704,6 +704,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         restore,
         connect,
         changeNetwork,
+        connectedWallets: state.connectedWallets,
         // @ts-expect-error
         sendTx,
         disconnect
