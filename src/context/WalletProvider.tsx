@@ -13,15 +13,15 @@ import { ethers } from 'ethers'
 import React, { useState } from 'react'
 
 import type { Window as KeplrWindow } from '@keplr-wallet/types'
-import { ERRCODE, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, WALLET_NAMES } from '../constants'
+import { ERRCODE, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, WALLET_NAMES, cosmosChainsMap } from '../constants'
 import type { TWalletLocalData, TWalletStoreState } from '../types'
 import { WalletStatusEnum } from '../types'
-import { cosmosChainsMap, getCluster, getDomainAddress, goKeplr, goMetamask, goPhantom, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
+import { getCluster, getDomainAddress, goKeplr, goMetamask, goPhantom, isCosmosChain, isSolChain, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
 import { useBalance } from '../hooks'
 import { INITIAL_STATE, WalletContext } from './WalletContext'
 import { getNetworkById, rpcMapping } from '@/networks'
 import { EVM_WALLETS_CONFIG, SOL_WALLETS_CONFIG } from '@/hooks/useBalance/config'
-import { isEvmWallet } from '@/utils/wallet'
+import { isEvmWallet, isSolWallet } from '@/utils/wallet'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
@@ -229,7 +229,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
   }
 
   const connectPhantom = async (chainId: number = NETWORK_IDS.Solana) => {
-    if (chainId !== NETWORK_IDS.Solana && chainId !== NETWORK_IDS.SolanaTestnet) {
+    if (!isSolChain(chainId)) {
       throw new Error(`Unknown Phantom chainId ${chainId}`)
     }
     setState(prev => ({ ...prev, status: WalletStatusEnum.LOADING }))
@@ -281,7 +281,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
   }
 
   const connectKeplr = async (chainId: number) => {
-    if (!(chainId in cosmosChainsMap)) {
+    if (!(isCosmosChain(chainId))) {
       throw new Error(`Keplr chainId ${chainId} is not supported`)
     }
 
@@ -447,7 +447,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       return false
     }
 
-    if (!EVM_WALLETS_CONFIG.find(wallentName => wallentName === state.name)) {
+    if (isEvmWallet(state)) {
       if (state.walletProvider) {
         state.walletProvider.removeAllListeners()
         if (state.walletProvider instanceof WalletConnectProvider) {
@@ -456,7 +456,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       }
     }
 
-    if (SOL_WALLETS_CONFIG.includes(state.name as any)) {
+    if (isSolWallet(state)) {
       window.solana.disconnect()
     }
 

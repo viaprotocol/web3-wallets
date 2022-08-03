@@ -54,4 +54,13 @@ export const ERRCODE = {
   UnrecognizedChain: -32603
 }
 
+export const SOL_CHAINS = [NETWORK_IDS.Solana, NETWORK_IDS.SolanaTestnet]
+export const COSMOS_CHAINS = [NETWORK_IDS.Cosmos, NETWORK_IDS.Osmosis, NETWORK_IDS.Sifchain] as const
+
+export const cosmosChainsMap: { [key in typeof COSMOS_CHAINS[number]]: string } = {
+  [NETWORK_IDS.Cosmos]: 'cosmoshub-4',
+  [NETWORK_IDS.Osmosis]: 'osmosis-1',
+  [NETWORK_IDS.Sifchain]: 'sifchain-1'
+}
+
 export const LOCAL_STORAGE_WALLETS_KEY = 'web3-wallets-data'

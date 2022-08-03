@@ -5,11 +5,13 @@ import type { Hexable } from 'ethers/lib/utils'
 import isMobile from 'ismobilejs'
 
 import {
+  COSMOS_CHAINS,
   EVM_BASE_TOKEN_ADDRESS,
   EVM_ENS_POSTFIX,
   NETWORK_IDS,
   SOLANA_BASE_TOKEN_ADDRESS,
-  SOLANA_ENS_POSTFIX
+  SOLANA_ENS_POSTFIX,
+  SOL_CHAINS
 } from '../constants'
 import { checkEnsValid, parseAddressFromEnsSolana } from './solana'
 import { getNetworkById, supportedNetworkIds } from '@/networks'
@@ -144,6 +146,8 @@ export const parseAddressFromEns = async (input: string) => {
 }
 
 export const isEvmChain = (chainId: number) => chainId > 0
+export const isCosmosChain = (chainId: number) => COSMOS_CHAINS.includes(chainId as any)
+export const isSolChain = (chainId: number) => SOL_CHAINS.includes(chainId as any)
 
 const openLink = (url: string) => window?.open(url, '_blank')
 
