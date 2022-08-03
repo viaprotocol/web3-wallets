@@ -1,7 +1,7 @@
 import type { Keplr } from '@keplr-wallet/types'
 import type { TConnectedWallet } from '..'
 
-const getCosmosConnectedWallets = async (provider: Keplr, chains: string[]): TConnectedWallet[] => {
+const getCosmosConnectedWallets = async (provider: Keplr, chains: string[]): Promise<TConnectedWallet[]> => {
   const connectedWallets: TConnectedWallet[] = []
   for (const chainName of chains) {
     const offlineSigner = await provider.getOfflineSigner(chainName)
