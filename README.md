@@ -74,7 +74,7 @@ yarn publish:yalc
 4. In the project you are going to test your functionality, initialize the package fetch from `yalc`
 
 ```
-yalc add @viaprotocol web3-wallets
+yalc add @viaprotocol/web3-wallets
 ```
 
 5. Install `yalc` version of web3-wallets
