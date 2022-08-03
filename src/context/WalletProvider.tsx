@@ -16,11 +16,10 @@ import type { Window as KeplrWindow } from '@keplr-wallet/types'
 import { ERRCODE, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, WALLET_NAMES, cosmosChainsMap } from '../constants'
 import type { TWalletLocalData, TWalletStoreState } from '../types'
 import { WalletStatusEnum } from '../types'
-import { getCluster, getDomainAddress, goKeplr, goMetamask, goPhantom, isCosmosChain, isSolChain, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
+import { getCluster, getCosmosConnectedWallets, getDomainAddress, goKeplr, goMetamask, goPhantom, isCosmosChain, isSolChain, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
 import { useBalance } from '../hooks'
 import { INITIAL_STATE, WalletContext } from './WalletContext'
 import { getNetworkById, rpcMapping } from '@/networks'
-import { EVM_WALLETS_CONFIG, SOL_WALLETS_CONFIG } from '@/hooks/useBalance/config'
 import { isEvmWallet, isSolWallet } from '@/utils/wallet'
 
 declare global {
@@ -288,23 +287,27 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     if (window.keplr) {
       setState(prev => ({ ...prev, status: WalletStatusEnum.LOADING }))
 
-      const chainName = cosmosChainsMap[chainId as keyof typeof cosmosChainsMap]
-
-      await window.keplr.enable(chainName)
+      const chainxList = Object.values(cosmosChainsMap)
+      const currentChain = cosmosChainsMap[chainId as keyof typeof cosmosChainsMap]
 
       const provider = window.keplr
 
-      const offlineSigner = window.keplr.getOfflineSigner(chainName)
+      await provider.enable(chainxList)
+
+      const offlineSigner = provider.getOfflineSigner(currentChain)
 
       const addressesList = await offlineSigner.getAccounts()
       const { address } = addressesList[0]
       const addressShort = shortenAddress(address)
+
+      const connectedWallets = await getCosmosConnectedWallets(provider, chainxList)
 
       setState(prev => ({
         ...prev,
         ...{
           isConnected: true,
           status: WalletStatusEnum.READY,
+          connectedWallets,
           name: 'Keplr',
           chainId,
           address,

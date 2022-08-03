@@ -21,6 +21,11 @@ enum WalletStatusEnum {
   READY = 'READY'
 }
 
+type TConnectedWallet = {
+  blockchain: string
+  addresses: string[]
+}
+
 type TWalletStateDefault = {
   isConnected: boolean
   status: WalletStatusEnum
@@ -47,6 +52,7 @@ type TSolWalletStore = {
 type TCosmosWalletStore = {
   name: TAvailableCosmosWalletNames
   provider: Keplr
+  connectedWallets: TConnectedWallet[]
 } & TWalletStateDefault
 
 type TWalletBodyDefaultState = {
@@ -78,5 +84,5 @@ type TWallet = {
 
 type TWalletValues = keyof typeof WALLET_NAMES
 
-export type { TAvailableWalletNames, TWallet, TWalletStoreState, TWalletLocalData, TWalletValues, TAvailableEvmWalletNames, TAvailableSolWalletNames, TEvmWalletStore, TSolWalletStore, TCosmosWalletStore }
+export type { TAvailableWalletNames, TWallet, TWalletStoreState, TWalletLocalData, TWalletValues, TAvailableEvmWalletNames, TAvailableSolWalletNames, TEvmWalletStore, TSolWalletStore, TCosmosWalletStore, TConnectedWallet }
 export { WalletStatusEnum }
