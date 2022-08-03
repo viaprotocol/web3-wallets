@@ -300,7 +300,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       const { address } = addressesList[0]
       const addressShort = shortenAddress(address)
 
-      const connectedWallets = await getCosmosConnectedWallets(provider, chainxList)
+      const connectedWallets = await getCosmosConnectedWallets(provider)
 
       setState(prev => ({
         ...prev,

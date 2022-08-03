@@ -63,4 +63,10 @@ export const cosmosChainsMap: { [key in typeof COSMOS_CHAINS[number]]: string } 
   [NETWORK_IDS.Sifchain]: 'sifchain-1'
 }
 
+export const cosmosChainWalletMap: { name: string; chainId: typeof COSMOS_CHAINS[number] }[] = [
+  { name: 'COSMOS', chainId: NETWORK_IDS.Cosmos },
+  { name: 'OSMOSIS', chainId: NETWORK_IDS.Osmosis },
+  { name: 'SIF', chainId: NETWORK_IDS.Sifchain }
+]
+
 export const LOCAL_STORAGE_WALLETS_KEY = 'web3-wallets-data'
