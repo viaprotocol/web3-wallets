@@ -74,6 +74,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         LOCAL_STORAGE_WALLETS_KEY,
         JSON.stringify({
           name: WALLET_NAMES.Coinbase,
+          subName: null,
           chainId,
           address: addressDomain || addressShort
         })
@@ -153,6 +154,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       LOCAL_STORAGE_WALLETS_KEY,
       JSON.stringify({
         name: WALLET_NAMES.MetaMask,
+        subName: null,
         chainId,
         address: addressDomain || addressShort
       })
@@ -209,6 +211,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         LOCAL_STORAGE_WALLETS_KEY,
         JSON.stringify({
           name: WALLET_NAMES.WalletConnect,
+          subName,
           chainId,
           address: addressDomain || addressShort
         })
@@ -260,6 +263,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         LOCAL_STORAGE_WALLETS_KEY,
         JSON.stringify({
           name: WALLET_NAMES.Phantom,
+          subName: null,
           chainId,
           address: addressDomain || addressShort
         })
@@ -451,6 +455,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
           LOCAL_STORAGE_WALLETS_KEY,
           JSON.stringify({
             name: state.name,
+            subName: state.subName,
             chainId,
             address: state.addressDomain || state.addressShort
           })

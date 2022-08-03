@@ -6,6 +6,10 @@ export const WALLET_NAMES = {
   Coinbase: 'Coinbase'
 } as const
 
+export const WALLET_SUBNAME = {
+  GnosisSafe: 'Gnosis Safe Multisig'
+} as const
+
 export const NETWORK_IDS = {
   Ethereum: 1,
   Rinkeby: 4,

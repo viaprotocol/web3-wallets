@@ -32,6 +32,7 @@ type TWalletStoreState = {
 
 type TWalletLocalData = {
   name: string
+  subName: string
   chainId: number
   address: string
 }
