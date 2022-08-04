@@ -11,7 +11,7 @@ import type { BigNumber } from 'ethers'
 import { ethers } from 'ethers'
 import React, { useState } from 'react'
 
-import { ERRCODE, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, WALLET_NAMES } from '../constants'
+import { ERRCODE, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, WALLET_NAMES, WALLET_SUBNAME } from '../constants'
 import { getNetworkById, rpcMapping } from '../networks'
 import type { TWalletLocalData, TWalletStoreState } from '../types'
 import { WalletStatusEnum } from '../types'
@@ -516,10 +516,34 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         throw err
       }
     } else {
-      // EVM tx
+      // EVM txs
       const signer = state.provider!.getSigner()
 
       try {
+        // EVM + Gnosis Safe tx
+        if (state.name === WALLET_NAMES.WalletConnect && state.subName === WALLET_SUBNAME.GnosisSafe && state.walletProvider instanceof WalletConnectProvider) {
+          /*
+            Gnosis Safe cannot immediately return the transaction by design.
+            The multisig signature will be made later.
+            It remains only to wait for the appearance of a new transaction from the sender's address.
+          */
+
+          // no await - no response expected
+          signer?.sendTransaction(transaction)
+
+          const waitForGnosisSafeTxHash: () => Promise<string> = () => {
+            return new Promise((resolve, reject) => {
+              state.provider!.on({
+                address: state.address!
+              }, (event) => {
+                resolve(event.transactionHash)
+              })
+            })
+          }
+          return await waitForGnosisSafeTxHash()
+        }
+
+        // ordinary EVM tx
         const sendedTransaction = await signer?.sendTransaction(transaction)
         return sendedTransaction.hash
       } catch (err: any) {
