@@ -11,11 +11,11 @@ import type { BigNumber } from 'ethers'
 import { ethers } from 'ethers'
 import React, { useState } from 'react'
 
-import { ERRCODE, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, WALLET_NAMES } from '../constants'
+import { ERRCODE, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, WALLET_NAMES, WALLET_SUBNAME } from '../constants'
 import { getNetworkById, rpcMapping } from '../networks'
 import type { TWalletLocalData, TWalletStoreState } from '../types'
 import { WalletStatusEnum } from '../types'
-import { getCluster, getDomainAddress, goMetamask, goPhantom, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
+import { getCluster, getDomainAddress, goMetamask, goPhantom, parseEnsFromSolanaAddress, shortenAddress, detectNewTxFromAddress } from '../utils'
 import { useBalance } from '../hooks'
 import { INITIAL_STATE, WalletContext } from './WalletContext'
 import { EVM_WALLETS_CONFIG, SOL_WALLETS_CONFIG } from '@/hooks/useBalance/config'
@@ -74,6 +74,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         LOCAL_STORAGE_WALLETS_KEY,
         JSON.stringify({
           name: WALLET_NAMES.Coinbase,
+          subName: null,
           chainId,
           address: addressDomain || addressShort
         })
@@ -153,6 +154,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       LOCAL_STORAGE_WALLETS_KEY,
       JSON.stringify({
         name: WALLET_NAMES.MetaMask,
+        subName: null,
         chainId,
         address: addressDomain || addressShort
       })
@@ -209,6 +211,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         LOCAL_STORAGE_WALLETS_KEY,
         JSON.stringify({
           name: WALLET_NAMES.WalletConnect,
+          subName,
           chainId,
           address: addressDomain || addressShort
         })
@@ -260,6 +263,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         LOCAL_STORAGE_WALLETS_KEY,
         JSON.stringify({
           name: WALLET_NAMES.Phantom,
+          subName: null,
           chainId,
           address: addressDomain || addressShort
         })
@@ -451,6 +455,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
           LOCAL_STORAGE_WALLETS_KEY,
           JSON.stringify({
             name: state.name,
+            subName: state.subName,
             chainId,
             address: state.addressDomain || state.addressShort
           })
@@ -511,10 +516,24 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         throw err
       }
     } else {
-      // EVM tx
+      // EVM txs
       const signer = state.provider!.getSigner()
 
       try {
+        // EVM + Gnosis Safe tx
+        if (state.name === WALLET_NAMES.WalletConnect && state.subName === WALLET_SUBNAME.GnosisSafe && state.walletProvider instanceof WalletConnectProvider) {
+          /*
+            Gnosis Safe cannot immediately return the transaction by design.
+            Multi-signature can be done much later.
+            It remains only to wait for the appearance of a new transaction from the sender's address.
+          */
+
+          // no await - no response expected
+          signer?.sendTransaction(transaction)
+          return await detectNewTxFromAddress(state.address!, state.provider!)
+        }
+
+        // ordinary EVM tx
         const sendedTransaction = await signer?.sendTransaction(transaction)
         return sendedTransaction.hash
       } catch (err: any) {
