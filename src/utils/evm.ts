@@ -8,3 +8,13 @@ export const getDomainAddress = async (address: string) => {
   const provider = new ethers.providers.JsonRpcProvider(rpc)
   return provider.lookupAddress(address)
 }
+
+export const detectNewTxFromAddress: (address: string, provider: ethers.providers.Web3Provider) => Promise<string> = (address, provider) => {
+  return new Promise((resolve, reject) => {
+    provider.on({
+      address
+    }, (event) => {
+      resolve(event.transactionHash)
+    })
+  })
+}

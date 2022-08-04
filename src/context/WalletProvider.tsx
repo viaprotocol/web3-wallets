@@ -15,7 +15,7 @@ import { ERRCODE, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, WALLET_NAMES, WALLET_S
 import { getNetworkById, rpcMapping } from '../networks'
 import type { TWalletLocalData, TWalletStoreState } from '../types'
 import { WalletStatusEnum } from '../types'
-import { getCluster, getDomainAddress, goMetamask, goPhantom, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
+import { getCluster, getDomainAddress, goMetamask, goPhantom, parseEnsFromSolanaAddress, shortenAddress, detectNewTxFromAddress } from '../utils'
 import { useBalance } from '../hooks'
 import { INITIAL_STATE, WalletContext } from './WalletContext'
 import { EVM_WALLETS_CONFIG, SOL_WALLETS_CONFIG } from '@/hooks/useBalance/config'
@@ -524,23 +524,13 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         if (state.name === WALLET_NAMES.WalletConnect && state.subName === WALLET_SUBNAME.GnosisSafe && state.walletProvider instanceof WalletConnectProvider) {
           /*
             Gnosis Safe cannot immediately return the transaction by design.
-            The multisig signature will be made later.
+            Multi-signature can be done much later.
             It remains only to wait for the appearance of a new transaction from the sender's address.
           */
 
           // no await - no response expected
           signer?.sendTransaction(transaction)
-
-          const waitForGnosisSafeTxHash: () => Promise<string> = () => {
-            return new Promise((resolve, reject) => {
-              state.provider!.on({
-                address: state.address!
-              }, (event) => {
-                resolve(event.transactionHash)
-              })
-            })
-          }
-          return await waitForGnosisSafeTxHash()
+          return await detectNewTxFromAddress(state.address!, state.provider!)
         }
 
         // ordinary EVM tx
