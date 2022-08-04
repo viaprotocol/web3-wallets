@@ -85,6 +85,8 @@ yarn add @viaprotocol/web3-wallets
 
 6. After the library is installed, you can use it in your project.
 
+(if you are using vite, you need to run it with `--force` param)
+
 7. Run the following command to remove the library, after you are done with testing:
 
 ```
