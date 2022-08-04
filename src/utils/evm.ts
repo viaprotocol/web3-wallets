@@ -11,10 +11,13 @@ export const getDomainAddress = async (address: string) => {
 
 export const detectNewTxFromAddress: (address: string, provider: ethers.providers.Web3Provider) => Promise<string> = (address, provider) => {
   return new Promise((resolve, reject) => {
-    provider.on({
-      address
-    }, (event) => {
-      resolve(event.transactionHash)
-    })
+    const filter = { address }
+    const onFound = (event: any) => {
+      if (event.transactionHash) {
+        provider.off(filter, onFound)
+        resolve(event.transactionHash)
+      }
+    }
+    provider.on(filter, onFound)
   })
 }
