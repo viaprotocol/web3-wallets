@@ -82,7 +82,6 @@ const executeCosmosTransaction = async (cosmosTx: CosmosTransaction, provider: K
     __type: undefined
   }))
 
-  debugger
   if (signType === 'AMINO') {
     const signDoc = makeSignDoc(msgsWithoutType as any, fee as any, chainId, memo || undefined, account_number, sequence)
     const signResponse = await provider.signAmino(chainId, cosmosTx.fromWalletAddress, signDoc)
