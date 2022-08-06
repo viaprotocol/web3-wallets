@@ -596,6 +596,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         throw err
       }
     } else if (isCosmosWallet(state)) {
+      debugger
       return await executeCosmosTransaction(transaction as CosmosTransaction, state.provider)
     }
 
