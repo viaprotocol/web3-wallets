@@ -90,7 +90,7 @@ export const getAddressUrl = (chainId: number, address: string) => {
   const network = getNetworkById(chainId)
   const explorerUrl = network.data.params[0].blockExplorerUrls[0]
 
-  if (network.chain_id > 0 || [NETWORK_IDS.Solana, NETWORK_IDS.Cosmos, NETWORK_IDS.Osmosis, NETWORK_IDS.Sifchain].includes(network.chain_id as any)) {
+  if (network.chain_id > 0 || [NETWORK_IDS.Solana, ...COSMOS_CHAINS].includes(network.chain_id as any)) {
     return `${explorerUrl}/address/${address}`
   }
 
@@ -109,16 +109,16 @@ export const getTxUrl = (chainId: number, txHash: string): string | undefined =>
   const network = getNetworkById(chainId)
   const explorerUrl = network.data.params[0].blockExplorerUrls[0]
 
-  if (network.chain_id > 0) {
-    return `${explorerUrl}/tx/${txHash}`
-  }
-
-  if (network.chain_id === NETWORK_IDS.Solana) {
+  if (network.chain_id > 0 || [NETWORK_IDS.Solana].includes(network.chain_id as any)) {
     return `${explorerUrl}/tx/${txHash}`
   }
 
   if (network.chain_id === NETWORK_IDS.SolanaTestnet) {
     return `${explorerUrl}/tx/${txHash}?cluster=testnet`
+  }
+
+  if ([...COSMOS_CHAINS].includes(network.chain_id as any)) {
+    return `${explorerUrl}/transactions/${txHash}`
   }
 
   throw new Error(`getTxUrl: not implemented for chainId ${chainId}`)
