@@ -7,6 +7,7 @@ import type { ExternalProvider, TransactionRequest } from '@ethersproject/provid
 import type { Signer } from '@solana/web3.js'
 import { Connection, Transaction, clusterApiUrl } from '@solana/web3.js'
 import type { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom'
+import type { CosmosTransaction } from 'rango-sdk/lib'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 import type { BigNumber } from 'ethers'
 import { ethers } from 'ethers'
@@ -16,11 +17,11 @@ import type { Window as KeplrWindow } from '@keplr-wallet/types'
 import { ERRCODE, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, WALLET_NAMES, cosmosChainsMap } from '../constants'
 import type { TWalletLocalData, TWalletStoreState } from '../types'
 import { WalletStatusEnum } from '../types'
-import { getCluster, getCosmosConnectedWallets, getDomainAddress, goKeplr, goMetamask, goPhantom, isCosmosChain, isSolChain, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
+import { executeCosmosTransaction, getCluster, getCosmosConnectedWallets, getDomainAddress, goKeplr, goMetamask, goPhantom, isCosmosChain, isSolChain, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
 import { useBalance } from '../hooks'
 import { INITIAL_STATE, WalletContext } from './WalletContext'
 import { getNetworkById, rpcMapping } from '@/networks'
-import { isEvmWallet, isSolWallet } from '@/utils/wallet'
+import { isCosmosWallet, isEvmWallet, isSolWallet } from '@/utils/wallet'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
@@ -533,7 +534,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
   }
 
   const sendTx = async (
-    transaction: TransactionRequest | Transaction,
+    transaction: TransactionRequest | Transaction | CosmosTransaction,
     params?: {
       signers?: Signer[]
     }
@@ -584,7 +585,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       const signer = state.provider!.getSigner()
 
       try {
-        const sendedTransaction = await signer?.sendTransaction(transaction)
+        const sendedTransaction = await signer?.sendTransaction(transaction as TransactionRequest)
         return sendedTransaction.hash
       } catch (err: any) {
         if (err.code === ERRCODE.UserRejected) {
@@ -594,8 +595,11 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         console.error(`[Wallet] sendTx error: ${JSON.stringify(err)}`)
         throw err
       }
+    } else if (isCosmosWallet(state)) {
+      return await executeCosmosTransaction(transaction as CosmosTransaction, state.provider)
     }
-    return false // todo: add cosmos support
+
+    return false
   }
 
   const estimateGas = async (data: TransactionRequest): Promise<BigNumber | undefined> => {

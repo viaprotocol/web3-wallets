@@ -6,6 +6,7 @@ import type { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom'
 import type { Connection, Signer, Transaction } from '@solana/web3.js'
 import type WalletConnectProvider from '@walletconnect/web3-provider'
 import type { BigNumber, ethers } from 'ethers'
+import type { CosmosTransaction } from 'rango-sdk/lib'
 import type { WALLET_NAMES } from './constants'
 import type { COSMOS_WALLETS_CONFIG, EVM_WALLETS_CONFIG, SOL_WALLETS_CONFIG } from './hooks/useBalance/config'
 
@@ -74,7 +75,7 @@ type TWallet = {
   connect: ({ name, chainId }: { name: any; chainId: any }) => Promise<boolean>
   changeNetwork: (chainId: number) => Promise<boolean>
   sendTx: (
-    transaction: TransactionRequest | Transaction,
+    transaction: TransactionRequest | Transaction | CosmosTransaction,
     options?: { signers?: Signer[] }
   ) => Promise<string /* | false */> // todo: sendTx reject => false
   disconnect: () => void
