@@ -680,6 +680,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
   return (
     <WalletContext.Provider
+    // https://linear.app/via-protocol/issue/FRD-640/ispravit-oshibku-s-tipami-v-web3-wallets
     // @ts-expect-error
       value={{
         isConnected: state.isConnected,
