@@ -86,8 +86,6 @@ const executeCosmosTransaction = async (cosmosTx: CosmosTransaction, provider: K
     const signDoc = makeSignDoc(msgsWithoutType as any, fee as any, chainId, memo || undefined, account_number, sequence)
     const signResponse = await provider.signAmino(chainId, cosmosTx.fromWalletAddress, signDoc)
 
-    // let signedTx
-    // if (cosmosTx.data.protoMsgs.length > 0) {
     const signedTx = cosmos.tx.v1beta1.TxRaw.encode({
       bodyBytes: cosmos.tx.v1beta1.TxBody.encode({
         messages: cosmosTx.data.protoMsgs.map(m => ({ type_url: m.type_url, value: new Uint8Array(m.value) })),
@@ -120,10 +118,6 @@ const executeCosmosTransaction = async (cosmosTx: CosmosTransaction, provider: K
       }).finish(),
       signatures: [Buffer.from(signResponse.signature.signature, 'base64')]
     }).finish()
-    // } else {
-    //   signedTx = makeStdTx(signResponse.signed, signResponse.signature)
-    // }
-    // Todo: fix typing
     const result = await provider.sendTx(chainId, signedTx, BroadcastMode.Async)
     return uint8ArrayToHex(result)
   } else if (signType === 'DIRECT') {

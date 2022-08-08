@@ -26,7 +26,7 @@ import { isCosmosWallet, isEvmWallet, isSolWallet } from '@/utils/wallet'
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface Window extends KeplrWindow {
-    solana: PhantomWalletAdapter
+    solana: PhantomWalletAdapter & { isPhantom?: boolean }
   }
 }
 
@@ -234,10 +234,8 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     }
     setState(prev => ({ ...prev, status: WalletStatusEnum.LOADING }))
     try {
-      // TODO: check this place twice
       await window.solana.connect()
       const address = window.solana.publicKey!.toString()
-      console.log('address', address)
       const addressDomain = await parseEnsFromSolanaAddress(address)
       const provider = window.solana
       const cluster = getCluster(chainId)
@@ -361,8 +359,6 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     }
 
     if (name === WALLET_NAMES.Phantom) {
-      // todo: add correct typing
-      // @ts-expect-error
       const isPhantomInstalled = window.solana && window.solana.isPhantom
       if (!isPhantomInstalled) {
         goPhantom()
@@ -538,28 +534,28 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     params?: {
       signers?: Signer[]
     }
-  ): Promise<string | false> => {
+  ): Promise<string> => {
     // todo: sendTx reject => false
     console.log('[Wallet] sendTx', transaction)
 
     const isSolanaTransaction = transaction instanceof Transaction
 
-    if (isSolanaTransaction) {
-      const cluster = getCluster(state.chainId)
-      const solanaNetwork = clusterApiUrl(cluster)
-      const connection = new Connection(solanaNetwork)
+    try {
+      if (isSolanaTransaction) {
+        const cluster = getCluster(state.chainId)
+        const solanaNetwork = clusterApiUrl(cluster)
+        const connection = new Connection(solanaNetwork)
 
-      // @ts-expect-error need types for state provider
-      transaction.feePayer = state.provider.publicKey
-      console.warn('Getting recent blockhash')
-      transaction.recentBlockhash = transaction.recentBlockhash || (await connection.getLatestBlockhash()).blockhash
+        // @ts-expect-error need types for state provider
+        transaction.feePayer = state.provider.publicKey
+        console.warn('Getting recent blockhash')
+        transaction.recentBlockhash = transaction.recentBlockhash || (await connection.getLatestBlockhash()).blockhash
 
-      if (params?.signers?.length) {
-        transaction.partialSign(...params.signers)
-        console.log('partialSigned')
-      }
+        if (params?.signers?.length) {
+          transaction.partialSign(...params.signers)
+          console.log('partialSigned')
+        }
 
-      try {
         // @ts-expect-error Solana need to be refactored
         const signed = await state.provider.signTransaction(transaction)
         console.log('signed', signed)
@@ -576,30 +572,29 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
           console.log(`https://solscan.io/tx/${signature}${cluster === 'testnet' ? '?cluster=testnet' : ''}`)
         })()
         return signature
-      } catch (err) {
-        console.error(`[Wallet] sendTx error: ${JSON.stringify(err)}`)
-        throw err
-      }
-    } else if (isEvmWallet(state)) {
+      } else if (isEvmWallet(state)) {
       // EVM tx
-      const signer = state.provider!.getSigner()
+        const signer = state.provider!.getSigner()
 
-      try {
-        const sendedTransaction = await signer?.sendTransaction(transaction as TransactionRequest)
-        return sendedTransaction.hash
-      } catch (err: any) {
-        if (err.code === ERRCODE.UserRejected) {
-          console.warn('[Wallet] User rejected the request')
-          throw err // return false // todo: sendTx reject => false
+        try {
+          const sendedTransaction = await signer?.sendTransaction(transaction as TransactionRequest)
+          return sendedTransaction.hash
+        } catch (err: any) {
+          if (err.code === ERRCODE.UserRejected) {
+            console.warn('[Wallet] User rejected the request')
+            throw err // return false // todo: sendTx reject => false
+          }
+          throw err
         }
-        console.error(`[Wallet] sendTx error: ${JSON.stringify(err)}`)
-        throw err
+      } else if (isCosmosWallet(state)) {
+        return await executeCosmosTransaction(transaction as CosmosTransaction, state.provider)
+      } else {
+        throw new Error('[Wallet] sendTx error: wallet is not supported')
       }
-    } else if (isCosmosWallet(state)) {
-      return await executeCosmosTransaction(transaction as CosmosTransaction, state.provider)
+    } catch (err) {
+      console.error(`[Wallet] sendTx error: ${JSON.stringify(err)}`)
+      throw err
     }
-
-    return false
   }
 
   const estimateGas = async (data: TransactionRequest): Promise<BigNumber | undefined> => {
@@ -663,9 +658,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
   const getTransaction = async (hash: string) => {
     const { chainId } = state
 
-    if (chainId === NETWORK_IDS.Solana) {
-      throw new Error('[Wallet] getTransaction error: method not supported in Solana yet')
-    } else if (isEvmWallet(state)) {
+    if (isEvmWallet(state)) {
       // Status 0 === Tx Reverted
       // @see https://docs.ethers.io/v5/api/providers/types/#providers-TransactionReceipt
       const REVERTED_STATUS = 0
@@ -680,8 +673,9 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       }
 
       return tx
+    } else {
+      throw new Error('[Wallet] getTransaction error: method not supported yet')
     }
-    // todo: add cosmos support
   }
 
   const balance = useBalance(state)
@@ -703,13 +697,11 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         provider: state.provider,
         walletProvider: state.walletProvider,
         waitForTransaction,
-        // @ts-expect-error
         getTransaction,
         restore,
         connect,
         changeNetwork,
         connectedWallets: state.connectedWallets,
-        // @ts-expect-error
         sendTx,
         disconnect
       }}
