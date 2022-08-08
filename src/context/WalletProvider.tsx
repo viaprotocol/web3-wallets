@@ -656,8 +656,6 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
   }
 
   const getTransaction = async (hash: string) => {
-    const { chainId } = state
-
     if (isEvmWallet(state)) {
       // Status 0 === Tx Reverted
       // @see https://docs.ethers.io/v5/api/providers/types/#providers-TransactionReceipt
@@ -682,6 +680,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
   return (
     <WalletContext.Provider
+    // @ts-expect-error
       value={{
         isConnected: state.isConnected,
         status: state.status,

@@ -54,7 +54,6 @@ type TSolWalletStore = {
 type TCosmosWalletStore = {
   name: TAvailableCosmosWalletNames
   provider: Keplr
-  connectedWallets: TConnectedWallet[]
 } & TWalletStateDefault
 
 type TWalletBodyDefaultState = {

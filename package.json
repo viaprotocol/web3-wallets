@@ -17,12 +17,6 @@
     "web3",
     "typescript"
   ],
-  "browser": {
-    "events": "events",
-    "path": "path-browserify",
-    "stream": "stream-browserify",
-    "util": "node-util"
-  },
   "main": "index.js",
   "module": "index.js",
   "types": "index.d.ts",
