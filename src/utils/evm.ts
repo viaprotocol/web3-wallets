@@ -31,6 +31,5 @@ export const isEvmContract = async (chainId: number, address: string) => {
   const { rpc_url: rpc }  = getNetworkById(chainId)
   const provider = new ethers.providers.JsonRpcProvider(rpc)
   const addressCode = await provider.getCode(address)
-  const isContract = addressCode !== EVM_NON_CONTRACT_ADDRESS_CODE
-  return isContract
+  return addressCode !== EVM_NON_CONTRACT_ADDRESS_CODE
 }
