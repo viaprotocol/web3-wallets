@@ -525,12 +525,13 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
           /*
             Gnosis Safe cannot immediately return the transaction by design.
             Multi-signature can be done much later.
-            It remains only to wait for the appearance of a new transaction from the sender's address.
+            It remains only to wait for the appearance of a new transaction from the sender's address (detectNewTxFromAddress)
           */
-
-          // no await - no response expected
-          signer?.sendTransaction(transaction)
-          return await detectNewTxFromAddress(state.address!, state.provider!)
+          return await Promise.race([
+            // However, sendTransaction can still throw if the transaction is rejected by the user
+            signer?.sendTransaction(transaction) as never,
+            detectNewTxFromAddress(state.address!, state.provider!)
+          ])
         }
 
         // ordinary EVM tx
