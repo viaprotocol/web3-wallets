@@ -11,20 +11,31 @@ function useCosmosBalance(options: TUseBalanceOptions) {
   const isCosmos = isCosmosWallet(options)
 
   const [balance, setBalance] = useState<string | null>(null)
+  const [client, setClient] = useState<StargateClient | null>(null)
 
-  const network = useMemo(() => chainId ? getNetworkById(chainId) : null, [chainId])
-  const rpcAddress = useMemo(() => chainId ? rpcMapping[chainId] : '', [chainId])
-  const clientPromise = useMemo(async () => await StargateClient.connect(rpcAddress), [rpcAddress])
+  const setClientInstance = useCallback(async (rpcAddress: string) => {
+    const newClient = await StargateClient.connect(rpcAddress)
+
+    setClient(newClient)
+  }, [setClient])
+
+  useEffect(() => {
+    if (chainId) {
+      setClientInstance(rpcMapping[chainId])
+    }
+  }, [chainId, setClientInstance])
 
   const checkCosmosBalance = useCallback(async () => {
-    if (options.address && network) {
-      const client = await clientPromise
-
-      const { amount } = await client.getBalance(options.address, network.currency_name)
-
-      setBalance(amount)
+    if (!chainId || !options.address || !client) {
+      return
     }
-  }, [clientPromise, options.address, network])
+
+    const network = getNetworkById(chainId)
+
+    const { amount } = await client.getBalance(options.address, network.currency_name)
+
+    setBalance(amount)
+  }, [client, options.address, chainId])
 
   useEffect(() => {
     let intervalId: null | NodeJS.Timer = null
