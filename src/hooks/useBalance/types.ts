@@ -1,5 +1,5 @@
 import type { TWalletStoreState } from '../../types'
 
-type TUseBalanceOptions = {} & TWalletStoreState
+type TUseBalanceOptions = TWalletStoreState
 
 export type { TUseBalanceOptions }

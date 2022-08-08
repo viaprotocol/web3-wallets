@@ -17,6 +17,12 @@
     "web3",
     "typescript"
   ],
+  "browser": {
+    "events": "events",
+    "path": "path-browserify",
+    "stream": "stream-browserify",
+    "util": "node-util"
+  },
   "main": "index.js",
   "module": "index.js",
   "types": "index.d.ts",
@@ -56,12 +62,20 @@
   },
   "dependencies": {
     "@coinbase/wallet-sdk": "^3.3.0",
+    "@cosmjs/stargate": "^0.27.0",
+    "@keplr-wallet/cosmos": "^0.9.9",
+    "@keplr-wallet/types": "^0.10.13",
     "@metamask/providers": "^8.1.1",
     "@solana/spl-name-service": "^0.1.4",
+    "@solana/wallet-adapter-base": "^0.9.9",
+    "@solana/wallet-adapter-phantom": "^0.9.8",
     "@solana/web3.js": "^1.43.5",
     "@walletconnect/web3-provider": "^1.7.8",
     "ethers": "^5.6.8",
-    "ismobilejs": "^1.1.1"
+    "ismobilejs": "^1.1.1",
+    "long": "^5.2.0",
+    "path": "^0.12.7",
+    "rango-sdk": "^0.0.5"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^0.25.1",

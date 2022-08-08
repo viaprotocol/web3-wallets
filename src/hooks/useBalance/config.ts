@@ -1,7 +1,9 @@
-import type { TAvailableWalletNames } from '../../types'
+import { WALLET_NAMES } from '@/constants'
 
-const EVM_WALLETS_CONFIG: TAvailableWalletNames[] = ['MetaMask', 'WalletConnect', 'Coinbase']
+const EVM_WALLETS_CONFIG = [WALLET_NAMES.MetaMask, WALLET_NAMES.WalletConnect, WALLET_NAMES.Coinbase]
 
-const SOL_WALLETS_CONFIG: TAvailableWalletNames[] = ['Phantom']
+const SOL_WALLETS_CONFIG = [WALLET_NAMES.Phantom]
 
-export { EVM_WALLETS_CONFIG, SOL_WALLETS_CONFIG }
+const COSMOS_WALLETS_CONFIG = [WALLET_NAMES.Keplr]
+
+export { EVM_WALLETS_CONFIG, SOL_WALLETS_CONFIG, COSMOS_WALLETS_CONFIG }

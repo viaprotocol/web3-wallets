@@ -5,15 +5,16 @@ import type { Hexable } from 'ethers/lib/utils'
 import isMobile from 'ismobilejs'
 
 import {
+  COSMOS_CHAINS,
   EVM_BASE_TOKEN_ADDRESS,
   EVM_ENS_POSTFIX,
   NETWORK_IDS,
   SOLANA_BASE_TOKEN_ADDRESS,
-  SOLANA_ENS_POSTFIX
+  SOLANA_ENS_POSTFIX,
+  SOL_CHAINS
 } from '../constants'
-import { getNetworkById, supportedNetworkIds } from '../networks'
-
 import { checkEnsValid, parseAddressFromEnsSolana } from './solana'
+import { getNetworkById, supportedNetworkIds } from '@/networks'
 
 export const { BigNumber } = ethers
 
@@ -27,8 +28,12 @@ const addressRegExpList = {
   [NETWORK_IDS.Sifchain]: /^(sif1)[0-9a-z]{38}$/
 }
 
+export const isEvmChain = (chainId: number) => chainId > 0
+export const isCosmosChain = (chainId: number) => COSMOS_CHAINS.includes(chainId as any)
+export const isSolChain = (chainId: number) => SOL_CHAINS.includes(chainId as any)
+
 export const isValidAddress = async (chainId: number, address: string) => {
-  if (chainId > 0) {
+  if (isEvmChain(chainId)) {
     // Chain ID > 0 === EVM-like network
     if (address.slice(-4) === EVM_ENS_POSTFIX) {
       const rpc = getNetworkById(NETWORK_IDS.Ethereum).rpc_url
@@ -63,7 +68,7 @@ export const isValidAddress = async (chainId: number, address: string) => {
   }
 
   if (chainId === NETWORK_IDS.Cosmos || chainId === NETWORK_IDS.Osmosis || chainId === NETWORK_IDS.Sifchain) {
-    return addressRegExpList[chainId]
+    return addressRegExpList[chainId].test(address)
   }
 
   throw new Error(`Not implemented or wrong chainId ${chainId}`)
@@ -89,12 +94,8 @@ export const getAddressUrl = (chainId: number, address: string) => {
   const network = getNetworkById(chainId)
   const explorerUrl = network.data.params[0].blockExplorerUrls[0]
 
-  if (network.chain_id > 0) {
+  if (isEvmChain(network.chain_id) || [NETWORK_IDS.Solana, ...COSMOS_CHAINS].includes(network.chain_id as any)) {
     return `${explorerUrl}/address/${address}`
-  }
-
-  if (network.chain_id === NETWORK_IDS.Solana) {
-    return `${explorerUrl}/account/${address}`
   }
 
   if (network.chain_id === NETWORK_IDS.SolanaTestnet) {
@@ -112,16 +113,16 @@ export const getTxUrl = (chainId: number, txHash: string): string | undefined =>
   const network = getNetworkById(chainId)
   const explorerUrl = network.data.params[0].blockExplorerUrls[0]
 
-  if (network.chain_id > 0) {
-    return `${explorerUrl}/tx/${txHash}`
-  }
-
-  if (network.chain_id === NETWORK_IDS.Solana) {
+  if (network.chain_id > 0 || [NETWORK_IDS.Solana].includes(network.chain_id as any)) {
     return `${explorerUrl}/tx/${txHash}`
   }
 
   if (network.chain_id === NETWORK_IDS.SolanaTestnet) {
     return `${explorerUrl}/tx/${txHash}?cluster=testnet`
+  }
+
+  if ([...COSMOS_CHAINS].includes(network.chain_id as any)) {
+    return `${explorerUrl}/transactions/${txHash}`
   }
 
   throw new Error(`getTxUrl: not implemented for chainId ${chainId}`)
@@ -148,7 +149,7 @@ export const parseAddressFromEns = async (input: string) => {
   return input
 }
 
-export const isEvmChain = (chainId: number) => chainId > 0
+const openLink = (url: string) => window?.open(url, '_blank')
 
 export const goMetamask = () => {
   if (isMobile(window.navigator).any) {
@@ -157,13 +158,10 @@ export const goMetamask = () => {
     locationHrefNoProtocol = locationHrefNoProtocol.replace('https://', '')
     window.location.href = `https://metamask.app.link/dapp/${locationHrefNoProtocol}`
   } else {
-    window.open('https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn')
+    openLink('https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn')
   }
 }
 
-export const goPhantom = () => {
-  const url = 'https://chrome.google.com/webstore/detail/phantom/bfnaelmomeimhlpmgjnjophhpkkoljpa'
-  if (window) {
-    window.open(url, '_blank')
-  }
-}
+export const goPhantom = () => openLink('https://chrome.google.com/webstore/detail/phantom/bfnaelmomeimhlpmgjnjophhpkkoljpa')
+
+export const goKeplr = () => openLink('https://chrome.google.com/webstore/detail/keplr/dmkamcknogkgcdfhhbddcghachkejeap')

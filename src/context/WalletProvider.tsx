@@ -6,24 +6,27 @@
 import type { ExternalProvider, TransactionRequest } from '@ethersproject/providers'
 import type { Signer } from '@solana/web3.js'
 import { Connection, Transaction, clusterApiUrl } from '@solana/web3.js'
+import type { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom'
+import type { CosmosTransaction } from 'rango-sdk/lib'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 import type { BigNumber } from 'ethers'
 import { ethers } from 'ethers'
 import React, { useState } from 'react'
 
-import { ERRCODE, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, WALLET_NAMES, WALLET_SUBNAME } from '../constants'
-import { getNetworkById, rpcMapping } from '../networks'
+import type { Window as KeplrWindow } from '@keplr-wallet/types'
+import { ERRCODE, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, WALLET_NAMES, WALLET_SUBNAME, cosmosChainsMap } from '../constants'
 import type { TWalletLocalData, TWalletStoreState } from '../types'
 import { WalletStatusEnum } from '../types'
-import { getCluster, getDomainAddress, goMetamask, goPhantom, parseEnsFromSolanaAddress, shortenAddress, detectNewTxFromAddress } from '../utils'
+import { detectNewTxFromAddress, executeCosmosTransaction, getCluster, getCosmosConnectedWallets, getDomainAddress, goKeplr, goMetamask, goPhantom, isCosmosChain, isSolChain, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
+import { getNetworkById, rpcMapping } from '../networks'
 import { useBalance } from '../hooks'
 import { INITIAL_STATE, WalletContext } from './WalletContext'
-import { EVM_WALLETS_CONFIG, SOL_WALLETS_CONFIG } from '@/hooks/useBalance/config'
+import { isCosmosWallet, isEvmWallet, isSolWallet } from '@/utils/wallet'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-  interface Window {
-    solana: any
+  interface Window extends KeplrWindow {
+    solana: PhantomWalletAdapter & { isPhantom?: boolean }
   }
 }
 
@@ -228,14 +231,14 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     }
   }
 
-  const connectPhantom = async (chainId: number = NETWORK_IDS.Solana, isReconnect = false) => {
-    if (chainId !== NETWORK_IDS.Solana && chainId !== NETWORK_IDS.SolanaTestnet) {
+  const connectPhantom = async (chainId: number = NETWORK_IDS.Solana) => {
+    if (!isSolChain(chainId)) {
       throw new Error(`Unknown Phantom chainId ${chainId}`)
     }
     setState(prev => ({ ...prev, status: WalletStatusEnum.LOADING }))
     try {
-      const resp = isReconnect ? await window.solana.connect({ onlyIfTrusted: true }) : await window.solana.connect()
-      const address = resp.publicKey.toString()
+      await window.solana.connect()
+      const address = window.solana.publicKey!.toString()
       const addressDomain = await parseEnsFromSolanaAddress(address)
       const provider = window.solana
       const cluster = getCluster(chainId)
@@ -279,6 +282,59 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     }
   }
 
+  const connectKeplr = async (chainId: number) => {
+    if (!(isCosmosChain(chainId))) {
+      throw new Error(`Keplr chainId ${chainId} is not supported`)
+    }
+
+    if (window.keplr) {
+      setState(prev => ({ ...prev, status: WalletStatusEnum.LOADING }))
+
+      const chainxList = Object.values(cosmosChainsMap)
+      const currentChain = cosmosChainsMap[chainId as keyof typeof cosmosChainsMap]
+
+      const provider = window.keplr
+
+      await provider.enable(chainxList)
+
+      const offlineSigner = provider.getOfflineSigner(currentChain)
+
+      const addressesList = await offlineSigner.getAccounts()
+      const { address } = addressesList[0]
+      const addressShort = shortenAddress(address)
+
+      const connectedWallets = await getCosmosConnectedWallets(provider)
+
+      setState(prev => ({
+        ...prev,
+        ...{
+          isConnected: true,
+          status: WalletStatusEnum.READY,
+          connectedWallets,
+          name: 'Keplr',
+          chainId,
+          address,
+          addressShort,
+          provider
+        }
+      }))
+
+      localStorage.setItem('web3-wallets-name', WALLET_NAMES.Keplr)
+      localStorage.setItem(
+        LOCAL_STORAGE_WALLETS_KEY,
+        JSON.stringify({
+          name: WALLET_NAMES.Keplr,
+          chainId,
+          address: addressShort
+        })
+      )
+
+      return true
+    }
+
+    return false
+  }
+
   const connect = async ({ name, chainId }: { name: string; chainId: number }): Promise<boolean> => {
     console.log('[Wallet] connect()', name, chainId)
     if (!(Object.values(WALLET_NAMES) as string[]).includes(name)) {
@@ -315,6 +371,16 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       return connectPhantom(chainId)
     }
 
+    if (name === WALLET_NAMES.Keplr) {
+      const isKeplrInstalled = window.keplr
+
+      if (!isKeplrInstalled) {
+        goKeplr()
+        return false
+      }
+      return connectKeplr(chainId)
+    }
+
     return false
   }
 
@@ -338,10 +404,10 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
   }
 
   const evmChangeNetwork = async (params: any[]): Promise<boolean> => {
-    const { provider } = state
-    if (!provider) {
+    if (!state.provider || !isEvmWallet(state)) {
       return false
     }
+    const { provider } = state
     const newChainIdHex = params[0].chainId
 
     try {
@@ -385,7 +451,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       return false
     }
 
-    if (EVM_WALLETS_CONFIG.includes(state.name)) {
+    if (isEvmWallet(state)) {
       if (state.walletProvider) {
         state.walletProvider.removeAllListeners()
         if (state.walletProvider instanceof WalletConnectProvider) {
@@ -394,7 +460,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       }
     }
 
-    if (SOL_WALLETS_CONFIG.includes(state.name)) {
+    if (isSolWallet(state)) {
       window.solana.disconnect()
     }
 
@@ -448,7 +514,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     const network = getNetworkById(chainId)
     const { params } = network.data
 
-    if (EVM_WALLETS_CONFIG.includes(state.name)) {
+    if (isEvmWallet(state)) {
       const isChanged = await evmChangeNetwork(params)
       if (isChanged) {
         localStorage.setItem(
@@ -469,32 +535,32 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
   }
 
   const sendTx = async (
-    transaction: TransactionRequest | Transaction,
+    transaction: TransactionRequest | Transaction | CosmosTransaction,
     params?: {
       signers?: Signer[]
     }
-  ): Promise<string /* | false */> => {
+  ): Promise<string> => {
     // todo: sendTx reject => false
     console.log('[Wallet] sendTx', transaction)
 
     const isSolanaTransaction = transaction instanceof Transaction
 
-    if (isSolanaTransaction) {
-      const cluster = getCluster(state.chainId)
-      const solanaNetwork = clusterApiUrl(cluster)
-      const connection = new Connection(solanaNetwork)
+    try {
+      if (isSolanaTransaction) {
+        const cluster = getCluster(state.chainId)
+        const solanaNetwork = clusterApiUrl(cluster)
+        const connection = new Connection(solanaNetwork)
 
-      // @ts-expect-error need types for state provider
-      transaction.feePayer = state.provider.publicKey
-      console.warn('Getting recent blockhash')
-      transaction.recentBlockhash = transaction.recentBlockhash || (await connection.getLatestBlockhash()).blockhash
+        // @ts-expect-error need types for state provider
+        transaction.feePayer = state.provider.publicKey
+        console.warn('Getting recent blockhash')
+        transaction.recentBlockhash = transaction.recentBlockhash || (await connection.getLatestBlockhash()).blockhash
 
-      if (params?.signers?.length) {
-        transaction.partialSign(...params.signers)
-        console.log('partialSigned')
-      }
+        if (params?.signers?.length) {
+          transaction.partialSign(...params.signers)
+          console.log('partialSigned')
+        }
 
-      try {
         // @ts-expect-error Solana need to be refactored
         const signed = await state.provider.signTransaction(transaction)
         console.log('signed', signed)
@@ -511,46 +577,51 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
           console.log(`https://solscan.io/tx/${signature}${cluster === 'testnet' ? '?cluster=testnet' : ''}`)
         })()
         return signature
-      } catch (err) {
-        console.error(`[Wallet] sendTx error: ${JSON.stringify(err)}`)
-        throw err
-      }
-    } else {
-      // EVM txs
-      const signer = state.provider!.getSigner()
+      } else if (isEvmWallet(state)) {
+        // EVM tx
+        const signer = state.provider!.getSigner()
+        const tx = transaction as TransactionRequest
 
-      try {
-        // EVM + Gnosis Safe tx
-        if (state.name === WALLET_NAMES.WalletConnect && state.subName === WALLET_SUBNAME.GnosisSafe && state.walletProvider instanceof WalletConnectProvider) {
+        try {
+          // EVM + Gnosis Safe tx
+          if (state.name === WALLET_NAMES.WalletConnect && state.subName === WALLET_SUBNAME.GnosisSafe && state.walletProvider instanceof WalletConnectProvider) {
           /*
             Gnosis Safe cannot immediately return the transaction by design.
             Multi-signature can be done much later.
             It remains only to wait for the appearance of a new transaction from the sender's address (detectNewTxFromAddress)
           */
-          return await Promise.race([
+            return await Promise.race([
             // However, sendTransaction can still throw if the transaction is rejected by the user
-            signer?.sendTransaction(transaction) as never,
-            detectNewTxFromAddress(state.address!, state.provider!)
-          ])
-        }
+              signer?.sendTransaction(tx) as never,
+              detectNewTxFromAddress(state.address!, state.provider!)
+            ])
+          }
 
-        // ordinary EVM tx
-        const sendedTransaction = await signer?.sendTransaction(transaction)
-        return sendedTransaction.hash
-      } catch (err: any) {
-        if (err.code === ERRCODE.UserRejected) {
-          console.warn('[Wallet] User rejected the request')
-          throw err // return false // todo: sendTx reject => false
+          // ordinary EVM tx
+          const sendedTransaction = await signer?.sendTransaction(tx)
+          return sendedTransaction.hash
+        } catch (err: any) {
+          if (err.code === ERRCODE.UserRejected) {
+            console.warn('[Wallet] User rejected the request')
+            throw err // return false // todo: sendTx reject => false
+          }
+          throw err
         }
-        console.error(`[Wallet] sendTx error: ${JSON.stringify(err)}`)
-        throw err
+      } else if (isCosmosWallet(state)) {
+        return await executeCosmosTransaction(transaction as CosmosTransaction, state.provider)
+      } else {
+        throw new Error('[Wallet] sendTx error: wallet is not supported')
       }
+    } catch (err) {
+      console.error(`[Wallet] sendTx error: ${JSON.stringify(err)}`)
+      throw err
     }
-    // return false // todo: sendTx reject => false
   }
 
   const estimateGas = async (data: TransactionRequest): Promise<BigNumber | undefined> => {
-    return state.provider?.estimateGas(data)
+    if (state.provider && 'estimateGas' in state.provider) {
+      return state.provider.estimateGas(data)
+    }
   }
 
   const fetchEvmWalletInfo = async (provider: ethers.providers.Web3Provider) => {
@@ -587,7 +658,8 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       } catch (e) {
         throw new Error('[Wallet] waitForTransaction error: execution reverted')
       }
-    } else {
+    } else if (isEvmWallet(state)) {
+      // EVM tx
       // Status 0 === Tx Reverted
       // @see https://docs.ethers.io/v5/api/providers/types/#providers-TransactionReceipt
       const REVERTED_STATUS = 0
@@ -601,14 +673,11 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         throw new Error('[Wallet] waitForTransaction error: execution reverted')
       }
     }
+    // todo: add cosmos support
   }
 
   const getTransaction = async (hash: string) => {
-    const { chainId } = state
-
-    if (chainId === NETWORK_IDS.Solana) {
-      throw new Error('[Wallet] getTransaction error: method not supported in Solana yet')
-    } else {
+    if (isEvmWallet(state)) {
       // Status 0 === Tx Reverted
       // @see https://docs.ethers.io/v5/api/providers/types/#providers-TransactionReceipt
       const REVERTED_STATUS = 0
@@ -623,6 +692,8 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       }
 
       return tx
+    } else {
+      throw new Error('[Wallet] getTransaction error: method not supported yet')
     }
   }
 
@@ -630,6 +701,8 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
   return (
     <WalletContext.Provider
+    // https://linear.app/via-protocol/issue/FRD-640/ispravit-oshibku-s-tipami-v-web3-wallets
+    // @ts-expect-error
       value={{
         isConnected: state.isConnected,
         status: state.status,
@@ -649,6 +722,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         restore,
         connect,
         changeNetwork,
+        connectedWallets: state.connectedWallets,
         sendTx,
         disconnect
       }}

@@ -3,7 +3,8 @@ export const WALLET_NAMES = {
   MetaMask: 'MetaMask',
   Phantom: 'Phantom',
   Near: 'Near',
-  Coinbase: 'Coinbase'
+  Coinbase: 'Coinbase',
+  Keplr: 'Keplr'
 } as const
 
 export const WALLET_SUBNAME = {
@@ -58,5 +59,20 @@ export const ERRCODE = {
   UnrecognizedChain2: 4902,
   UnrecognizedChain: -32603
 }
+
+export const SOL_CHAINS = [NETWORK_IDS.Solana, NETWORK_IDS.SolanaTestnet]
+export const COSMOS_CHAINS = [NETWORK_IDS.Cosmos, NETWORK_IDS.Osmosis, NETWORK_IDS.Sifchain] as const
+
+export const cosmosChainsMap: { [key in typeof COSMOS_CHAINS[number]]: string } = {
+  [NETWORK_IDS.Cosmos]: 'cosmoshub-4',
+  [NETWORK_IDS.Osmosis]: 'osmosis-1',
+  [NETWORK_IDS.Sifchain]: 'sifchain-1'
+}
+
+export const cosmosChainWalletMap: { name: string; chainId: typeof COSMOS_CHAINS[number] }[] = [
+  { name: 'COSMOS', chainId: NETWORK_IDS.Cosmos },
+  { name: 'OSMOSIS', chainId: NETWORK_IDS.Osmosis },
+  { name: 'SIF', chainId: NETWORK_IDS.Sifchain }
+]
 
 export const LOCAL_STORAGE_WALLETS_KEY = 'web3-wallets-data'

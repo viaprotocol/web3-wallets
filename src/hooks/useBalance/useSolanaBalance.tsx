@@ -1,17 +1,16 @@
 import { PublicKey } from '@solana/web3.js'
 import { useEffect, useState } from 'react'
 
-import { SOL_WALLETS_CONFIG } from './config'
 import type { TUseBalanceOptions } from './types'
+import { isSolWallet } from '@/utils/wallet'
 
 const SECONDS_BEFORE_NEXT_UPDATE = 2
 
 function useSolanaBalance(options: TUseBalanceOptions) {
-  const { name, address, isConnected, connection } = options
+  const { address, isConnected, connection } = options
 
   const [balance, setBalance] = useState<string | null>(null)
-  const isSolWallet = !!name && SOL_WALLETS_CONFIG.includes(name)
-  const isSubscriptionIsAvailable = isSolWallet && address && isConnected && connection
+  const isSubscriptionIsAvailable = isSolWallet(options) && address && isConnected && connection
 
   useEffect(() => {
     const intervalId
