@@ -1,7 +1,9 @@
 import { ethers } from 'ethers'
 
-import { NETWORK_IDS } from '../constants'
+import { NETWORK_IDS, EVM_NON_CONTRACT_ADDRESS_CODE } from '../constants'
 import { getNetworkById } from '../networks'
+
+import { isEvmChain } from './common'
 
 export const getDomainAddress = async (address: string) => {
   const rpc = getNetworkById(NETWORK_IDS.Ethereum).rpc_url
@@ -20,4 +22,14 @@ export const detectNewTxFromAddress: (address: string, provider: ethers.provider
     }
     provider.on(filter, onFound)
   })
+}
+
+export const isEvmContract = async (chainId: number, address: string) => {
+  if (!isEvmChain(chainId)) {
+    throw new Error(`Non-EVM chainId ${chainId}`)
+  }
+  const { rpc_url: rpc }  = getNetworkById(chainId)
+  const provider = new ethers.providers.JsonRpcProvider(rpc)
+  const addressCode = await provider.getCode(address)
+  return addressCode !== EVM_NON_CONTRACT_ADDRESS_CODE
 }
