@@ -17,7 +17,7 @@ esbuild
     minifyWhitespace: true,
     minifySyntax: true,
     minifyIdentifiers: false,
-    platform: 'node',
+    platform: 'browser',
     sourcemap: true,
     target: ['node16', 'esnext'],
     splitting: true,
