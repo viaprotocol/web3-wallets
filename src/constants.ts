@@ -51,6 +51,8 @@ export const SOLANA_BASE_TOKEN_ADDRESS = 'So111111111111111111111111111111111111
 export const EVM_ENS_POSTFIX = '.eth'
 export const SOLANA_ENS_POSTFIX = '.sol'
 
+export const EVM_NON_CONTRACT_ADDRESS_CODE = '0x'
+
 export const ERRCODE = {
   UserRejected: 4001,
   UnrecognizedChain2: 4902,
