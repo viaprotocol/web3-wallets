@@ -28,8 +28,12 @@ const addressRegExpList = {
   [NETWORK_IDS.Sifchain]: /^(sif1)[0-9a-z]{38}$/
 }
 
+export const isEvmChain = (chainId: number) => chainId > 0
+export const isCosmosChain = (chainId: number) => COSMOS_CHAINS.includes(chainId as any)
+export const isSolChain = (chainId: number) => SOL_CHAINS.includes(chainId as any)
+
 export const isValidAddress = async (chainId: number, address: string) => {
-  if (chainId > 0) {
+  if (isEvmChain(chainId)) {
     // Chain ID > 0 === EVM-like network
     if (address.slice(-4) === EVM_ENS_POSTFIX) {
       const rpc = getNetworkById(NETWORK_IDS.Ethereum).rpc_url
@@ -90,7 +94,7 @@ export const getAddressUrl = (chainId: number, address: string) => {
   const network = getNetworkById(chainId)
   const explorerUrl = network.data.params[0].blockExplorerUrls[0]
 
-  if (network.chain_id > 0 || [NETWORK_IDS.Solana, ...COSMOS_CHAINS].includes(network.chain_id as any)) {
+  if (isEvmChain(network.chain_id) || [NETWORK_IDS.Solana, ...COSMOS_CHAINS].includes(network.chain_id as any)) {
     return `${explorerUrl}/address/${address}`
   }
 
@@ -144,10 +148,6 @@ export const parseAddressFromEns = async (input: string) => {
   }
   return input
 }
-
-export const isEvmChain = (chainId: number) => chainId > 0
-export const isCosmosChain = (chainId: number) => COSMOS_CHAINS.includes(chainId as any)
-export const isSolChain = (chainId: number) => SOL_CHAINS.includes(chainId as any)
 
 const openLink = (url: string) => window?.open(url, '_blank')
 

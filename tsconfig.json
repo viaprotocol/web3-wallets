@@ -30,7 +30,7 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src", "index.d.ts"],
+  "include": ["src"],
   "exclude": [
     "build/**/*",
     "node_modules",
