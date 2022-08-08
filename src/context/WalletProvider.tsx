@@ -14,13 +14,13 @@ import { ethers } from 'ethers'
 import React, { useState } from 'react'
 
 import type { Window as KeplrWindow } from '@keplr-wallet/types'
-import { ERRCODE, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, WALLET_NAMES, cosmosChainsMap } from '../constants'
+import { ERRCODE, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, WALLET_NAMES, WALLET_SUBNAME, cosmosChainsMap } from '../constants'
 import type { TWalletLocalData, TWalletStoreState } from '../types'
 import { WalletStatusEnum } from '../types'
-import { executeCosmosTransaction, getCluster, getCosmosConnectedWallets, getDomainAddress, goKeplr, goMetamask, goPhantom, isCosmosChain, isSolChain, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
+import { detectNewTxFromAddress, executeCosmosTransaction, getCluster, getCosmosConnectedWallets, getDomainAddress, goKeplr, goMetamask, goPhantom, isCosmosChain, isSolChain, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
+import { getNetworkById, rpcMapping } from '../networks'
 import { useBalance } from '../hooks'
 import { INITIAL_STATE, WalletContext } from './WalletContext'
-import { getNetworkById, rpcMapping } from '@/networks'
 import { isCosmosWallet, isEvmWallet, isSolWallet } from '@/utils/wallet'
 
 declare global {
@@ -77,6 +77,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         LOCAL_STORAGE_WALLETS_KEY,
         JSON.stringify({
           name: WALLET_NAMES.Coinbase,
+          subName: null,
           chainId,
           address: addressDomain || addressShort
         })
@@ -156,6 +157,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       LOCAL_STORAGE_WALLETS_KEY,
       JSON.stringify({
         name: WALLET_NAMES.MetaMask,
+        subName: null,
         chainId,
         address: addressDomain || addressShort
       })
@@ -212,6 +214,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         LOCAL_STORAGE_WALLETS_KEY,
         JSON.stringify({
           name: WALLET_NAMES.WalletConnect,
+          subName,
           chainId,
           address: addressDomain || addressShort
         })
@@ -263,6 +266,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         LOCAL_STORAGE_WALLETS_KEY,
         JSON.stringify({
           name: WALLET_NAMES.Phantom,
+          subName: null,
           chainId,
           address: addressDomain || addressShort
         })
@@ -517,6 +521,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
           LOCAL_STORAGE_WALLETS_KEY,
           JSON.stringify({
             name: state.name,
+            subName: state.subName,
             chainId,
             address: state.addressDomain || state.addressShort
           })
@@ -573,11 +578,27 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         })()
         return signature
       } else if (isEvmWallet(state)) {
-      // EVM tx
+        // EVM tx
         const signer = state.provider!.getSigner()
+        const tx = transaction as TransactionRequest
 
         try {
-          const sendedTransaction = await signer?.sendTransaction(transaction as TransactionRequest)
+          // EVM + Gnosis Safe tx
+          if (state.name === WALLET_NAMES.WalletConnect && state.subName === WALLET_SUBNAME.GnosisSafe && state.walletProvider instanceof WalletConnectProvider) {
+          /*
+            Gnosis Safe cannot immediately return the transaction by design.
+            Multi-signature can be done much later.
+            It remains only to wait for the appearance of a new transaction from the sender's address (detectNewTxFromAddress)
+          */
+            return await Promise.race([
+            // However, sendTransaction can still throw if the transaction is rejected by the user
+              signer?.sendTransaction(tx) as never,
+              detectNewTxFromAddress(state.address!, state.provider!)
+            ])
+          }
+
+          // ordinary EVM tx
+          const sendedTransaction = await signer?.sendTransaction(tx)
           return sendedTransaction.hash
         } catch (err: any) {
           if (err.code === ERRCODE.UserRejected) {

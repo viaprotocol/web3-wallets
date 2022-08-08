@@ -65,6 +65,7 @@ type TWalletStoreState = TEvmWalletStore | TSolWalletStore | TCosmosWalletStore 
 
 type TWalletLocalData = {
   name: string
+  subName: string
   chainId: number
   address: string
 }

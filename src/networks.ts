@@ -477,6 +477,19 @@ const networksRaw = [
     currency_symbol: 'ROWAN',
     currency_decimals: 18,
     is_testnet: false
+  },
+  // Astar
+  {
+    chain_id: 592,
+    name: 'Astar',
+    short_name: 'astar',
+    logo_url: 'https://cdn.via.exchange/networks/Astar.svg',
+    explorer_url: 'https://blockscout.com/astar/',
+    rpc_url: 'https://astar.public.blastapi.io',
+    currency_name: 'ASTR',
+    currency_symbol: 'ASTR',
+    currency_decimals: 18,
+    is_testnet: false
   }
 ]
 

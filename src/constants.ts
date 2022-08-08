@@ -7,6 +7,10 @@ export const WALLET_NAMES = {
   Keplr: 'Keplr'
 } as const
 
+export const WALLET_SUBNAME = {
+  GnosisSafe: 'Gnosis Safe Multisig'
+} as const
+
 export const NETWORK_IDS = {
   Ethereum: 1,
   Rinkeby: 4,
@@ -47,6 +51,8 @@ export const SOLANA_BASE_TOKEN_ADDRESS = 'So111111111111111111111111111111111111
 
 export const EVM_ENS_POSTFIX = '.eth'
 export const SOLANA_ENS_POSTFIX = '.sol'
+
+export const EVM_NON_CONTRACT_ADDRESS_CODE = '0x'
 
 export const ERRCODE = {
   UserRejected: 4001,

@@ -74,7 +74,7 @@ yarn publish:yalc
 4. In the project you are going to test your functionality, initialize the package fetch from `yalc`
 
 ```
-yalc add @viaprotocol web3-wallets
+yalc add @viaprotocol/web3-wallets
 ```
 
 5. Install `yalc` version of web3-wallets
@@ -84,6 +84,8 @@ yarn add @viaprotocol/web3-wallets
 ```
 
 6. After the library is installed, you can use it in your project.
+
+(if you are using vite, you need to run it with `--force` param)
 
 7. Run the following command to remove the library, after you are done with testing:
 
