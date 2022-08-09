@@ -27,7 +27,12 @@ type TConnectedWallet = {
   addresses: string[]
 }
 
+type TWalletAddressesHistory = {
+  [key in TAvailableWalletNames]?: string
+}
+
 type TWalletStateDefault = {
+  walletAddressesHistory: TWalletAddressesHistory
   connectedWallets: TConnectedWallet[]
   isConnected: boolean
   status: WalletStatusEnum
@@ -87,5 +92,5 @@ type TWallet = {
 
 type TWalletValues = keyof typeof WALLET_NAMES
 
-export type { TAvailableWalletNames, TWallet, TWalletStoreState, TWalletLocalData, TWalletValues, TAvailableEvmWalletNames, TAvailableSolWalletNames, TEvmWalletStore, TSolWalletStore, TCosmosWalletStore, TConnectedWallet }
+export type { TAvailableWalletNames, TWallet, TWalletStoreState, TWalletLocalData, TWalletValues, TAvailableEvmWalletNames, TAvailableSolWalletNames, TEvmWalletStore, TSolWalletStore, TCosmosWalletStore, TConnectedWallet, TWalletAddressesHistory }
 export { WalletStatusEnum }

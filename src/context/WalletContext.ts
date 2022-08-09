@@ -16,6 +16,7 @@ const INITIAL_STATE: TWalletStoreState = {
   connection: null,
   provider: null,
   walletProvider: null,
+  walletAddressesHistory: {},
   connectedWallets: []
 }
 
