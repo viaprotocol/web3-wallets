@@ -1,6 +1,7 @@
 export const WALLET_NAMES = {
   WalletConnect: 'WalletConnect',
   MetaMask: 'MetaMask',
+  Xdefi: 'xDefi',
   Phantom: 'Phantom',
   Near: 'Near',
   Coinbase: 'Coinbase',
