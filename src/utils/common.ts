@@ -25,7 +25,8 @@ const addressRegExpList = {
   [NETWORK_IDS.TONTestnet]: /^[a-zA-Z0-9_-]*$/,
   [NETWORK_IDS.Cosmos]: /^(cosmos1)[0-9a-z]{38}$/,
   [NETWORK_IDS.Osmosis]: /^(osmo1)[0-9a-z]{38}$/,
-  [NETWORK_IDS.Sifchain]: /^(sif1)[0-9a-z]{38}$/
+  [NETWORK_IDS.Sifchain]: /^(sif1)[0-9a-z]{38}$/,
+  [NETWORK_IDS.BTC]: /^(?:[13]{1}[a-km-zA-HJ-NP-Z1-9]{26,33}|bc1[a-z0-9]{39,59})$/
 }
 
 export const isEvmChain = (chainId: number) => chainId > 0
@@ -67,7 +68,7 @@ export const isValidAddress = async (chainId: number, address: string) => {
     )
   }
 
-  if (chainId === NETWORK_IDS.Cosmos || chainId === NETWORK_IDS.Osmosis || chainId === NETWORK_IDS.Sifchain) {
+  if (chainId === NETWORK_IDS.Cosmos || chainId === NETWORK_IDS.Osmosis || chainId === NETWORK_IDS.Sifchain || chainId === NETWORK_IDS.BTC) {
     return addressRegExpList[chainId].test(address)
   }
 
