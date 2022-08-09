@@ -1,2 +1,3 @@
-export * from './useBalance'
 export * from './useWalletAddressesHistory'
+
+export * from './types'

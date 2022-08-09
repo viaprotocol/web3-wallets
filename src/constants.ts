@@ -76,3 +76,5 @@ export const cosmosChainWalletMap: { name: string; chainId: typeof COSMOS_CHAINS
 ]
 
 export const LOCAL_STORAGE_WALLETS_KEY = 'web3-wallets-data'
+
+export const LOCAL_STORAGE_WALLETS_ADDRESSES = 'web3-wallets-addresses'

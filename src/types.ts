@@ -28,11 +28,12 @@ type TConnectedWallet = {
 }
 
 type TWalletAddressesHistory = {
-  [key in TAvailableWalletNames]?: string
+  [key in TAvailableWalletNames]?: {
+    [key: number]: string
+  }
 }
 
 type TWalletStateDefault = {
-  walletAddressesHistory: TWalletAddressesHistory
   connectedWallets: TConnectedWallet[]
   isConnected: boolean
   status: WalletStatusEnum
@@ -88,6 +89,7 @@ type TWallet = {
   waitForTransaction: (transactionHash: string, confirmations?: number) => Promise<void>
   getTransaction: (transactionHash: string) => Promise<ethers.providers.TransactionReceipt>
   connectedWallets: TConnectedWallet[]
+  walletAddressesHistory: TWalletAddressesHistory
 } & TWalletStoreState
 
 type TWalletValues = keyof typeof WALLET_NAMES

@@ -19,7 +19,7 @@ import type { TWalletLocalData, TWalletStoreState } from '../types'
 import { WalletStatusEnum } from '../types'
 import { detectNewTxFromAddress, executeCosmosTransaction, getCluster, getCosmosConnectedWallets, getDomainAddress, goKeplr, goMetamask, goPhantom, isCosmosChain, isSolChain, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
 import { getNetworkById, rpcMapping } from '../networks'
-import { useBalance } from '../hooks'
+import { useBalance, useWalletAddressesHistory } from '../hooks'
 import { INITIAL_STATE, WalletContext } from './WalletContext'
 import { isCosmosWallet, isEvmWallet, isSolWallet } from '@/utils/wallet'
 
@@ -32,6 +32,7 @@ declare global {
 
 const WalletProvider = function WalletProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<TWalletStoreState>(INITIAL_STATE)
+  const [walletAddressesHistory, addWalletAddress] = useWalletAddressesHistory()
 
   const connectCoinbase = async (chainId: number): Promise<boolean> => {
     if (!window.ethereum) {
@@ -705,6 +706,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     // @ts-expect-error
       value={{
         isConnected: state.isConnected,
+        walletAddressesHistory,
         status: state.status,
         name: state.name,
         subName: state.subName,
