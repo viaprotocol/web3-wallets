@@ -584,7 +584,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
         try {
           // EVM + Gnosis Safe tx
-          if (state.name === WALLET_NAMES.WalletConnect && state.subName === WALLET_SUBNAME.GnosisSafe && state.walletProvider instanceof WalletConnectProvider) {
+          if (state.name === WALLET_NAMES.WalletConnect && (state.subName === WALLET_SUBNAME.GnosisSafeWeb || state.subName === WALLET_SUBNAME.GnosisSafeMobile) && state.walletProvider instanceof WalletConnectProvider) {
           /*
             Gnosis Safe cannot immediately return the transaction by design.
             Multi-signature can be done much later.
