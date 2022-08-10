@@ -46,7 +46,8 @@ export const NETWORK_IDS = {
   Sifchain: -102,
   TONTestnet: -1003,
   BTC: -200,
-  Litecoin: -201
+  Litecoin: -201,
+  BCH: -202
 } as const
 
 export const EVM_BASE_TOKEN_ADDRESS = '0x0000000000000000000000000000000000000000'
