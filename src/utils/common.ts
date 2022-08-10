@@ -26,8 +26,8 @@ const addressRegExpList = {
   [NETWORK_IDS.Cosmos]: /^(cosmos1)[0-9a-z]{38}$/,
   [NETWORK_IDS.Osmosis]: /^(osmo1)[0-9a-z]{38}$/,
   [NETWORK_IDS.Sifchain]: /^(sif1)[0-9a-z]{38}$/,
-  [NETWORK_IDS.BTC]: /^(?:[13]{1}[a-km-zA-HJ-NP-Z1-9]{26,33}|bc1[a-z0-9]{39,59})$/,
-  [NETWORK_IDS.Litecoin]: /^([LM3]{1}[a-km-zA-HJ-NP-Z1-9]{26,33}||ltc1[a-z0-9]{39,59})$/
+  [NETWORK_IDS.BTC]: /^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$|^(bc1)[0-9A-Za-z]{39,59}$/,
+  [NETWORK_IDS.Litecoin]: /^(L|M|3)[A-Za-z0-9]{33}$|^(ltc1)[0-9A-Za-z]{39}$/
 }
 
 export const isEvmChain = (chainId: number) => chainId > 0
