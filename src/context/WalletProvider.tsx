@@ -14,7 +14,7 @@ import { ethers } from 'ethers'
 import React, { useState } from 'react'
 
 import type { Window as KeplrWindow } from '@keplr-wallet/types'
-import { ERRCODE, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, WALLET_NAMES, WALLET_SUBNAME, cosmosChainsMap } from '../constants'
+import { COSMOS_CHAINS, ERRCODE, EVM_CHAINS, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, SOL_CHAINS, WALLET_NAMES, WALLET_SUBNAME, cosmosChainsMap } from '../constants'
 import type { TWalletLocalData, TWalletStoreState } from '../types'
 import { WalletStatusEnum } from '../types'
 import { detectNewTxFromAddress, executeCosmosTransaction, getCluster, getCosmosConnectedWallets, getDomainAddress, goKeplr, goMetamask, goPhantom, isCosmosChain, isSolChain, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
@@ -135,6 +135,8 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
     let { chainId: walletChainId, address, addressShort, addressDomain } = await fetchEvmWalletInfo(provider)
 
+    addWalletAddress({ address, chains: EVM_CHAINS })
+
     walletProvider.on('chainChanged', evmChainChangeHandler as any)
     walletProvider.on('accountsChanged', evmAccountChangeHandler as any)
 
@@ -247,6 +249,8 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       const connection = new Connection(solanaNetwork)
       const addressShort = shortenAddress(address)
 
+      addWalletAddress({ address, chains: SOL_CHAINS })
+
       setState(prev => ({
         ...prev,
         ...{
@@ -299,12 +303,14 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       await provider.enable(chainxList)
 
       const offlineSigner = provider.getOfflineSigner(currentChain)
-
       const addressesList = await offlineSigner.getAccounts()
       const { address } = addressesList[0]
       const addressShort = shortenAddress(address)
-
       const connectedWallets = await getCosmosConnectedWallets(provider)
+
+      for (let { addresses, chainId } of connectedWallets) {
+        addWalletAddress({ address: addresses[0], chains: [chainId] })
+      }
 
       setState(prev => ({
         ...prev,

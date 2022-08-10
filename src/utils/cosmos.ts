@@ -37,7 +37,7 @@ const getCosmosConnectedWallets = async (provider: Keplr): Promise<TConnectedWal
       const address = accounts.map((account: { address: string }) => {
         return account.address
       })
-      connectedWallets.push({ blockchain: name, addresses: address })
+      connectedWallets.push({ chainId, blockchain: name, addresses: address })
     }
   }
 

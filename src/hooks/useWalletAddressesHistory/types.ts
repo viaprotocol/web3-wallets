@@ -1,5 +1,10 @@
-import type { TAvailableWalletNames, TWalletAddressesHistory } from '@/types'
+import type { TWalletAddressesHistory } from '@/types'
 
-type TUseWalletAddressesHistory = [TWalletAddressesHistory, (walletName: TAvailableWalletNames, chainId: number, address: string) => void]
+type TUseWalletAddressesHistory = [TWalletAddressesHistory, (options: TUseWalletAddressesOptions) => void]
 
-export type { TUseWalletAddressesHistory }
+type TUseWalletAddressesOptions = {
+  address: string
+  chains: number[]
+}
+
+export type { TUseWalletAddressesHistory, TUseWalletAddressesOptions }

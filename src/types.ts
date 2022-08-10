@@ -23,14 +23,13 @@ enum WalletStatusEnum {
 }
 
 type TConnectedWallet = {
+  chainId: number
   blockchain: string
   addresses: string[]
 }
 
 type TWalletAddressesHistory = {
-  [key in TAvailableWalletNames]?: {
-    [key: number]: string
-  }
+  [address: string]: number[]
 }
 
 type TWalletStateDefault = {
