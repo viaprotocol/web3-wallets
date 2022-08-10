@@ -490,7 +490,44 @@ const networksRaw = [
     currency_symbol: 'ASTR',
     currency_decimals: 18,
     is_testnet: false
+  },
+  {
+    chain_id: -200,
+    name: 'Bitcoin',
+    short_name: 'BTC',
+    logo_url: 'https://cdn.via.exchange/networks/Bitcoin.svg',
+    explorer_url: 'https://www.blockchain.com/btc/',
+    rpc_url: '',
+    currency_name: 'Bitcoin',
+    currency_symbol: 'BTC',
+    currency_decimals: 8,
+    is_testnet: false
+  },
+  {
+    chain_id: -201,
+    name: 'Litecoin',
+    short_name: 'LTC',
+    logo_url: 'https://loutre.blockchair.io/assets/svg/chains/litecoin.svg',
+    explorer_url: 'https://blockchair.com/litecoin/',
+    rpc_url: '',
+    currency_name: 'Litecoin',
+    currency_symbol: 'LTC',
+    currency_decimals: 8,
+    is_testnet: false
+  },
+  {
+    chain_id: -202,
+    name: 'Bitcoin Cash',
+    short_name: 'BCH',
+    logo_url: 'https://loutre.blockchair.io/assets/svg/chains/litecoin.svg',
+    explorer_url: 'https://www.blockchain.com/bch/',
+    rpc_url: '',
+    currency_name: 'Bitcoin Cash',
+    currency_symbol: 'BCH',
+    currency_decimals: 8,
+    is_testnet: false
   }
+
 ]
 
 const networks = networksRaw.map(item => ({
