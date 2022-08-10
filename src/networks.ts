@@ -519,7 +519,7 @@ const networksRaw = [
     chain_id: -202,
     name: 'Bitcoin Cash',
     short_name: 'BCH',
-    logo_url: 'https://loutre.blockchair.io/assets/svg/chains/litecoin.svg',
+    logo_url: 'https://loutre.blockchair.io/assets/svg/chains/bitcoin-cash.svg',
     explorer_url: 'https://www.blockchain.com/bch/',
     rpc_url: '',
     currency_name: 'Bitcoin Cash',
