@@ -85,7 +85,7 @@ type TWallet = {
   connectedWallets: TConnectedWallet[]
 } & TWalletStoreState
 
-type TWalletValues = keyof typeof WALLET_NAMES
+type TWalletValues = typeof WALLET_NAMES[keyof typeof WALLET_NAMES]
 
 export type { TAvailableWalletNames, TWallet, TWalletStoreState, TWalletLocalData, TWalletValues, TAvailableEvmWalletNames, TAvailableSolWalletNames, TEvmWalletStore, TSolWalletStore, TCosmosWalletStore, TConnectedWallet }
 export { WalletStatusEnum }
