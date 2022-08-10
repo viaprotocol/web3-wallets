@@ -6,12 +6,10 @@ import type { TUseWalletAddressesHistory, TUseWalletAddressesOptions } from './t
 function useWalletAddressesHistory(): TUseWalletAddressesHistory {
   const [walletAddressesHistory, setWalletAddressesHistory] = useLocalStorage<TWalletAddressesHistory>(LOCAL_STORAGE_WALLETS_ADDRESSES, {})
 
-  const addWalletAddress = (options: TUseWalletAddressesOptions) => {
-    const { address, chains } = options
-
+  const addWalletAddress = (newWalletData: TUseWalletAddressesOptions) => {
     setWalletAddressesHistory(val => ({
       ...val,
-      [address]: [...(val[address] || []), ...chains]
+      ...newWalletData
     }))
   }
 

@@ -135,7 +135,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
     let { chainId: walletChainId, address, addressShort, addressDomain } = await fetchEvmWalletInfo(provider)
 
-    addWalletAddress({ address, chains: EVM_CHAINS })
+    addWalletAddress({ [address]: EVM_CHAINS })
 
     walletProvider.on('chainChanged', evmChainChangeHandler as any)
     walletProvider.on('accountsChanged', evmAccountChangeHandler as any)
@@ -249,7 +249,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       const connection = new Connection(solanaNetwork)
       const addressShort = shortenAddress(address)
 
-      addWalletAddress({ address, chains: SOL_CHAINS })
+      addWalletAddress({ [address]: SOL_CHAINS })
 
       setState(prev => ({
         ...prev,
@@ -307,10 +307,9 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       const { address } = addressesList[0]
       const addressShort = shortenAddress(address)
       const connectedWallets = await getCosmosConnectedWallets(provider)
+      const addresesInfo = connectedWallets.reduce((acc, { addresses, chainId }) => ({ ...acc, [addresses[0]]: [chainId] }), {})
 
-      for (let { addresses, chainId } of connectedWallets) {
-        addWalletAddress({ address: addresses[0], chains: [chainId] })
-      }
+      addWalletAddress(addresesInfo)
 
       setState(prev => ({
         ...prev,
