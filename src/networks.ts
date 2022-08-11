@@ -490,6 +490,19 @@ const networksRaw = [
     currency_symbol: 'ASTR',
     currency_decimals: 18,
     is_testnet: false
+  },
+  // Cube
+  {
+    chain_id: 1818,
+    name: 'Cube',
+    short_name: 'cube',
+    logo_url: 'https://cdn.via.exchange/networks/Cube.svg',
+    explorer_url: 'https://www.cubescan.network/',
+    rpc_url: 'https://http-mainnet-us.cube.network',
+    currency_name: 'CUBE',
+    currency_symbol: 'CUBE',
+    currency_decimals: 18,
+    is_testnet: false
   }
 ]
 
