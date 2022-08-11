@@ -3,22 +3,20 @@ import type { TWalletAddressesHistory } from '@/types'
 import { isCosmosChain } from '@/utils'
 
 const getWalletsByGroup = (walletAddressesHistory: TWalletAddressesHistory) => {
-  const output = Object.entries(walletAddressesHistory).reduce<
-        [[string, number[]][], [string, number[]][]]
-      >(
-        ([cosmos, notCosmos], data) => {
-          const [, chains] = data
+  const cosmosWallets = []
+  const nonCosmosWallets = []
 
-          if (isCosmosChain(chains[0])) {
-            return [[...cosmos, data], notCosmos]
-          }
+  for (const chainData of Object.entries(walletAddressesHistory)) {
+    const [, chains] = chainData
+    // Address would have at least one chainId
+    if (isCosmosChain(chains[0])) {
+      cosmosWallets.push(chainData)
+    } else {
+      nonCosmosWallets.push(chainData)
+    }
+  }
 
-          return [cosmos, [...notCosmos, data]]
-        },
-        [[], []]
-      )
-
-  return output
+  return [cosmosWallets, nonCosmosWallets]
 }
 
 const convertAddressHistoryToConnectedWallets = (walletAddressesHistory: TWalletAddressesHistory) => {
