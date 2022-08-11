@@ -23,8 +23,13 @@ enum WalletStatusEnum {
 }
 
 type TConnectedWallet = {
+  chainId: number
   blockchain: string
   addresses: string[]
+}
+
+type TWalletAddressesHistory = {
+  [address: string]: number[]
 }
 
 type TWalletStateDefault = {
@@ -83,9 +88,10 @@ type TWallet = {
   waitForTransaction: (transactionHash: string, confirmations?: number) => Promise<void>
   getTransaction: (transactionHash: string) => Promise<ethers.providers.TransactionReceipt>
   connectedWallets: TConnectedWallet[]
+  walletAddressesHistory: TWalletAddressesHistory
 } & TWalletStoreState
 
 type TWalletValues = typeof WALLET_NAMES[keyof typeof WALLET_NAMES]
 
-export type { TAvailableWalletNames, TWallet, TWalletStoreState, TWalletLocalData, TWalletValues, TAvailableEvmWalletNames, TAvailableSolWalletNames, TEvmWalletStore, TSolWalletStore, TCosmosWalletStore, TConnectedWallet }
+export type { TAvailableWalletNames, TWallet, TWalletStoreState, TWalletLocalData, TWalletValues, TAvailableEvmWalletNames, TAvailableSolWalletNames, TEvmWalletStore, TSolWalletStore, TCosmosWalletStore, TConnectedWallet, TWalletAddressesHistory }
 export { WalletStatusEnum }

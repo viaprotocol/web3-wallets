@@ -21,6 +21,7 @@ const INITIAL_STATE: TWalletStoreState = {
 
 const WalletContext = createContext<TWallet>({
   ...INITIAL_STATE,
+  walletAddressesHistory: {},
   restore: () => Promise.reject(),
   connect: () => Promise.reject(),
   changeNetwork: () => Promise.reject(),

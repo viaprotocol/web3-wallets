@@ -14,12 +14,12 @@ import { ethers } from 'ethers'
 import React, { useState } from 'react'
 
 import type { Window as KeplrWindow } from '@keplr-wallet/types'
-import { ERRCODE, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, WALLET_NAMES, WALLET_SUBNAME, cosmosChainsMap } from '../constants'
+import { COSMOS_CHAINS, ERRCODE, EVM_CHAINS, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, SOL_CHAINS, WALLET_NAMES, WALLET_SUBNAME, cosmosChainsMap } from '../constants'
 import type { TWalletLocalData, TWalletStoreState } from '../types'
 import { WalletStatusEnum } from '../types'
 import { detectNewTxFromAddress, executeCosmosTransaction, getCluster, getCosmosConnectedWallets, getDomainAddress, goKeplr, goMetamask, goPhantom, isCosmosChain, isSolChain, parseEnsFromSolanaAddress, shortenAddress, mapRawWalletSubName } from '../utils'
 import { getNetworkById, rpcMapping } from '../networks'
-import { useBalance } from '../hooks'
+import { useBalance, useWalletAddressesHistory } from '../hooks'
 import { INITIAL_STATE, WalletContext } from './WalletContext'
 import { isCosmosWallet, isEvmWallet, isSolWallet } from '@/utils/wallet'
 
@@ -33,6 +33,7 @@ declare global {
 
 const WalletProvider = function WalletProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<TWalletStoreState>(INITIAL_STATE)
+  const [walletAddressesHistory, addWalletAddress] = useWalletAddressesHistory()
 
   const connectCoinbase = async (chainId: number): Promise<boolean> => {
     if (!window.ethereum) {
@@ -134,6 +135,8 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     }
 
     let { chainId: walletChainId, address, addressShort, addressDomain } = await fetchEvmWalletInfo(provider)
+
+    addWalletAddress({ [address]: EVM_CHAINS })
 
     walletProvider.on('chainChanged', evmChainChangeHandler as any)
     walletProvider.on('accountsChanged', evmAccountChangeHandler as any)
@@ -305,6 +308,8 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       const connection = new Connection(solanaNetwork)
       const addressShort = shortenAddress(address)
 
+      addWalletAddress({ [address]: SOL_CHAINS })
+
       setState(prev => ({
         ...prev,
         ...{
@@ -357,12 +362,13 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       await provider.enable(chainxList)
 
       const offlineSigner = provider.getOfflineSigner(currentChain)
-
       const addressesList = await offlineSigner.getAccounts()
       const { address } = addressesList[0]
       const addressShort = shortenAddress(address)
-
       const connectedWallets = await getCosmosConnectedWallets(provider)
+      const addresesInfo = connectedWallets.reduce((acc, { addresses, chainId }) => ({ ...acc, [addresses[0]]: [chainId] }), {})
+
+      addWalletAddress(addresesInfo)
 
       setState(prev => ({
         ...prev,
@@ -767,6 +773,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     // @ts-expect-error https://linear.app/via-protocol/issue/FRD-640/ispravit-oshibku-s-tipami-v-web3-wallets
       value={{
         isConnected: state.isConnected,
+        walletAddressesHistory,
         status: state.status,
         name: state.name,
         subName: state.subName,
