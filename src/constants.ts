@@ -8,7 +8,7 @@ export const WALLET_NAMES = {
 } as const
 
 export const WALLET_SUBNAME = {
-  GnosisSafe: 'Gnosis Safe Multisig'
+  GnosisSafe: 'GnosisSafe'
 } as const
 
 export const NETWORK_IDS = {
@@ -38,6 +38,7 @@ export const NETWORK_IDS = {
   Moonbeam: 1284,
   Moonriver: 1285,
   MoonriverTestnet: 1287,
+  Cube: 1818,
   Solana: -1,
   SolanaTestnet: -1001,
   TON: -3,
