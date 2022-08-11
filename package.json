@@ -1,6 +1,6 @@
 {
   "name": "@viaprotocol/web3-wallets",
-  "version": "1.0.17",
+  "version": "1.0.18-rc.3",
   "private": false,
   "description": "Universal interface for web3 wallets",
   "author": "Via Protocol (https://via.exchange)",
@@ -38,6 +38,7 @@
     "package": "shx cp -R package.json ./build && shx cp -R README.md ./build",
     "publish:pre": "yarn build && yarn package",
     "publish:yalc": "yarn build && yarn package && cd build && yalc publish --no-script --push",
+    "publish:rc": "npm version prerelease --preid=rc && yarn build && yarn package && cd build && npm publish --tag rc --access public",
     "publish:latest": "yarn build && yarn package && cd build && npm publish --tag latest --access public"
   },
   "publishConfig": {

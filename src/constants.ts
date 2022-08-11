@@ -1,6 +1,7 @@
 export const WALLET_NAMES = {
   WalletConnect: 'WalletConnect',
   MetaMask: 'MetaMask',
+  Xdefi: 'xDefi',
   Phantom: 'Phantom',
   Near: 'Near',
   Coinbase: 'Coinbase',
@@ -45,7 +46,10 @@ export const NETWORK_IDS = {
   Cosmos: -100,
   Osmosis: -101,
   Sifchain: -102,
-  TONTestnet: -1003
+  TONTestnet: -1003,
+  BTC: -200,
+  Litecoin: -201,
+  BCH: -202
 } as const
 
 export const EVM_BASE_TOKEN_ADDRESS = '0x0000000000000000000000000000000000000000'

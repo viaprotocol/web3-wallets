@@ -26,7 +26,10 @@ const addressRegExpList = {
   [NETWORK_IDS.TONTestnet]: /^[a-zA-Z0-9_-]*$/,
   [NETWORK_IDS.Cosmos]: /^(cosmos1)[0-9a-z]{38}$/,
   [NETWORK_IDS.Osmosis]: /^(osmo1)[0-9a-z]{38}$/,
-  [NETWORK_IDS.Sifchain]: /^(sif1)[0-9a-z]{38}$/
+  [NETWORK_IDS.Sifchain]: /^(sif1)[0-9a-z]{38}$/,
+  [NETWORK_IDS.BTC]: /^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$|^(bc1)[0-9A-Za-z]{39,59}$/,
+  [NETWORK_IDS.Litecoin]: /^(L|M|3)[A-Za-z0-9]{33}$|^(ltc1)[0-9A-Za-z]{39}$/,
+  [NETWORK_IDS.BCH]: /^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$|^[0-9A-Za-z]{42,42}$/
 }
 
 export const isEvmChain = (chainId: number) => chainId > 0
@@ -68,7 +71,12 @@ export const isValidAddress = async (chainId: number, address: string) => {
     )
   }
 
-  if (chainId === NETWORK_IDS.Cosmos || chainId === NETWORK_IDS.Osmosis || chainId === NETWORK_IDS.Sifchain) {
+  if (chainId === NETWORK_IDS.Cosmos
+      || chainId === NETWORK_IDS.Osmosis
+      || chainId === NETWORK_IDS.Sifchain
+      || chainId === NETWORK_IDS.BTC
+      || chainId === NETWORK_IDS.BCH
+      || chainId === NETWORK_IDS.Litecoin) {
     return addressRegExpList[chainId].test(address)
   }
 
