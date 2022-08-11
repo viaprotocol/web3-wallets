@@ -1,9 +1,9 @@
 import { createContext } from 'react'
 
-import type { TWallet, TWalletStoreState } from '../types'
+import type { TWallet, TWalletStore } from '../types'
 import { WalletStatusEnum } from '../types'
 
-const INITIAL_STATE: TWalletStoreState = {
+const INITIAL_STATE: TWalletStore = {
   status: WalletStatusEnum.NOT_INITED,
   isConnected: false, // TODO: Remove (use status)
   name: null,

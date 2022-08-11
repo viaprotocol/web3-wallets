@@ -32,13 +32,8 @@ type TWalletAddressesHistory = {
   [address: string]: number[]
 }
 
-type TLiveWallets = {
-  [walletName in TAvailableWalletNames]: {}
-}
-
 type TWalletStateDefault = {
   connectedWallets: TConnectedWallet[]
-  liveWallets: TLiveWallets
   isConnected: boolean
   status: WalletStatusEnum
   subName: null | string
@@ -71,7 +66,11 @@ type TWalletBodyDefaultState = {
   provider: null
 } & TWalletStateDefault
 
-type TWalletStoreState = TEvmWalletStore | TSolWalletStore | TCosmosWalletStore | TWalletBodyDefaultState
+type TWalletStore = TEvmWalletStore | TSolWalletStore | TCosmosWalletStore | TWalletBodyDefaultState
+
+type TWalletState = {
+  [walletName in TAvailableWalletNames]: TWalletStore
+}
 
 type TWalletLocalData = {
   name: string
@@ -94,9 +93,9 @@ type TWallet = {
   getTransaction: (transactionHash: string) => Promise<ethers.providers.TransactionReceipt>
   connectedWallets: TConnectedWallet[]
   walletAddressesHistory: TWalletAddressesHistory
-} & TWalletStoreState
+} & TWalletStore
 
 type TWalletValues = keyof typeof WALLET_NAMES
 
-export type { TAvailableWalletNames, TWallet, TWalletStoreState, TWalletLocalData, TWalletValues, TAvailableEvmWalletNames, TAvailableSolWalletNames, TEvmWalletStore, TSolWalletStore, TCosmosWalletStore, TConnectedWallet, TWalletAddressesHistory }
+export type { TAvailableWalletNames, TWallet, TWalletStore, TWalletLocalData, TWalletValues, TAvailableEvmWalletNames, TAvailableSolWalletNames, TEvmWalletStore, TSolWalletStore, TCosmosWalletStore, TConnectedWallet, TWalletAddressesHistory, TWalletState }
 export { WalletStatusEnum }

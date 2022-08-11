@@ -14,8 +14,8 @@ import { ethers } from 'ethers'
 import React, { useState } from 'react'
 
 import type { Window as KeplrWindow } from '@keplr-wallet/types'
-import { COSMOS_CHAINS, ERRCODE, EVM_CHAINS, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, SOL_CHAINS, WALLET_NAMES, WALLET_SUBNAME, cosmosChainsMap } from '../constants'
-import type { TWalletLocalData, TWalletStoreState } from '../types'
+import { ERRCODE, EVM_CHAINS, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, SOL_CHAINS, WALLET_NAMES, WALLET_SUBNAME, cosmosChainsMap } from '../constants'
+import type { TWalletLocalData, TWalletState, TWalletStore } from '../types'
 import { WalletStatusEnum } from '../types'
 import { detectNewTxFromAddress, executeCosmosTransaction, getCluster, getCosmosConnectedWallets, getDomainAddress, goKeplr, goMetamask, goPhantom, isCosmosChain, isSolChain, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
 import { getNetworkById, rpcMapping } from '../networks'
@@ -30,8 +30,11 @@ declare global {
   }
 }
 
+const initialState = Object.values(WALLET_NAMES).reduce((acc, walletName) => ({ ...acc, [walletName]: INITIAL_STATE }), {})
+
 const WalletProvider = function WalletProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<TWalletStoreState>(INITIAL_STATE)
+  const [state, setState] = useState<TWalletStore>(INITIAL_STATE)
+  const [walletState, setWalletState] = useState<TWalletState>(initialState)
   const [walletAddressesHistory, addWalletAddress] = useWalletAddressesHistory()
 
   const connectCoinbase = async (chainId: number): Promise<boolean> => {
@@ -57,6 +60,22 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
       walletProvider.on('chainChanged', evmChainChangeHandler as any)
       walletProvider.on('accountsChanged', evmAccountChangeHandler as any)
+
+      setWalletState(prev => ({
+        ...prev,
+        Coinbase: {
+          ...prev.Coinbase,
+          isConnected: true,
+          status: WalletStatusEnum.READY,
+          name: WALLET_NAMES.Coinbase,
+          provider,
+          walletProvider,
+          chainId: walletChainId,
+          address,
+          addressShort,
+          addressDomain
+        }
+      }))
 
       setState(prev => ({
         ...prev,
@@ -140,6 +159,24 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     walletProvider.on('chainChanged', evmChainChangeHandler as any)
     walletProvider.on('accountsChanged', evmAccountChangeHandler as any)
 
+    setWalletState(prev => ({
+      ...prev,
+      MetaMask: {
+        ...prev.MetaMask,
+        ...{
+          isConnected: true,
+          status: WalletStatusEnum.READY,
+          name: WALLET_NAMES.MetaMask,
+          provider,
+          walletProvider,
+          chainId: walletChainId,
+          address,
+          addressShort,
+          addressDomain
+        }
+      }
+    }))
+
     setState(prev => ({
       ...prev,
       ...{
@@ -196,6 +233,25 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       walletConnectProvider.on('chainChanged', evmChainChangeHandler)
       walletConnectProvider.on('accountsChanged', evmAccountChangeHandler)
 
+      setWalletState(prev => ({
+        ...prev,
+        WalletConnect: {
+          ...prev.WalletConnect,
+          ...{
+            isConnected: true,
+            status: WalletStatusEnum.READY,
+            name: WALLET_NAMES.WalletConnect,
+            subName,
+            provider: web3Provider,
+            walletProvider: walletConnectProvider,
+            chainId: walletChainId,
+            address,
+            addressShort,
+            addressDomain
+          }
+        }
+      }))
+
       setState(prev => ({
         ...prev,
         ...{
@@ -250,6 +306,24 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       const addressShort = shortenAddress(address)
 
       addWalletAddress({ [address]: SOL_CHAINS })
+
+      setWalletState(prev => ({
+        ...prev,
+        Phantom: {
+          ...prev.Phantom,
+          ...{
+            isConnected: true,
+            status: WalletStatusEnum.READY,
+            name: 'Phantom',
+            provider,
+            chainId,
+            address,
+            connection,
+            addressShort,
+            addressDomain
+          }
+        }
+      }))
 
       setState(prev => ({
         ...prev,
@@ -310,6 +384,23 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       const addresesInfo = connectedWallets.reduce((acc, { addresses, chainId }) => ({ ...acc, [addresses[0]]: [chainId] }), {})
 
       addWalletAddress(addresesInfo)
+
+      setWalletState(prev => ({
+        ...prev,
+        Keplr: {
+          ...prev.Keplr,
+          ...{
+            isConnected: true,
+            status: WalletStatusEnum.READY,
+            connectedWallets,
+            name: 'Keplr',
+            chainId,
+            address,
+            addressShort,
+            provider
+          }
+        }
+      }))
 
       setState(prev => ({
         ...prev,
