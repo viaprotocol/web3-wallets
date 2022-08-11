@@ -8,8 +8,7 @@ export const WALLET_NAMES = {
 } as const
 
 export const WALLET_SUBNAME = {
-  GnosisSafeWeb: 'Gnosis Safe Multisig',
-  GnosisSafeMobile: 'Gnosis Safe'
+  GnosisSafe: 'GnosisSafe',
 } as const
 
 export const NETWORK_IDS = {

@@ -11,7 +11,8 @@ import {
   NETWORK_IDS,
   SOLANA_BASE_TOKEN_ADDRESS,
   SOLANA_ENS_POSTFIX,
-  SOL_CHAINS
+  SOL_CHAINS,
+  WALLET_SUBNAME
 } from '../constants'
 import { checkEnsValid, parseAddressFromEnsSolana } from './solana'
 import { getNetworkById, supportedNetworkIds } from '@/networks'
@@ -165,3 +166,13 @@ export const goMetamask = () => {
 export const goPhantom = () => openLink('https://chrome.google.com/webstore/detail/phantom/bfnaelmomeimhlpmgjnjophhpkkoljpa')
 
 export const goKeplr = () => openLink('https://chrome.google.com/webstore/detail/keplr/dmkamcknogkgcdfhhbddcghachkejeap')
+
+export const mapRawWalletSubName = (subName: string) => {
+  if (
+    subName === 'Gnosis Safe Multisig' // Web app
+    || subName === 'Gnosis Safe' // Mobile app
+  ) {
+    return WALLET_SUBNAME.GnosisSafe
+  }
+  return subName
+}
