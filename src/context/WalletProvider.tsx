@@ -17,7 +17,7 @@ import type { Window as KeplrWindow } from '@keplr-wallet/types'
 import { ERRCODE, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, WALLET_NAMES, WALLET_SUBNAME, cosmosChainsMap } from '../constants'
 import type { TWalletLocalData, TWalletStoreState } from '../types'
 import { WalletStatusEnum } from '../types'
-import { detectNewTxFromAddress, executeCosmosTransaction, getCluster, getCosmosConnectedWallets, getDomainAddress, goKeplr, goMetamask, goPhantom, isCosmosChain, isSolChain, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
+import { detectNewTxFromAddress, executeCosmosTransaction, getCluster, getCosmosConnectedWallets, getDomainAddress, goKeplr, goMetamask, goPhantom, isCosmosChain, isSolChain, parseEnsFromSolanaAddress, shortenAddress, mapRawWalletSubName } from '../utils'
 import { getNetworkById, rpcMapping } from '../networks'
 import { useBalance } from '../hooks'
 import { INITIAL_STATE, WalletContext } from './WalletContext'
@@ -184,7 +184,8 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         addressDomain
       } = await fetchEvmWalletInfo(web3Provider)
 
-      const subName = walletConnectProvider.walletMeta?.name || null
+      const rawSubName = walletConnectProvider.walletMeta?.name
+      const subName = rawSubName ? mapRawWalletSubName(rawSubName) : null
 
       walletConnectProvider.on('disconnect', (code: number, reason: string) => {
         console.log('WalletConnectProvider disconnected', code, reason)
