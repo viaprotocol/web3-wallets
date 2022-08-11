@@ -168,7 +168,7 @@ export const goPhantom = () => openLink('https://chrome.google.com/webstore/deta
 export const goKeplr = () => openLink('https://chrome.google.com/webstore/detail/keplr/dmkamcknogkgcdfhhbddcghachkejeap')
 
 export const mapRawWalletSubName = (subName: string) => {
-  if (subName === 'Gnosis Safe Multisig' || subName === 'Gnosis Safe') {
+  if (subName.toLowerCase().includes('gnosis safe')) {
     return WALLET_SUBNAME.GnosisSafe
   }
   return subName
