@@ -491,6 +491,19 @@ const networksRaw = [
     currency_decimals: 18,
     is_testnet: false
   },
+  // KuCoin Chain (KCC)
+  {
+    chain_id: 321,
+    name: 'KuCoin',
+    short_name: 'kcc',
+    logo_url: 'https://cdn.via.exchange/networks/Kcc.svg',
+    explorer_url: 'https://scan.kcc.io/',
+    rpc_url: 'https://rpc-mainnet.kcc.network',
+    currency_name: 'KCS',
+    currency_symbol: 'KCS',
+    currency_decimals: 18,
+    is_testnet: false
+  },
   // Cube
   {
     chain_id: 1818,
