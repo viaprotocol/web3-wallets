@@ -32,8 +32,13 @@ type TWalletAddressesHistory = {
   [address: string]: number[]
 }
 
+type TLiveWallets = {
+  [walletName in TAvailableWalletNames]: {}
+}
+
 type TWalletStateDefault = {
   connectedWallets: TConnectedWallet[]
+  liveWallets: TLiveWallets
   isConnected: boolean
   status: WalletStatusEnum
   subName: null | string
