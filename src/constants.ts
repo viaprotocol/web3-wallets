@@ -34,6 +34,7 @@ export const NETWORK_IDS = {
   OkexTestnet: 65,
   Candle: 534,
   Gnosis: 100,
+  KuCoin: 321,
   Moonbeam: 1284,
   Moonriver: 1285,
   MoonriverTestnet: 1287,
