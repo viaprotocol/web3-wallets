@@ -1,10 +1,6 @@
 {
   "name": "@viaprotocol/web3-wallets",
-<<<<<<< HEAD
   "version": "1.0.18-rc.0",
-=======
-  "version": "1.0.18",
->>>>>>> main
   "private": false,
   "description": "Universal interface for web3 wallets",
   "author": "Via Protocol (https://via.exchange)",
