@@ -774,33 +774,35 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
   const balance = useBalance(state)
 
+  const providerState = useMemo(() => ({
+    isConnected: state.isConnected,
+    walletAddressesHistory,
+    status: state.status,
+    name: state.name,
+    subName: state.subName,
+    chainId: state.chainId,
+    address: state.address,
+    addressShort: state.addressShort,
+    addressDomain: state.addressDomain,
+    balance: balance || state.balance,
+    connection: state.connection,
+    estimateGas,
+    provider: state.provider,
+    walletProvider: state.walletProvider,
+    waitForTransaction,
+    getTransaction,
+    restore,
+    connect,
+    changeNetwork,
+    connectedWallets: state.connectedWallets,
+    sendTx,
+    disconnect
+  }), [state, walletAddressesHistory, balance, estimateGas, waitForTransaction, getTransaction, restore, connect, changeNetwork, sendTx, disconnect])
+
   return (
     <WalletContext.Provider
     // @ts-expect-error https://linear.app/via-protocol/issue/FRD-640/ispravit-oshibku-s-tipami-v-web3-wallets
-      value={{
-        isConnected: state.isConnected,
-        walletAddressesHistory,
-        status: state.status,
-        name: state.name,
-        subName: state.subName,
-        chainId: state.chainId,
-        address: state.address,
-        addressShort: state.addressShort,
-        addressDomain: state.addressDomain,
-        balance: balance || state.balance,
-        connection: state.connection,
-        estimateGas,
-        provider: state.provider,
-        walletProvider: state.walletProvider,
-        waitForTransaction,
-        getTransaction,
-        restore,
-        connect,
-        changeNetwork,
-        connectedWallets: state.connectedWallets,
-        sendTx,
-        disconnect
-      }}
+      value={providerState}
     >
       {children}
     </WalletContext.Provider>
