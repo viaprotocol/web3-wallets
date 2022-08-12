@@ -93,9 +93,17 @@ type TWallet = {
   getTransaction: (transactionHash: string) => Promise<ethers.providers.TransactionReceipt>
   connectedWallets: TConnectedWallet[]
   walletAddressesHistory: TWalletAddressesHistory
+<<<<<<< HEAD
 } & TWalletStore
+=======
+} & TWalletStoreState
+>>>>>>> main
 
-type TWalletValues = keyof typeof WALLET_NAMES
+type TWalletValues = typeof WALLET_NAMES[keyof typeof WALLET_NAMES]
 
+<<<<<<< HEAD
 export type { TAvailableWalletNames, TWallet, TWalletStore, TWalletLocalData, TWalletValues, TAvailableEvmWalletNames, TAvailableSolWalletNames, TEvmWalletStore, TSolWalletStore, TCosmosWalletStore, TConnectedWallet, TWalletAddressesHistory, TWalletState }
+=======
+export type { TAvailableWalletNames, TWallet, TWalletStoreState, TWalletLocalData, TWalletValues, TAvailableEvmWalletNames, TAvailableSolWalletNames, TEvmWalletStore, TSolWalletStore, TCosmosWalletStore, TConnectedWallet, TWalletAddressesHistory }
+>>>>>>> main
 export { WalletStatusEnum }

@@ -1,6 +1,7 @@
 export const WALLET_NAMES = {
   WalletConnect: 'WalletConnect',
   MetaMask: 'MetaMask',
+  Xdefi: 'xDefi',
   Phantom: 'Phantom',
   Near: 'Near',
   Coinbase: 'Coinbase',
@@ -8,7 +9,7 @@ export const WALLET_NAMES = {
 } as const
 
 export const WALLET_SUBNAME = {
-  GnosisSafe: 'Gnosis Safe Multisig'
+  GnosisSafe: 'GnosisSafe'
 } as const
 
 export const NETWORK_IDS = {
@@ -34,16 +35,21 @@ export const NETWORK_IDS = {
   OkexTestnet: 65,
   Candle: 534,
   Gnosis: 100,
+  KuCoin: 321,
   Moonbeam: 1284,
   Moonriver: 1285,
   MoonriverTestnet: 1287,
+  Cube: 1818,
   Solana: -1,
   SolanaTestnet: -1001,
   TON: -3,
   Cosmos: -100,
   Osmosis: -101,
   Sifchain: -102,
-  TONTestnet: -1003
+  TONTestnet: -1003,
+  BTC: -200,
+  Litecoin: -201,
+  BCH: -202
 } as const
 
 export const EVM_BASE_TOKEN_ADDRESS = '0x0000000000000000000000000000000000000000'

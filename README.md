@@ -9,7 +9,7 @@
 ## Features
 
 - 🚀 Built-in functions for working with signatures, connecting wallets, tracking the status of transactions, ENS names, and more.
-- 💼 Built-in wallet connectors for MetaMask, WalletConnect, Coinbase Wallet, Phantom (Solana) and Injected wallets.
+- 💼 Built-in wallet connectors for MetaMask, WalletConnect, Coinbase Wallet, Keplr, xDeFi, Phantom (Solana) and Injected wallets.
 - 🌀 Auto-refresh data on wallet, block, and network changes
 - 🦄 TypeScript ready
 - 🌏 All supported networks are in [networks.ts](https://github.com/viaprotocol/web3-wallets/blob/main/src/networks.ts)
@@ -51,6 +51,8 @@ function App() {
 - WalletConnect (all WalletConnect-compatible wallets are supported, >100 wallets!)
 - Coinbase Wallet
 - Phantom (Solana)
+– Keplr (Cosmos, Osmosis, Astar)
+– xDeFi (EVM networks, Bitcoin, Bitcoin Cash, Litecoin)
 
 
 ## Local development

@@ -22,6 +22,7 @@ function useBalance(options: TUseBalanceOptions) {
       WalletConnect: evmBalance,
       MetaMask: evmBalance,
       Coinbase: evmBalance,
+      xDefi: evmBalance,
       Near: null,
       Keplr: cosmosBalance
     }[name]
