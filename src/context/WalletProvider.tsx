@@ -827,7 +827,9 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     // @ts-expect-error https://linear.app/via-protocol/issue/FRD-640/ispravit-oshibku-s-tipami-v-web3-wallets
       value={providerState}
     >
-      {children}
+      <QueryProvider>
+        {children}
+      </QueryProvider>
     </WalletContext.Provider>
   )
 }

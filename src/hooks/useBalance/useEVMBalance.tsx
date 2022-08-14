@@ -1,30 +1,46 @@
-import { useCallback, useEffect, useState } from 'react'
-
+import { useCallback, useEffect } from 'react'
+import type { Web3Provider } from '@ethersproject/providers'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useTabActive } from '../useTabActive/useTabActive'
 import type { TUseBalanceOptions } from './types'
 import { isEvmWallet } from '@/utils/wallet'
 
-function useEVMBalance(options: TUseBalanceOptions) {
-  const { isConnected, provider, name, address, chainId } = options
-  const isSubscriptionIsAvailable = isEvmWallet(options) && address && isConnected && provider
+const balanceFetcher = (options: TUseBalanceOptions) => {
+  const { isConnected, provider, address } = options
+  const isReadyForRequest = isEvmWallet(options) && address && isConnected && provider
 
-  const [balance, setBalance] = useState<string | null>(null)
+  if (!isReadyForRequest) {
+    return
+  }
+
+  return (provider as Web3Provider).getBalance(address).then(String)
+}
+
+function useEVMBalance(options: TUseBalanceOptions) {
+  const { isConnected, provider, address, chainId, updateDelay } = options
+  const isSubscriptionIsAvailable = isEvmWallet(options) && address && isConnected && provider
+  const isTabActive = useTabActive()
+  const queryClient = useQueryClient()
+  const { data: balance } = useQuery(['evmBalance', address], () => balanceFetcher(options), {
+    initialData: null,
+    enabled: Boolean(isSubscriptionIsAvailable) && isTabActive,
+    retry: 2,
+    refetchInterval: updateDelay ? updateDelay * 1000 : false,
+    refetchOnWindowFocus: true
+  })
 
   const getBalanceFromProvider = useCallback(() => {
     if (!isSubscriptionIsAvailable) {
       return
     }
 
-    options.provider.getBalance(address).then((res) => {
-      if (res) {
-        setBalance(res.toString())
-      }
-    })
-  }, [options.provider, address, isSubscriptionIsAvailable, name])
+    return queryClient.invalidateQueries(['evmBalance', address])
+  }, [queryClient, isSubscriptionIsAvailable])
 
   // Call balance function on each changing of web3 or address
   useEffect(() => {
     getBalanceFromProvider()
-  }, [isSubscriptionIsAvailable, address, chainId])
+  }, [queryClient])
 
   // Subscribe to block changes
   useEffect(() => {
@@ -37,7 +53,7 @@ function useEVMBalance(options: TUseBalanceOptions) {
         options.provider.off('block', getBalanceFromProvider)
       }
     }
-  }, [isSubscriptionIsAvailable, address, chainId, options.provider])
+  }, [isSubscriptionIsAvailable, address, chainId, queryClient, options.provider])
 
   return balance
 }

@@ -1,32 +1,17 @@
-import { useMemo } from 'react'
-
+import PickBalanceProvider from './PickBalanceProvider'
 import type { TUseBalanceOptions } from './types'
-import { useCosmosBalance } from './useCosmosBalance'
-import { useEVMBalance } from './useEVMBalance'
-import { useSolanaBalance } from './useSolanaBalance'
 
 function useBalance(options: TUseBalanceOptions) {
   const { name } = options
+  if (!name) {
+    return null
+  }
 
-  const evmBalance = useEVMBalance(options)
-  const solBalance = useSolanaBalance(options)
-  const cosmosBalance = useCosmosBalance(options)
-
-  const balance = useMemo(() => {
-    if (!name) {
-      return null
-    }
-
-    return {
-      Phantom: solBalance,
-      WalletConnect: evmBalance,
-      MetaMask: evmBalance,
-      Coinbase: evmBalance,
-      xDefi: evmBalance,
-      Near: null,
-      Keplr: cosmosBalance
-    }[name]
-  }, [name, solBalance, evmBalance, cosmosBalance])
+  const balance = (
+    <PickBalanceProvider options={options}>
+      {(balance: string | null) => balance}
+    </PickBalanceProvider>
+  ) as unknown as string | null
 
   return balance
 }
