@@ -14,13 +14,14 @@ import { ethers } from 'ethers'
 import React, { useState } from 'react'
 
 import type { Window as KeplrWindow } from '@keplr-wallet/types'
-import { COSMOS_CHAINS, ERRCODE, EVM_CHAINS, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, SOL_CHAINS, WALLET_NAMES, WALLET_SUBNAME, cosmosChainsMap } from '../constants'
+import { ERRCODE, EVM_CHAINS, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, SOL_CHAINS, WALLET_NAMES, WALLET_SUBNAME, cosmosChainsMap } from '../constants'
 import type { TWalletLocalData, TWalletStoreState } from '../types'
 import { WalletStatusEnum } from '../types'
-import { detectNewTxFromAddress, executeCosmosTransaction, getCluster, getCosmosConnectedWallets, getDomainAddress, goKeplr, goMetamask, goPhantom, isCosmosChain, isSolChain, parseEnsFromSolanaAddress, shortenAddress, mapRawWalletSubName } from '../utils'
+import { detectNewTxFromAddress, executeCosmosTransaction, getCluster, getCosmosConnectedWallets, getDomainAddress, goKeplr, goMetamask, goPhantom, isCosmosChain, isSolChain, mapRawWalletSubName, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
 import { getNetworkById, rpcMapping } from '../networks'
 import { useBalance, useWalletAddressesHistory } from '../hooks'
 import { INITIAL_STATE, WalletContext } from './WalletContext'
+import QueryProvider from './QueryProvider'
 import { isCosmosWallet, isEvmWallet, isSolWallet } from '@/utils/wallet'
 
 declare global {
@@ -796,7 +797,9 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         disconnect
       }}
     >
-      {children}
+      <QueryProvider>
+        {children}
+      </QueryProvider>
     </WalletContext.Provider>
   )
 }
