@@ -21,7 +21,7 @@ import { detectNewTxFromAddress, executeCosmosTransaction, getCluster, getCosmos
 import { getNetworkById, rpcMapping } from '../networks'
 import { useBalance, useWalletAddressesHistory } from '../hooks'
 import { INITIAL_STATE, WalletContext } from './WalletContext'
-import QueryProvider from './QueryProvider'
+import { QueryProvider } from './QueryProvider'
 import { isCosmosWallet, isEvmWallet, isSolWallet } from '@/utils/wallet'
 
 declare global {
