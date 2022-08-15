@@ -12,9 +12,6 @@ const balanceFetcher = (options: TUseBalanceOptions, network: ReturnType<typeof 
     return
   }
 
-  // eslint-disable-next-line no-console
-  console.log('req cosmos balance', Date.now())
-
   return client.getBalance(address, network.currency_name)
 }
 
@@ -22,7 +19,6 @@ function useCosmosBalance(options: TUseBalanceOptions) {
   const { chainId, updateDelay = 10, address } = options
   const isCosmos = isCosmosWallet(options)
 
-  const [balance, setBalance] = useState<string | null>(null)
   const [client, setClient] = useState<StargateClient | null>(null)
 
   const { data } = useQuery(
@@ -36,11 +32,7 @@ function useCosmosBalance(options: TUseBalanceOptions) {
     }
   )
 
-  useEffect(() => {
-    if (data) {
-      setBalance(data.amount)
-    }
-  }, [data])
+  const balance = data?.amount ?? null
 
   const setClientInstance = useCallback(async (rpcAddress: string) => {
     const newClient = await StargateClient.connect(rpcAddress)

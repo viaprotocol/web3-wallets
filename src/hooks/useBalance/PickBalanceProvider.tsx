@@ -45,11 +45,12 @@ function PickBalanceProvider(props: {
   const { options, children } = props
   const { name } = options
 
-  if (!name) {
-    return null
-  }
-
-  const BalanceComponent = useMemo(() => BALANCE_PROVIDER_BY_NAME[name], [name])
+  const BalanceComponent = useMemo(() => {
+    if (!name) {
+      return null
+    }
+    return BALANCE_PROVIDER_BY_NAME[name]
+  }, [name])
 
   if (!BalanceComponent) {
     return null
