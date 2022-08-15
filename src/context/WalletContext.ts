@@ -1,6 +1,7 @@
 import { createContext } from 'react'
+import { WALLET_NAMES } from '..'
 
-import type { TWallet, TWalletStore } from '../types'
+import type { TWallet, TWalletState, TWalletStore } from '../types'
 import { WalletStatusEnum } from '../types'
 
 const INITIAL_STATE: TWalletStore = {
@@ -19,9 +20,12 @@ const INITIAL_STATE: TWalletStore = {
   connectedWallets: []
 }
 
+const INITIAL_WALLET_STATE = Object.values(WALLET_NAMES).reduce((acc, walletName) => ({ ...acc, [walletName]: INITIAL_STATE }), {} as TWalletState)
+
 const WalletContext = createContext<TWallet>({
   ...INITIAL_STATE,
   walletAddressesHistory: {},
+  walletState: INITIAL_WALLET_STATE,
   restore: () => Promise.reject(),
   connect: () => Promise.reject(),
   changeNetwork: () => Promise.reject(),
@@ -32,4 +36,4 @@ const WalletContext = createContext<TWallet>({
   getTransaction: () => Promise.reject()
 })
 
-export { WalletContext, INITIAL_STATE }
+export { WalletContext, INITIAL_STATE, INITIAL_WALLET_STATE }
