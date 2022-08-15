@@ -1,20 +1,30 @@
+import { useMemo } from 'react'
 import type { TUseBalanceOptions } from './types'
 import { useCosmosBalance } from './useCosmosBalance'
 import { useEVMBalance } from './useEVMBalance'
 import { useSolanaBalance } from './useSolanaBalance'
+import type { TWalletStoreState } from '@/types'
 
-function EVMBalanceComponent(p: any) {
-  const balance = useEVMBalance(p.options)
+type TBalance = TWalletStoreState['balance']
+type TBalanceCallback = (balance: TBalance) => TBalance
+
+type TBalanceComponentProps = {
+  options: TUseBalanceOptions
+  children: TBalanceCallback
+}
+
+function EVMBalanceComponent(p: TBalanceComponentProps) {
+  const balance = useEVMBalance(p.options) ?? null
   return p.children(balance)
 }
 
-function CosmosBalanceComponent(p: any) {
-  const balance = useCosmosBalance(p.options)
+function CosmosBalanceComponent(p: TBalanceComponentProps) {
+  const balance = useCosmosBalance(p.options) ?? null
   return p.children(balance)
 }
 
-function SolanaBalanceComponent(p: any) {
-  const balance = useSolanaBalance(p.options)
+function SolanaBalanceComponent(p: TBalanceComponentProps) {
+  const balance = useSolanaBalance(p.options) ?? null
   return p.children(balance)
 }
 
@@ -30,7 +40,7 @@ const BALANCE_PROVIDER_BY_NAME = {
 
 function PickBalanceProvider(props: {
   options: TUseBalanceOptions
-  children: (balance: string | null) => React.ReactNode
+  children: (balance: TBalance) => TBalance
 }) {
   const { options, children } = props
   const { name } = options
@@ -39,13 +49,14 @@ function PickBalanceProvider(props: {
     return null
   }
 
-  const BalanceComponent = BALANCE_PROVIDER_BY_NAME[name]
+  const BalanceComponent = useMemo(() => BALANCE_PROVIDER_BY_NAME[name], [name])
 
   if (!BalanceComponent) {
     return null
   }
-
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error
   return <BalanceComponent options={options}>{children}</BalanceComponent>
 }
 
-export default PickBalanceProvider
+export { PickBalanceProvider }

@@ -1,4 +1,4 @@
-import PickBalanceProvider from './PickBalanceProvider'
+import { PickBalanceProvider } from './PickBalanceProvider'
 import type { TUseBalanceOptions } from './types'
 
 function useBalance(options: TUseBalanceOptions) {

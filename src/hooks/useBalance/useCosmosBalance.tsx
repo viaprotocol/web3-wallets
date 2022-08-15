@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { StargateClient } from '@cosmjs/stargate'
 import { useQuery } from '@tanstack/react-query'
-import { useTabActive } from '../useTabActive/useTabActive'
 import type { TUseBalanceOptions } from './types'
 import { isCosmosWallet } from '@/utils/wallet'
 import { getNetworkById, rpcMapping } from '@/networks'
@@ -13,6 +12,9 @@ const balanceFetcher = (options: TUseBalanceOptions, network: ReturnType<typeof 
     return
   }
 
+  // eslint-disable-next-line no-console
+  console.log('req cosmos balance', Date.now())
+
   return client.getBalance(address, network.currency_name)
 }
 
@@ -22,14 +24,12 @@ function useCosmosBalance(options: TUseBalanceOptions) {
 
   const [balance, setBalance] = useState<string | null>(null)
   const [client, setClient] = useState<StargateClient | null>(null)
-  const isTabActive = useTabActive()
 
   const { data } = useQuery(
-    ['cosmosBalance', chainId, client],
+    ['cosmosBalance', address],
     () => balanceFetcher(options, getNetworkById(chainId!), client!),
     {
-      initialData: null,
-      enabled: Boolean(isCosmos && client && address) && isTabActive,
+      enabled: Boolean(isCosmos && client && address),
       retry: 2,
       refetchInterval: updateDelay * 1000,
       refetchOnWindowFocus: true
