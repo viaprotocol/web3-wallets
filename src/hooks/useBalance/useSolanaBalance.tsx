@@ -10,12 +10,9 @@ const balanceFetcher = async (options: TUseBalanceOptions) => {
 }
 
 function useSolanaBalance(options: TUseBalanceOptions) {
-  const { address, isConnected, connection, updateDelay = 2 } = options
-
-  const isSubscriptionIsAvailable = Boolean(address && isConnected && connection)
+  const { address, updateDelay = 2 } = options
 
   const { data: balance } = useQuery(['solanaBalance', address], () => balanceFetcher(options), {
-    enabled: isSubscriptionIsAvailable,
     retry: 2,
     refetchInterval: updateDelay * 1000,
     refetchOnWindowFocus: true

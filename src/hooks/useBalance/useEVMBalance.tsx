@@ -2,6 +2,7 @@ import { useCallback, useEffect } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import type { TUseBalanceOptions } from './types'
 import { isEvmWallet } from '@/utils/wallet'
+import type { TEvmWalletStore } from '@/types'
 
 const balanceFetcher = async (options: TUseBalanceOptions) => {
   const { isConnected, provider, address } = options
@@ -14,37 +15,27 @@ const balanceFetcher = async (options: TUseBalanceOptions) => {
   return String(balance)
 }
 
-function useEVMBalance(options: TUseBalanceOptions) {
-  const { isConnected, provider, address, chainId, updateDelay } = options
-  const isSubscriptionIsAvailable = isEvmWallet(options) && address && isConnected && provider
+function useEVMBalance(options: TEvmWalletStore & TUseBalanceOptions) {
+  const { address, chainId, updateDelay } = options
   const queryClient = useQueryClient()
-  const { data: balance } = useQuery(['evmBalance', address], () => balanceFetcher(options), {
-    enabled: Boolean(isSubscriptionIsAvailable),
+  const { data: balance } = useQuery(['evmBalance', address, chainId], () => balanceFetcher(options), {
     retry: 2,
     refetchInterval: updateDelay ? updateDelay * 1000 : false,
     refetchOnWindowFocus: true
   })
 
   const getBalanceFromProvider = useCallback(() => {
-    if (!isSubscriptionIsAvailable) {
-      return
-    }
-
     return queryClient.invalidateQueries(['evmBalance', address])
-  }, [queryClient, isSubscriptionIsAvailable])
+  }, [queryClient, address])
 
   // Subscribe to block changes
   useEffect(() => {
-    if (isSubscriptionIsAvailable) {
-      options.provider.on('block', getBalanceFromProvider)
-    }
+    options.provider.on('block', getBalanceFromProvider)
 
     return () => {
-      if (options.provider && isSubscriptionIsAvailable) {
-        options.provider.off('block', getBalanceFromProvider)
-      }
+      options.provider.off('block', getBalanceFromProvider)
     }
-  }, [isSubscriptionIsAvailable, address, chainId, queryClient, options.provider])
+  }, [address, chainId, queryClient, options.provider])
 
   return balance
 }

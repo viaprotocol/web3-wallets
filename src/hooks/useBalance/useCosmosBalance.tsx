@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import type { TUseBalanceOptions } from './types'
 import { isCosmosWallet } from '@/utils/wallet'
 import { getNetworkById, rpcMapping } from '@/networks'
+import type { TCosmosWalletStore } from '@/types'
 
 const balanceFetcher = (options: TUseBalanceOptions, network: ReturnType<typeof getNetworkById>, client: StargateClient) => {
   const { address } = options
@@ -15,17 +16,16 @@ const balanceFetcher = (options: TUseBalanceOptions, network: ReturnType<typeof 
   return client.getBalance(address, network.currency_name)
 }
 
-function useCosmosBalance(options: TUseBalanceOptions) {
+function useCosmosBalance(options: TCosmosWalletStore & Pick<TUseBalanceOptions, 'updateDelay'>) {
   const { chainId, updateDelay = 10, address } = options
-  const isCosmos = isCosmosWallet(options)
 
   const [client, setClient] = useState<StargateClient | null>(null)
 
   const { data } = useQuery(
-    ['cosmosBalance', address],
-    () => balanceFetcher(options, getNetworkById(chainId!), client!),
+    ['cosmosBalance', address, chainId],
+    () => balanceFetcher(options, getNetworkById(chainId!), client as StargateClient),
     {
-      enabled: Boolean(isCosmos && client && address),
+      enabled: Boolean(client),
       retry: 2,
       refetchInterval: updateDelay * 1000,
       refetchOnWindowFocus: true

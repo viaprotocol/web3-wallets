@@ -3,7 +3,8 @@ import type { TUseBalanceOptions } from './types'
 import { useCosmosBalance } from './useCosmosBalance'
 import { useEVMBalance } from './useEVMBalance'
 import { useSolanaBalance } from './useSolanaBalance'
-import type { TWalletStoreState } from '@/types'
+import type { TCosmosWalletStore, TEvmWalletStore, TSolWalletStore, TWalletStoreState } from '@/types'
+import { isEvmWallet } from '@/utils/wallet'
 
 type TBalance = TWalletStoreState['balance']
 type TBalanceCallback = (balance: TBalance) => TBalance
@@ -14,17 +15,28 @@ type TBalanceComponentProps = {
 }
 
 function EVMBalanceComponent(p: TBalanceComponentProps) {
-  const balance = useEVMBalance(p.options) ?? null
+  const { isConnected, provider, address } = p.options
+  const isProviderReady = Boolean(isEvmWallet(p.options) && address && isConnected && provider)
+  if (!isProviderReady) {
+    return null
+  }
+  const balance = useEVMBalance(p.options as TEvmWalletStore) ?? null
   return p.children(balance)
 }
 
 function CosmosBalanceComponent(p: TBalanceComponentProps) {
-  const balance = useCosmosBalance(p.options) ?? null
+  const balance = useCosmosBalance(p.options as TCosmosWalletStore) ?? null
   return p.children(balance)
 }
 
 function SolanaBalanceComponent(p: TBalanceComponentProps) {
-  const balance = useSolanaBalance(p.options) ?? null
+  const { isConnected, connection, address } = p.options
+  const isProviderReady = Boolean(address && isConnected && connection)
+  if (!isProviderReady) {
+    return null
+  }
+
+  const balance = useSolanaBalance(p.options as TSolWalletStore) ?? null
   return p.children(balance)
 }
 

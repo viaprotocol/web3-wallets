@@ -2,8 +2,8 @@ import { PickBalanceProvider } from './PickBalanceProvider'
 import type { TUseBalanceOptions } from './types'
 
 function useBalance(options: TUseBalanceOptions) {
-  const { name } = options
-  if (!name) {
+  const { name, address } = options
+  if (!name || !address) {
     return null
   }
 
