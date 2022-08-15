@@ -13,4 +13,4 @@ function QueryProvider({ children }: TQueryProviderProps) {
   )
 }
 
-export default QueryProvider
+export { QueryProvider }
