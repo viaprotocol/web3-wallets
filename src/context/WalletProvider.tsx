@@ -731,11 +731,11 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     }
   }
 
-  const waitForTransaction = async (hash: string, confirmations?: number): Promise<void> => {
-    const { chainId } = state
+  const waitForTransaction = async (hash: string, { confirmations, fromChainId }: { confirmations?: number; fromChainId?: number } = {}): Promise<void> => {
+    const currentChainId = fromChainId || state.chainId
 
-    if (chainId === NETWORK_IDS.Solana) {
-      const cluster = getCluster(state.chainId)
+    if (currentChainId === NETWORK_IDS.Solana) {
+      const cluster = getCluster(currentChainId)
       const solanaNetwork = clusterApiUrl(cluster)
       const connection = new Connection(solanaNetwork)
 

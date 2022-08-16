@@ -100,7 +100,7 @@ type TWallet = {
   ) => Promise<string /* | false */> // todo: sendTx reject => false
   disconnect: () => void
   estimateGas: (data: TransactionRequest) => Promise<BigNumber | undefined>
-  waitForTransaction: (transactionHash: string, confirmations?: number) => Promise<void>
+  waitForTransaction: (transactionHash: string, config?: { confirmations?: number; fromChainId?: number }) => Promise<void>
   getTransaction: (transactionHash: string) => Promise<ethers.providers.TransactionReceipt>
   connectedWallets: TConnectedWallet[]
   walletAddressesHistory: TWalletAddressesHistory
