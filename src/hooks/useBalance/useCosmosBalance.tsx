@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { StargateClient } from '@cosmjs/stargate'
 import type { TUseBalanceOptions } from './types'
 import { isCosmosWallet } from '@/utils/wallet'
@@ -20,10 +20,10 @@ function useCosmosBalance(options: TUseBalanceOptions) {
   }, [setClient])
 
   useEffect(() => {
-    if (chainId) {
+    if (chainId && isCosmos) {
       setClientInstance(rpcMapping[chainId])
     }
-  }, [chainId, setClientInstance])
+  }, [chainId, isCosmos, setClientInstance])
 
   const checkCosmosBalance = useCallback(async () => {
     if (!chainId || !options.address || !client) {
