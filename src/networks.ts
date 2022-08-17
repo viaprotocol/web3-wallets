@@ -491,6 +491,7 @@ const networksRaw = [
     currency_decimals: 18,
     is_testnet: false
   },
+  // BTC-like networks
   {
     chain_id: -200,
     name: 'Bitcoin',
@@ -507,7 +508,7 @@ const networksRaw = [
     chain_id: -201,
     name: 'Litecoin',
     short_name: 'LTC',
-    logo_url: 'https://loutre.blockchair.io/assets/svg/chains/litecoin.svg',
+    logo_url: 'https://cdn.via.exchange/networks/Litecoin.svg',
     explorer_url: 'https://blockchair.com/litecoin/',
     rpc_url: '',
     currency_name: 'Litecoin',
@@ -519,7 +520,7 @@ const networksRaw = [
     chain_id: -202,
     name: 'Bitcoin Cash',
     short_name: 'BCH',
-    logo_url: 'https://loutre.blockchair.io/assets/svg/chains/bitcoin-cash.svg',
+    logo_url: 'https://cdn.via.exchange/networks/BitcoinCash.svg',
     explorer_url: 'https://www.blockchain.com/bch/',
     rpc_url: '',
     currency_name: 'Bitcoin Cash',
