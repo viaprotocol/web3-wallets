@@ -15,8 +15,8 @@ type TBalanceComponentProps = {
 }
 
 function EVMBalanceComponent(p: TBalanceComponentProps) {
-  const { isConnected, provider, address } = p.options
-  const isProviderReady = Boolean(isEvmWallet(p.options) && address && isConnected && provider)
+  const { provider } = p.options
+  const isProviderReady = Boolean(isEvmWallet(p.options) && provider)
   if (!isProviderReady) {
     return null
   }
@@ -30,8 +30,8 @@ function CosmosBalanceComponent(p: TBalanceComponentProps) {
 }
 
 function SolanaBalanceComponent(p: TBalanceComponentProps) {
-  const { isConnected, connection, address } = p.options
-  const isProviderReady = Boolean(address && isConnected && connection)
+  const { connection } = p.options
+  const isProviderReady = Boolean(connection)
   if (!isProviderReady) {
     return null
   }
@@ -55,7 +55,7 @@ function PickBalanceProvider(props: {
   children: (balance: TBalance) => TBalance
 }) {
   const { options, children } = props
-  const { name } = options
+  const { name, address, isConnected } = options
 
   const BalanceComponent = useMemo(() => {
     if (!name) {
@@ -64,7 +64,7 @@ function PickBalanceProvider(props: {
     return BALANCE_PROVIDER_BY_NAME[name]
   }, [name])
 
-  if (!BalanceComponent) {
+  if (!BalanceComponent || !address || !isConnected) {
     return null
   }
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
