@@ -56,8 +56,8 @@ function App() {
 - WalletConnect (all WalletConnect-compatible wallets are supported, >100 wallets!)
 - Coinbase Wallet
 - Phantom (Solana)
-– Keplr (Cosmos, Osmosis, Astar)
-– xDeFi (EVM networks, Bitcoin, Bitcoin Cash, Litecoin)
+- Keplr (Cosmos, Osmosis, Astar)
+- xDeFi (EVM networks, Bitcoin, Bitcoin Cash, Litecoin)
 
 
 ## Local development
