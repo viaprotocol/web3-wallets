@@ -1,17 +1,17 @@
-import { PickBalanceProvider } from './PickBalanceProvider'
+import { useQueryClient } from '@tanstack/react-query'
+import { useContext, useEffect } from 'react'
 import type { TUseBalanceOptions } from './types'
+import { UPDATE_DELAY_KEY } from './config'
+import { WalletContext } from '@/context'
 
 function useBalance(options: TUseBalanceOptions) {
-  const { name, address } = options
-  if (!name || !address) {
-    return null
-  }
+  const { balance } = useContext(WalletContext)
+  const queryClient = useQueryClient()
+  const { updateDelay } = options
 
-  const balance = (
-    <PickBalanceProvider options={options}>
-      {(balance: string | null) => balance}
-    </PickBalanceProvider>
-  ) as unknown as string | null
+  useEffect(() => {
+    queryClient.setQueryData([UPDATE_DELAY_KEY], updateDelay)
+  }, [updateDelay])
 
   return balance
 }
