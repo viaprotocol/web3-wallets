@@ -19,10 +19,11 @@ import type { TAvailableWalletNames, TWalletLocalData, TWalletState, TWalletStor
 import { WalletStatusEnum } from '../types'
 import { detectNewTxFromAddress, executeCosmosTransaction, getCluster, getCosmosConnectedWallets, getDomainAddress, goKeplr, goMetamask, goPhantom, isCosmosChain, isSolChain, mapRawWalletSubName, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
 import { getNetworkById, rpcMapping } from '../networks'
-import { useBalance, useWalletAddressesHistory } from '../hooks'
+import { useWalletAddressesHistory } from '../hooks'
 import { INITIAL_STATE, INITIAL_WALLET_STATE, WalletContext } from './WalletContext'
 import { QueryProvider } from './QueryProvider'
 import { isCosmosWallet, isEvmWallet, isSolWallet } from '@/utils/wallet'
+import { BalanceProvider } from '@/context/BalanceProvider'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
@@ -830,6 +831,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     >
       <QueryProvider>
         {children}
+        <BalanceProvider options={state} setBalance={balance => setState(prev => ({ ...prev, balance }))} />
       </QueryProvider>
     </WalletContext.Provider>
   )

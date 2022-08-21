@@ -2,18 +2,17 @@ import { useCallback, useEffect, useState } from 'react'
 import { StargateClient } from '@cosmjs/stargate'
 import { useQuery } from '@tanstack/react-query'
 import type { TUseBalanceOptions } from './types'
-import { isCosmosWallet } from '@/utils/wallet'
 import { getNetworkById, rpcMapping } from '@/networks'
 import type { TCosmosWalletStore } from '@/types'
 
-const balanceFetcher = (options: TUseBalanceOptions, network: ReturnType<typeof getNetworkById>, client: StargateClient) => {
+const balanceFetcher = (options: TCosmosWalletStore, network: ReturnType<typeof getNetworkById>, client: StargateClient) => {
   const { address } = options
 
-  if (!isCosmosWallet(options) || !address || !client || !network) {
+  if (!client || !network) {
     return
   }
 
-  return client.getBalance(address, network.currency_name)
+  return client.getBalance(address!, network.currency_name)
 }
 
 function useCosmosBalance(options: TCosmosWalletStore & Pick<TUseBalanceOptions, 'updateDelay'>) {

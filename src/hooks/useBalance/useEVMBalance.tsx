@@ -1,17 +1,11 @@
 import { useCallback, useEffect } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import type { TUseBalanceOptions } from './types'
-import { isEvmWallet } from '@/utils/wallet'
 import type { TEvmWalletStore } from '@/types'
 
-const balanceFetcher = async (options: TUseBalanceOptions) => {
-  const { isConnected, provider, address } = options
-  const isReadyForRequest = isEvmWallet(options) && address && isConnected && provider
-
-  if (!isReadyForRequest) {
-    return
-  }
-  const balance = await options.provider.getBalance(address)
+const balanceFetcher = async (options: TEvmWalletStore) => {
+  const { address, provider } = options
+  const balance = await provider.getBalance(address!)
   return String(balance)
 }
 
