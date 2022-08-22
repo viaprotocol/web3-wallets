@@ -587,6 +587,8 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     const address = accounts[0]
     const addressDomain = await getDomainAddress(address)
 
+    addWalletAddress({ [address]: EVM_CHAINS })
+
     updateWalletState(activeWalletNameRef.current, {
       address,
       addressShort: shortenAddress(address),
