@@ -11,7 +11,7 @@ import type { CosmosTransaction } from 'rango-sdk/lib'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 import type { BigNumber } from 'ethers'
 import { ethers } from 'ethers'
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useRef, useState } from 'react'
 
 import type { Window as KeplrWindow } from '@keplr-wallet/types'
 import { ERRCODE, EVM_CHAINS, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, SOL_CHAINS, WALLET_NAMES, WALLET_SUBNAME, cosmosChainsMap } from '../constants'
@@ -32,11 +32,18 @@ declare global {
 }
 
 const WalletProvider = function WalletProvider({ children }: { children: React.ReactNode }) {
-  const [activeWalletName, setActiveWalletName] = useState<TAvailableWalletNames | null>(null)
+  const activeWalletNameRef = useRef<TAvailableWalletNames | null>(null)
+  const { current: activeWalletName } = activeWalletNameRef
+
+  const setActiveWalletName = (newWalletName: TAvailableWalletNames | null) => {
+    activeWalletNameRef.current = newWalletName
+  }
+
   const [walletState, setWalletState] = useState<TWalletState>(INITIAL_WALLET_STATE)
   const [walletAddressesHistory, addWalletAddress] = useWalletAddressesHistory()
 
   console.log('walletState', walletState)
+  console.log('activeWalletName', activeWalletName)
 
   const state = useMemo(() => {
     if (activeWalletName) {
@@ -487,12 +494,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     const chainId = parseInt(chainIdHex)
     console.log('* chainChanged', chainIdHex, chainId)
 
-    console.group('evmChainChangeHandler')
-    console.log('activeWalletName', activeWalletName)
-    console.log('chainId', chainId)
-    console.groupEnd()
-
-    updateWalletState(activeWalletName, { chainId })
+    updateWalletState(activeWalletNameRef.current, { chainId })
   }
 
   const evmChangeNetwork = async (params: any[]): Promise<boolean> => {
@@ -556,7 +558,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       window.solana.disconnect()
     }
 
-    updateWalletState(activeWalletName, {
+    updateWalletState(activeWalletNameRef.current, {
       isConnected: false,
       name: null,
       provider: null,
@@ -586,7 +588,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     const address = accounts[0]
     const addressDomain = await getDomainAddress(address)
 
-    updateWalletState(activeWalletName, {
+    updateWalletState(activeWalletNameRef.current, {
       address,
       addressShort: shortenAddress(address),
       addressDomain
