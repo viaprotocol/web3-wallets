@@ -360,46 +360,52 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       throw new Error(`Keplr chainId ${chainId} is not supported`)
     }
 
-    if (window.keplr) {
-      updateWalletState('Keplr', { status: WalletStatusEnum.LOADING })
+    try {
+      if (window.keplr) {
+        updateWalletState('Keplr', { status: WalletStatusEnum.LOADING })
 
-      const chainxList = Object.values(cosmosChainsMap)
-      const currentChain = cosmosChainsMap[chainId as keyof typeof cosmosChainsMap]
+        const chainxList = Object.values(cosmosChainsMap)
+        const currentChain = cosmosChainsMap[chainId as keyof typeof cosmosChainsMap]
 
-      const provider = window.keplr
+        const provider = window.keplr
 
-      await provider.enable(chainxList)
+        await provider.enable(chainxList)
 
-      const offlineSigner = provider.getOfflineSigner(currentChain)
-      const addressesList = await offlineSigner.getAccounts()
-      const { address } = addressesList[0]
-      const addressShort = shortenAddress(address)
-      const connectedWallets = await getCosmosConnectedWallets(provider)
-      const addresesInfo = connectedWallets.reduce((acc, { addresses, chainId }) => ({ ...acc, [addresses[0]]: [chainId] }), {})
+        const offlineSigner = provider.getOfflineSigner(currentChain)
+        const addressesList = await offlineSigner.getAccounts()
+        const { address } = addressesList[0]
+        const addressShort = shortenAddress(address)
+        const connectedWallets = await getCosmosConnectedWallets(provider)
+        const addresesInfo = connectedWallets.reduce((acc, { addresses, chainId }) => ({ ...acc, [addresses[0]]: [chainId] }), {})
 
-      addWalletAddress(addresesInfo)
-      updateWalletState('Keplr', {
-        isConnected: true,
-        status: WalletStatusEnum.READY,
-        connectedWallets,
-        name: 'Keplr',
-        chainId,
-        address,
-        addressShort,
-        provider
-      })
-
-      localStorage.setItem('web3-wallets-name', WALLET_NAMES.Keplr)
-      localStorage.setItem(
-        LOCAL_STORAGE_WALLETS_KEY,
-        JSON.stringify({
-          name: WALLET_NAMES.Keplr,
+        addWalletAddress(addresesInfo)
+        updateWalletState('Keplr', {
+          isConnected: true,
+          status: WalletStatusEnum.READY,
+          connectedWallets,
+          name: 'Keplr',
           chainId,
-          address: addressShort
+          address,
+          addressShort,
+          provider
         })
-      )
 
-      return true
+        localStorage.setItem('web3-wallets-name', WALLET_NAMES.Keplr)
+        localStorage.setItem(
+          LOCAL_STORAGE_WALLETS_KEY,
+          JSON.stringify({
+            name: WALLET_NAMES.Keplr,
+            chainId,
+            address: addressShort
+          })
+        )
+
+        return true
+      }
+    } catch (err: any) {
+      updateWalletState('Keplr', { status: WalletStatusEnum.NOT_INITED })
+      console.error('[Wallet] connectWC error:', err)
+      return false
     }
 
     return false
@@ -480,6 +486,11 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
   const evmChainChangeHandler = async (chainIdHex: string) => {
     const chainId = parseInt(chainIdHex)
     console.log('* chainChanged', chainIdHex, chainId)
+
+    console.group('evmChainChangeHandler')
+    console.log('activeWalletName', activeWalletName)
+    console.log('chainId', chainId)
+    console.groupEnd()
 
     updateWalletState(activeWalletName, { chainId })
   }
