@@ -33,7 +33,6 @@ declare global {
 
 const WalletProvider = function WalletProvider({ children }: { children: React.ReactNode }) {
   const activeWalletNameRef = useRef<TAvailableWalletNames | null>(null)
-  const { current: activeWalletName } = activeWalletNameRef
 
   const setActiveWalletName = (newWalletName: TAvailableWalletNames | null) => {
     activeWalletNameRef.current = newWalletName
@@ -43,15 +42,15 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
   const [walletAddressesHistory, addWalletAddress] = useWalletAddressesHistory()
 
   console.log('walletState', walletState)
-  console.log('activeWalletName', activeWalletName)
+  console.log('activeWalletNameRef.current', activeWalletNameRef.current)
 
   const state = useMemo(() => {
-    if (activeWalletName) {
-      return walletState[activeWalletName]
+    if (activeWalletNameRef.current) {
+      return walletState[activeWalletNameRef.current]
     }
 
     return INITIAL_STATE
-  }, [activeWalletName, walletState])
+  }, [activeWalletNameRef.current, walletState])
 
   const updateWalletState = (walletName: TAvailableWalletNames | null, newState: Partial<TWalletStore>) => {
     if (walletName) {
@@ -60,7 +59,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
   }
 
   const updateActiveWalletName = (walletName: TAvailableWalletNames) => {
-    if (!activeWalletName) {
+    if (!activeWalletNameRef.current) {
       setActiveWalletName(walletName)
     }
   }
@@ -632,7 +631,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     }
   ): Promise<string> => {
     const { walletName } = params || {}
-    const currentName = walletName || activeWalletName
+    const currentName = walletName || activeWalletNameRef.current
 
     if (!currentName) {
       throw new Error('[Wallet] sendTx error: no wallet name')
