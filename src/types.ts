@@ -10,6 +10,7 @@ import type { CosmosTransaction } from 'rango-sdk/lib'
 import type { COSMOS_WALLETS_CONFIG, EVM_WALLETS_CONFIG, SOL_WALLETS_CONFIG, WALLET_NAMES } from './constants'
 
 type TAvailableWalletNames = keyof typeof WALLET_NAMES
+type TAvailableWalletNameValues = typeof WALLET_NAMES[TAvailableWalletNames]
 type TAvailableEvmWalletNames = typeof EVM_WALLETS_CONFIG[number]
 type TAvailableSolWalletNames = typeof SOL_WALLETS_CONFIG[number]
 type TAvailableCosmosWalletNames = typeof COSMOS_WALLETS_CONFIG[number]
