@@ -17,7 +17,7 @@ import type { Window as KeplrWindow } from '@keplr-wallet/types'
 import { ERRCODE, EVM_CHAINS, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, SOL_CHAINS, WALLET_NAMES, WALLET_SUBNAME, cosmosChainsMap } from '../constants'
 import type { TWalletLocalData, TWalletStoreState } from '../types'
 import { WalletStatusEnum } from '../types'
-import { detectNewTxFromAddress, executeCosmosTransaction, getCluster, getCosmosConnectedWallets, getDomainAddress, goKeplr, goMetamask, goPhantom, isCosmosChain, isSolChain, mapRawWalletSubName, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
+import { detectNewTxFromAddress, executeCosmosTransaction, getCluster, getCosmosConnectedWallets, getDomainAddress, goKeplr, goMetamask, goPhantom, isCosmosChain, isSolChain, parseEnsFromSolanaAddress, shortenAddress, mapRawWalletSubName } from '../utils'
 import { getNetworkById, rpcMapping } from '../networks'
 import { useBalance, useWalletAddressesHistory } from '../hooks'
 import { INITIAL_STATE, WalletContext } from './WalletContext'
@@ -389,6 +389,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
   }
 
   const connect = async ({ name, chainId }: { name: string; chainId: number }): Promise<boolean> => {
+    console.log('[Wallet] connect()', name, chainId)
     if (!(Object.values(WALLET_NAMES) as string[]).includes(name)) {
       console.error(`[Wallet] Unknown wallet name: ${name}`)
       return false
