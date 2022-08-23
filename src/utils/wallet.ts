@@ -1,5 +1,5 @@
 import type { TCosmosWalletStore, TEvmWalletStore, TSolWalletStore, TWalletStoreState } from '@/types'
-import { COSMOS_WALLETS_CONFIG, EVM_WALLETS_CONFIG, SOL_WALLETS_CONFIG } from '@/hooks/useBalance/config'
+import { COSMOS_WALLETS_CONFIG, EVM_WALLETS_CONFIG, SOL_WALLETS_CONFIG } from '@/hooks/balance/config'
 
 const isEvmWallet = (walletData: TWalletStoreState): walletData is TEvmWalletStore => {
   return EVM_WALLETS_CONFIG.includes(walletData.name as any)

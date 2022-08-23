@@ -8,7 +8,7 @@ import type WalletConnectProvider from '@walletconnect/web3-provider'
 import type { BigNumber, ethers } from 'ethers'
 import type { CosmosTransaction } from 'rango-sdk/lib'
 import type { WALLET_NAMES } from './constants'
-import type { COSMOS_WALLETS_CONFIG, EVM_WALLETS_CONFIG, SOL_WALLETS_CONFIG } from './hooks/useBalance/config'
+import type { COSMOS_WALLETS_CONFIG, EVM_WALLETS_CONFIG, SOL_WALLETS_CONFIG } from './hooks/balance/config'
 
 type TAvailableWalletNames = keyof typeof WALLET_NAMES
 type TAvailableWalletNameValues = typeof WALLET_NAMES[TAvailableWalletNames]
