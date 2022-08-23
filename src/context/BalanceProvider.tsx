@@ -6,7 +6,7 @@ import { useCosmosBalance } from '../hooks/useBalance/useCosmosBalance'
 import { useEVMBalance } from '../hooks/useBalance/useEVMBalance'
 import { useSolanaBalance } from '../hooks/useBalance/useSolanaBalance'
 import type { TCosmosWalletStore, TEvmWalletStore, TSolWalletStore, TWalletStoreState } from '@/types'
-import { isEvmWallet } from '@/utils/wallet'
+import { isEvmWallet, isSolWallet } from '@/utils/wallet'
 import { UPDATE_DELAY_KEY } from '@/hooks/useBalance/config'
 
 type TBalance = TWalletStoreState['balance']
@@ -21,11 +21,6 @@ function EVMBalanceComponent({
   options,
   setBalance
 }: TBalanceComponentProps) {
-  const { provider } = options
-  const isProviderReady = Boolean(isEvmWallet(options) && provider)
-  if (!isProviderReady) {
-    return null
-  }
   const balance = useEVMBalance(options as TEvmWalletStore) ?? null
 
   useEffect(() => {
@@ -52,11 +47,6 @@ function SolanaBalanceComponent({
   options,
   setBalance
 }: TBalanceComponentProps) {
-  const { connection } = options
-  const isProviderReady = Boolean(connection)
-  if (!isProviderReady) {
-    return null
-  }
   const balance = useSolanaBalance(options as TSolWalletStore) ?? null
 
   useEffect(() => {
@@ -84,7 +74,7 @@ function BalanceProvider({
   setBalance: TBalanceCallback
 }>) {
   const { data: balanceUpdateDelay } = useQuery([UPDATE_DELAY_KEY]) ?? false
-  const { name, address, isConnected } = options
+  const { name, address, isConnected, connection, provider } = options
 
   const balanceParams = useMemo(() => {
     return {
@@ -97,6 +87,17 @@ function BalanceProvider({
     if (!name) {
       return null
     }
+
+    // Check solana connection is ready
+    if (isSolWallet(options) && !connection) {
+      return null
+    }
+
+    // Check evm provider is ready
+    if (isEvmWallet(options) && !provider) {
+      return null
+    }
+
     return BALANCE_PROVIDER_BY_NAME[name]
   }, [name])
 
