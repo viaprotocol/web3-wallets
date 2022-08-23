@@ -11,7 +11,7 @@ import type { CosmosTransaction } from 'rango-sdk/lib'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 import type { BigNumber } from 'ethers'
 import { ethers } from 'ethers'
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 
 import type { Window as KeplrWindow } from '@keplr-wallet/types'
 import { ERRCODE, EVM_CHAINS, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, SOL_CHAINS, WALLET_NAMES, WALLET_SUBNAME, cosmosChainsMap } from '../constants'
@@ -768,6 +768,8 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     }
   }
 
+  const setBalance = useCallback((balance: string | null) => setState(prev => ({ ...prev, balance })), [setState])
+
   return (
     <WalletContext.Provider
     // @ts-expect-error https://linear.app/via-protocol/issue/FRD-640/ispravit-oshibku-s-tipami-v-web3-wallets
@@ -798,7 +800,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     >
       <QueryProvider>
         {children}
-        <BalanceProvider options={state} setBalance={balance => setState(prev => ({ ...prev, balance }))} />
+        <BalanceProvider options={state} setBalance={setBalance} />
       </QueryProvider>
     </WalletContext.Provider>
   )
