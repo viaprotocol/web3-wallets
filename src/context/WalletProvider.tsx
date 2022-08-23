@@ -831,7 +831,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     >
       <QueryProvider>
         {children}
-        <BalanceProvider options={state} setBalance={balance => setState(prev => ({ ...prev, balance }))} />
+        <BalanceProvider options={state} setBalance={setBalance} />
       </QueryProvider>
     </WalletContext.Provider>
   )
