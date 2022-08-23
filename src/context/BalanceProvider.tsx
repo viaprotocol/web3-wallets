@@ -5,8 +5,7 @@ import type { TUseBalanceOptions } from '../hooks/useBalance/types'
 import { useCosmosBalance } from '../hooks/useBalance/useCosmosBalance'
 import { useEVMBalance } from '../hooks/useBalance/useEVMBalance'
 import { useSolanaBalance } from '../hooks/useBalance/useSolanaBalance'
-import type { TCosmosWalletStore, TEvmWalletStore, TSolWalletStore, TWalletStoreState } from '@/types'
-import { isEvmWallet, isSolWallet } from '@/utils/wallet'
+import type { TAvailableWalletNameValues, TCosmosWalletStore, TEvmWalletStore, TSolWalletStore, TWalletStoreState } from '@/types'
 import { UPDATE_DELAY_KEY } from '@/hooks/useBalance/config'
 
 type TBalance = TWalletStoreState['balance']
@@ -56,14 +55,39 @@ function SolanaBalanceComponent({
   return null
 }
 
-const BALANCE_PROVIDER_BY_NAME = {
-  MetaMask: EVMBalanceComponent,
-  WalletConnect: EVMBalanceComponent,
-  Coinbase: EVMBalanceComponent,
-  xDefi: EVMBalanceComponent,
-  Phantom: SolanaBalanceComponent,
+type TBalanceProviderWithValidator = {
+  component: (props: TBalanceComponentProps) => null
+  validatePropsFunc: (options: TWalletStoreState) => boolean
+} | null
+
+const evmValidator = ({ provider }: TWalletStoreState) => Boolean(provider)
+
+const BALANCE_PROVIDER_BY_NAME: Record<TAvailableWalletNameValues, TBalanceProviderWithValidator> = {
+  MetaMask: {
+    component: EVMBalanceComponent,
+    validatePropsFunc: evmValidator
+  },
+  WalletConnect: {
+    component: EVMBalanceComponent,
+    validatePropsFunc: evmValidator
+  },
+  Coinbase: {
+    component: EVMBalanceComponent,
+    validatePropsFunc: evmValidator
+  },
+  xDefi: {
+    component: EVMBalanceComponent,
+    validatePropsFunc: evmValidator
+  },
+  Phantom: {
+    component: SolanaBalanceComponent,
+    validatePropsFunc: ({ connection }) => Boolean(connection)
+  },
   Near: null,
-  Keplr: CosmosBalanceComponent
+  Keplr: {
+    component: CosmosBalanceComponent,
+    validatePropsFunc: () => true
+  }
 }
 
 function BalanceProvider({
@@ -74,7 +98,7 @@ function BalanceProvider({
   setBalance: TBalanceCallback
 }>) {
   const { data: balanceUpdateDelay } = useQuery([UPDATE_DELAY_KEY]) ?? false
-  const { name, address, isConnected, connection, provider } = options
+  const { name, address, isConnected } = options
 
   const balanceParams = useMemo(() => {
     return {
@@ -88,17 +112,19 @@ function BalanceProvider({
       return null
     }
 
-    // Check solana connection is ready
-    if (isSolWallet(options) && !connection) {
+    const balanceProviderWithValidator = BALANCE_PROVIDER_BY_NAME[name]
+
+    if (!balanceProviderWithValidator) {
       return null
     }
 
-    // Check evm provider is ready
-    if (isEvmWallet(options) && !provider) {
+    const { component, validatePropsFunc } = balanceProviderWithValidator
+
+    if (!validatePropsFunc(options)) {
       return null
     }
 
-    return BALANCE_PROVIDER_BY_NAME[name]
+    return component
   }, [name])
 
   if (!BalanceComponent || !address || !isConnected) {
