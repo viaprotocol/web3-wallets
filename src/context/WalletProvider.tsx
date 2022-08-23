@@ -23,7 +23,7 @@ import { useWalletAddressesHistory } from '../hooks'
 import { INITIAL_STATE, INITIAL_WALLET_STATE, WalletContext } from './WalletContext'
 import { QueryProvider } from './QueryProvider'
 import { isCosmosWallet, isEvmWallet, isSolWallet } from '@/utils/wallet'
-import { BalanceProvider } from '@/context/BalanceProvider'
+import { BalanceProvider } from '@/components/balance/BalanceProvider'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions

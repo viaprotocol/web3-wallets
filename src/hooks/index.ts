@@ -1,2 +1,2 @@
-export * from './useBalance'
+export * from './balance'
 export * from './useWalletAddressesHistory'
