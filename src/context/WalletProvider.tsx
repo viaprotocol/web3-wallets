@@ -14,10 +14,10 @@ import { ethers } from 'ethers'
 import React, { useState } from 'react'
 
 import type { Window as KeplrWindow } from '@keplr-wallet/types'
-import { COSMOS_CHAINS, ERRCODE, EVM_CHAINS, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, SOL_CHAINS, WALLET_NAMES, WALLET_SUBNAME, cosmosChainsMap } from '../constants'
+import { ERRCODE, EVM_CHAINS, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, SOL_CHAINS, WALLET_NAMES, WALLET_SUBNAME, cosmosChainsMap } from '../constants'
 import type { TWalletLocalData, TWalletStoreState } from '../types'
 import { WalletStatusEnum } from '../types'
-import { detectNewTxFromAddress, executeCosmosTransaction, getCluster, getCosmosConnectedWallets, getDomainAddress, goKeplr, goMetamask, goPhantom, isCosmosChain, isSolChain, parseEnsFromSolanaAddress, shortenAddress, mapRawWalletSubName } from '../utils'
+import { detectNewTxFromAddress, executeCosmosTransaction, getCluster, getCosmosConnectedWallets, getDomainAddress, goKeplr, goMetamask, goPhantom, isCosmosChain, isSolChain, mapRawWalletSubName, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
 import { getNetworkById, rpcMapping } from '../networks'
 import { useBalance, useWalletAddressesHistory } from '../hooks'
 import { INITIAL_STATE, WalletContext } from './WalletContext'
@@ -61,17 +61,15 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
       setState(prev => ({
         ...prev,
-        ...{
-          isConnected: true,
-          status: WalletStatusEnum.READY,
-          name: WALLET_NAMES.Coinbase,
-          provider,
-          walletProvider,
-          chainId: walletChainId,
-          address,
-          addressShort,
-          addressDomain
-        }
+        isConnected: true,
+        status: WalletStatusEnum.READY,
+        name: WALLET_NAMES.Coinbase,
+        provider,
+        walletProvider,
+        chainId: walletChainId,
+        address,
+        addressShort,
+        addressDomain
       }))
 
       localStorage.setItem('web3-wallets-name', WALLET_NAMES.Coinbase)
@@ -143,17 +141,15 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
     setState(prev => ({
       ...prev,
-      ...{
-        isConnected: true,
-        status: WalletStatusEnum.READY,
-        name: WALLET_NAMES.MetaMask,
-        provider,
-        walletProvider,
-        chainId: walletChainId,
-        address,
-        addressShort,
-        addressDomain
-      }
+      isConnected: true,
+      status: WalletStatusEnum.READY,
+      name: WALLET_NAMES.MetaMask,
+      provider,
+      walletProvider,
+      chainId: walletChainId,
+      address,
+      addressShort,
+      addressDomain
     }))
 
     localStorage.setItem('web3-wallets-name', WALLET_NAMES.MetaMask)
@@ -200,17 +196,15 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
     setState(prev => ({
       ...prev,
-      ...{
-        isConnected: true,
-        status: WalletStatusEnum.READY,
-        name: WALLET_NAMES.Xdefi,
-        provider,
-        walletProvider,
-        chainId: walletChainId,
-        address,
-        addressShort,
-        addressDomain
-      }
+      isConnected: true,
+      status: WalletStatusEnum.READY,
+      name: WALLET_NAMES.Xdefi,
+      provider,
+      walletProvider,
+      chainId: walletChainId,
+      address,
+      addressShort,
+      addressDomain
     }))
 
     localStorage.setItem('web3-wallets-name', WALLET_NAMES.Xdefi)
@@ -257,18 +251,16 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
       setState(prev => ({
         ...prev,
-        ...{
-          isConnected: true,
-          status: WalletStatusEnum.READY,
-          name: WALLET_NAMES.WalletConnect,
-          subName,
-          provider: web3Provider,
-          walletProvider: walletConnectProvider,
-          chainId: walletChainId,
-          address,
-          addressShort,
-          addressDomain
-        }
+        isConnected: true,
+        status: WalletStatusEnum.READY,
+        name: WALLET_NAMES.WalletConnect,
+        subName,
+        provider: web3Provider,
+        walletProvider: walletConnectProvider,
+        chainId: walletChainId,
+        address,
+        addressShort,
+        addressDomain
       }))
 
       localStorage.setItem('web3-wallets-name', WALLET_NAMES.WalletConnect)
@@ -312,17 +304,15 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
       setState(prev => ({
         ...prev,
-        ...{
-          isConnected: true,
-          status: WalletStatusEnum.READY,
-          name: 'Phantom',
-          provider,
-          chainId,
-          address,
-          connection,
-          addressShort,
-          addressDomain
-        }
+        isConnected: true,
+        status: WalletStatusEnum.READY,
+        name: 'Phantom',
+        provider,
+        chainId,
+        address,
+        connection,
+        addressShort,
+        addressDomain
       }))
 
       localStorage.setItem('web3-wallets-name', WALLET_NAMES.Phantom)
@@ -372,16 +362,14 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
       setState(prev => ({
         ...prev,
-        ...{
-          isConnected: true,
-          status: WalletStatusEnum.READY,
-          connectedWallets,
-          name: 'Keplr',
-          chainId,
-          address,
-          addressShort,
-          provider
-        }
+        isConnected: true,
+        status: WalletStatusEnum.READY,
+        connectedWallets,
+        name: 'Keplr',
+        chainId,
+        address,
+        addressShort,
+        provider
       }))
 
       localStorage.setItem('web3-wallets-name', WALLET_NAMES.Keplr)
@@ -401,7 +389,6 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
   }
 
   const connect = async ({ name, chainId }: { name: string; chainId: number }): Promise<boolean> => {
-    console.log('[Wallet] connect()', name, chainId)
     if (!(Object.values(WALLET_NAMES) as string[]).includes(name)) {
       console.error(`[Wallet] Unknown wallet name: ${name}`)
       return false
@@ -535,18 +522,16 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
     setState(prev => ({
       ...prev,
-      ...{
-        isConnected: false,
-        name: null,
-        provider: null,
-        walletProvider: null,
-        chainId: null,
-        address: null,
-        addressShort: null,
-        addressDomain: null,
-        balance: null,
-        connection: null
-      }
+      isConnected: false,
+      name: null,
+      provider: null,
+      walletProvider: null,
+      chainId: null,
+      address: null,
+      addressShort: null,
+      addressDomain: null,
+      balance: null,
+      connection: null
     }))
 
     localStorage.removeItem('web3-wallets-name')
@@ -566,11 +551,9 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
     setState(prev => ({
       ...prev,
-      ...{
-        address,
-        addressShort: shortenAddress(address),
-        addressDomain
-      }
+      address,
+      addressShort: shortenAddress(address),
+      addressDomain
     }))
   }
 
