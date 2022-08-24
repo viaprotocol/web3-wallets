@@ -20,10 +20,10 @@ function useCosmosBalance(options: TUseBalanceOptions) {
   }, [setClient])
 
   useEffect(() => {
-    if (chainId) {
+    if (chainId && isCosmos) {
       setClientInstance(rpcMapping[chainId])
     }
-  }, [chainId, setClientInstance])
+  }, [chainId, isCosmos, setClientInstance])
 
   const checkCosmosBalance = useCallback(async () => {
     if (!chainId || !options.address || !client) {
