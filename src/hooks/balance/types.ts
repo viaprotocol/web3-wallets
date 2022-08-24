@@ -1,6 +1,6 @@
-import type { TWalletStoreState } from '../../types'
+import type { TWalletStore } from '../../types'
 
-type TUseBalanceOptions = TWalletStoreState & {
+type TUseBalanceOptions = TWalletStore & {
   updateDelay?: number
 }
 

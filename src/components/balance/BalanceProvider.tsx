@@ -43,6 +43,9 @@ function BalanceProvider({
     return component
   }, [name])
 
+  // eslint-disable-next-line no-console
+  console.log(name)
+
   if (!BalanceComponent || !address || !isConnected) {
     return null
   }

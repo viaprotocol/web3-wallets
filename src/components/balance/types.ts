@@ -1,8 +1,8 @@
 import type { PropsWithChildren } from 'react'
 import type { TUseBalanceOptions } from '../../hooks/balance/types'
-import type { TWalletStoreState } from '@/types'
+import type { TWalletStore } from '@/types'
 
-type TBalance = TWalletStoreState['balance']
+type TBalance = TWalletStore['balance']
 type TBalanceCallback = (balance: TBalance) => void
 
 type TBalanceComponentProps = {
@@ -12,7 +12,7 @@ type TBalanceComponentProps = {
 
 type TBalanceProviderMetadata = {
   component: (props: TBalanceComponentProps) => null
-  validatePropsFunc: (options: TWalletStoreState) => boolean
+  validatePropsFunc: (options: TWalletStore) => boolean
 }
 
 export type { TBalance, TBalanceCallback, TBalanceComponentProps, TBalanceProviderMetadata }
