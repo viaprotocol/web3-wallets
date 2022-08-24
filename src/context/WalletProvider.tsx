@@ -41,9 +41,6 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
   const [walletState, setWalletState] = useState<TWalletState>(INITIAL_WALLET_STATE)
   const [walletAddressesHistory, addWalletAddress] = useWalletAddressesHistory()
 
-  console.log('walletState', walletState)
-  console.log('activeWalletNameRef.current', activeWalletNameRef.current)
-
   const state = useMemo(() => {
     if (activeWalletNameRef.current) {
       return walletState[activeWalletNameRef.current]
