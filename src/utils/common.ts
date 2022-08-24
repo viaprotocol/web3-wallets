@@ -5,6 +5,7 @@ import type { Hexable } from 'ethers/lib/utils'
 import isMobile from 'ismobilejs'
 
 import {
+  CHAINS_WITH_WALLET,
   COSMOS_CHAINS,
   EVM_BASE_TOKEN_ADDRESS,
   EVM_ENS_POSTFIX,
@@ -14,6 +15,8 @@ import {
   SOL_CHAINS,
   WALLET_SUBNAME
 } from '../constants'
+import type { TWalletState, TWalletsTypeList } from '..'
+import { WalletStatusEnum } from '..'
 import { checkEnsValid, parseAddressFromEnsSolana } from './solana'
 import { getNetworkById, supportedNetworkIds } from '@/networks'
 
@@ -180,4 +183,22 @@ export const mapRawWalletSubName = (subName: string) => {
     return WALLET_SUBNAME.GnosisSafe
   }
   return subName
+}
+
+export const getActiveWallets = (walletState: TWalletState, wallets: TWalletsTypeList[]) => {
+  return wallets.find(
+    walletName => walletState[walletName].status === WalletStatusEnum.READY
+  )
+}
+
+export const getActiveWalletName = (walletState: TWalletState, chainId: number) => {
+  const walletsData = CHAINS_WITH_WALLET.find(({ chains }) => chains.includes(chainId))
+
+  if (!walletsData) {
+    throw new Error(`getActiveWalletName: not implemented for chainId ${chainId}`)
+  }
+
+  const { wallets } = walletsData
+
+  return getActiveWallets(walletState, wallets)
 }
