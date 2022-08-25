@@ -2,11 +2,11 @@ import { BalanceEVM } from './BalanceEVM'
 import { BalanceSolana } from './BalanceSolana'
 import { BalanceCosmos } from './BalanceCosmos'
 import type { TBalanceProviderMetadata } from './types'
-import type { TAvailableWalletNameValues, TWalletStoreState } from '@/types'
+import type { TAvailableWalletNames, TWalletStore } from '@/types'
 
-const evmValidator = ({ provider }: TWalletStoreState) => Boolean(provider)
+const evmValidator = ({ provider }: TWalletStore) => Boolean(provider)
 
-const BALANCE_PROVIDER_BY_NAME: Record<TAvailableWalletNameValues, TBalanceProviderMetadata | null> = {
+const BALANCE_PROVIDER_BY_NAME: Record<TAvailableWalletNames, TBalanceProviderMetadata | null> = {
   MetaMask: {
     component: BalanceEVM,
     validatePropsFunc: evmValidator

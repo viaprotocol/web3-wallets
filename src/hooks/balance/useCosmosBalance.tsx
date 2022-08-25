@@ -40,10 +40,10 @@ function useCosmosBalance(options: TCosmosWalletStore & Pick<TUseBalanceOptions,
   }, [setClient])
 
   useEffect(() => {
-    if (chainId && isCosmos) {
+    if (chainId) {
       setClientInstance(rpcMapping[chainId])
     }
-  }, [chainId, isCosmos, setClientInstance])
+  }, [chainId, setClientInstance])
 
   return balance
 }
