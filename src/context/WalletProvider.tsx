@@ -11,7 +11,7 @@ import type { CosmosTransaction } from 'rango-sdk/lib'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 import type { BigNumber } from 'ethers'
 import { ethers } from 'ethers'
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 
 import type { Window as KeplrWindow } from '@keplr-wallet/types'
 import { ERRCODE, EVM_CHAINS, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, SOL_CHAINS, WALLET_NAMES, WALLET_SUBNAME, cosmosChainsMap } from '../constants'
@@ -19,9 +19,11 @@ import type { TAvailableWalletNames, TWalletLocalData, TWalletState, TWalletStor
 import { WalletStatusEnum } from '../types'
 import { detectNewTxFromAddress, executeCosmosTransaction, getCluster, getCosmosConnectedWallets, getDomainAddress, goKeplr, goMetamask, goPhantom, isCosmosChain, isSolChain, mapRawWalletSubName, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
 import { getNetworkById, rpcMapping } from '../networks'
-import { useBalance, useWalletAddressesHistory } from '../hooks'
+import { useWalletAddressesHistory } from '../hooks'
 import { INITIAL_STATE, INITIAL_WALLET_STATE, WalletContext } from './WalletContext'
+import { QueryProvider } from './QueryProvider'
 import { isCosmosWallet, isEvmWallet, isSolWallet } from '@/utils/wallet'
+import { BalanceProvider } from '@/components/balance/BalanceProvider'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
@@ -794,7 +796,9 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     }
   }
 
-  const balance = useBalance(state)
+  const setBalance = useCallback((balance: string | null) => updateWalletState(state.name, {
+    balance
+  }), [state.name])
 
   const providerState = useMemo(() => ({
     isConnected: state.isConnected,
@@ -806,7 +810,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     address: state.address,
     addressShort: state.addressShort,
     addressDomain: state.addressDomain,
-    balance: balance || state.balance,
+    balance: state.balance,
     connection: state.connection,
     estimateGas,
     provider: state.provider,
@@ -820,14 +824,17 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     sendTx,
     disconnect,
     walletState
-  }), [state, walletAddressesHistory, balance, estimateGas, waitForTransaction, getTransaction, restore, connect, changeNetwork, sendTx, disconnect, walletState])
+  }), [state, walletAddressesHistory, estimateGas, waitForTransaction, getTransaction, restore, connect, changeNetwork, sendTx, disconnect, walletState])
 
   return (
     <WalletContext.Provider
     // @ts-expect-error https://linear.app/via-protocol/issue/FRD-640/ispravit-oshibku-s-tipami-v-web3-wallets
       value={providerState}
     >
-      {children}
+      <QueryProvider>
+        {children}
+        <BalanceProvider options={state} setBalance={setBalance} />
+      </QueryProvider>
     </WalletContext.Provider>
   )
 }
