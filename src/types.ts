@@ -7,13 +7,21 @@ import type { Connection, Signer, Transaction } from '@solana/web3.js'
 import type WalletConnectProvider from '@walletconnect/web3-provider'
 import type { BigNumber, ethers } from 'ethers'
 import type { CosmosTransaction } from 'rango-sdk/lib'
-import type { WALLET_NAMES } from './constants'
-import type { COSMOS_WALLETS_CONFIG, EVM_WALLETS_CONFIG, SOL_WALLETS_CONFIG } from './hooks/useBalance/config'
+import type { COSMOS_WALLETS_CONFIG, EVM_WALLETS_CONFIG, SOL_WALLETS_CONFIG, WALLET_NAMES } from './constants'
 
 type TAvailableWalletNames = keyof typeof WALLET_NAMES
 type TAvailableEvmWalletNames = typeof EVM_WALLETS_CONFIG[number]
 type TAvailableSolWalletNames = typeof SOL_WALLETS_CONFIG[number]
 type TAvailableCosmosWalletNames = typeof COSMOS_WALLETS_CONFIG[number]
+
+type TWalletsTypeList = TAvailableEvmWalletNames | TAvailableSolWalletNames | TAvailableCosmosWalletNames
+type TAvailableWalletsGroups = 'EVM' | 'SOL' | 'COSMOS'
+
+type TChainsWithWalletsLink = {
+  key: TAvailableWalletsGroups
+  chains: readonly number[]
+  wallets: TWalletsTypeList[]
+}
 
 enum WalletStatusEnum {
   NOT_INITED = 'NOT_INITED',
@@ -66,7 +74,11 @@ type TWalletBodyDefaultState = {
   provider: null
 } & TWalletStateDefault
 
-type TWalletStoreState = TEvmWalletStore | TSolWalletStore | TCosmosWalletStore | TWalletBodyDefaultState
+type TWalletStore = TEvmWalletStore | TSolWalletStore | TCosmosWalletStore | TWalletBodyDefaultState
+
+type TWalletState = {
+  [walletName in TAvailableWalletNames]: TWalletStore
+}
 
 type TWalletLocalData = {
   name: string
@@ -81,17 +93,21 @@ type TWallet = {
   changeNetwork: (chainId: number) => Promise<boolean>
   sendTx: (
     transaction: TransactionRequest | Transaction | CosmosTransaction,
-    options?: { signers?: Signer[] }
+    options?: {
+      signers?: Signer[]
+      walletName?: TAvailableWalletNames
+    }
   ) => Promise<string /* | false */> // todo: sendTx reject => false
   disconnect: () => void
   estimateGas: (data: TransactionRequest) => Promise<BigNumber | undefined>
-  waitForTransaction: (transactionHash: string, confirmations?: number) => Promise<void>
+  waitForTransaction: (transactionHash: string, config?: { confirmations?: number; fromChainId?: number }) => Promise<void>
   getTransaction: (transactionHash: string) => Promise<ethers.providers.TransactionReceipt>
   connectedWallets: TConnectedWallet[]
   walletAddressesHistory: TWalletAddressesHistory
-} & TWalletStoreState
+  walletState: TWalletState
+} & TWalletStore
 
 type TWalletValues = typeof WALLET_NAMES[keyof typeof WALLET_NAMES]
 
-export type { TAvailableWalletNames, TWallet, TWalletStoreState, TWalletLocalData, TWalletValues, TAvailableEvmWalletNames, TAvailableSolWalletNames, TEvmWalletStore, TSolWalletStore, TCosmosWalletStore, TConnectedWallet, TWalletAddressesHistory }
+export type { TAvailableWalletNames, TWallet, TWalletStore, TWalletLocalData, TWalletValues, TAvailableEvmWalletNames, TAvailableSolWalletNames, TEvmWalletStore, TSolWalletStore, TCosmosWalletStore, TConnectedWallet, TWalletAddressesHistory, TWalletState, TChainsWithWalletsLink, TWalletsTypeList }
 export { WalletStatusEnum }

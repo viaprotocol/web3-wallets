@@ -1,7 +1,9 @@
+import type { TChainsWithWalletsLink } from './types'
+
 export const WALLET_NAMES = {
   WalletConnect: 'WalletConnect',
   MetaMask: 'MetaMask',
-  Xdefi: 'xDefi',
+  xDefi: 'xDefi',
   Phantom: 'Phantom',
   Near: 'Near',
   Coinbase: 'Coinbase',
@@ -40,6 +42,10 @@ export const NETWORK_IDS = {
   Moonriver: 1285,
   MoonriverTestnet: 1287,
   Cube: 1818,
+  Aurora: 1313161554,
+  Cronos: 25,
+  Boba: 228,
+  Celo: 42220,
   Solana: -1,
   SolanaTestnet: -1001,
   TON: -3,
@@ -66,6 +72,10 @@ export const ERRCODE = {
   UnrecognizedChain: -32603
 }
 
+export const EVM_WALLETS_CONFIG = [WALLET_NAMES.MetaMask, WALLET_NAMES.WalletConnect, WALLET_NAMES.Coinbase, WALLET_NAMES.xDefi]
+export const SOL_WALLETS_CONFIG = [WALLET_NAMES.Phantom]
+export const COSMOS_WALLETS_CONFIG = [WALLET_NAMES.Keplr]
+
 export const EVM_CHAINS = Object.keys(NETWORK_IDS).filter(chainName => NETWORK_IDS[chainName as keyof typeof NETWORK_IDS] > 0).map(chainName => NETWORK_IDS[chainName as keyof typeof NETWORK_IDS])
 export const SOL_CHAINS = [NETWORK_IDS.Solana, NETWORK_IDS.SolanaTestnet]
 export const COSMOS_CHAINS = [NETWORK_IDS.Cosmos, NETWORK_IDS.Osmosis, NETWORK_IDS.Sifchain] as const
@@ -80,6 +90,24 @@ export const cosmosChainWalletMap: { name: string; chainId: typeof COSMOS_CHAINS
   { name: 'COSMOS', chainId: NETWORK_IDS.Cosmos },
   { name: 'OSMOSIS', chainId: NETWORK_IDS.Osmosis },
   { name: 'SIF', chainId: NETWORK_IDS.Sifchain }
+]
+
+export const CHAINS_WITH_WALLET: TChainsWithWalletsLink[] = [
+  {
+    key: 'EVM',
+    chains: EVM_CHAINS,
+    wallets: EVM_WALLETS_CONFIG
+  },
+  {
+    key: 'SOL',
+    chains: SOL_CHAINS,
+    wallets: SOL_WALLETS_CONFIG
+  },
+  {
+    key: 'COSMOS',
+    chains: COSMOS_CHAINS,
+    wallets: COSMOS_WALLETS_CONFIG
+  }
 ]
 
 export const LOCAL_STORAGE_WALLETS_KEY = 'web3-wallets-data'
