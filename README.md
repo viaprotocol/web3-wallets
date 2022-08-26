@@ -29,9 +29,17 @@ yarn add @viaprotocol/web3-wallets
 
 ```tsx
 import { useContext } from 'react'
-import { WalletContext } from '@/web3-wallets'
+import { WalletContext, WalletProvider } from '@viaprotocol/web3-wallets'
 
 function App() {
+  return (
+    <WalletProvider>
+      <NestedComponent />
+    </WalletProvider>
+  )
+}
+
+function NestedComponent() {
   const { connect, isConnected, address } = useContext(WalletContext)
 
   if (!isConnected) {
@@ -39,7 +47,7 @@ function App() {
       // Select MetaMask and connect to ETH Mainnet
       <button
         type="button"
-        onClick={connect({ name: 'MetaMask', chainId: 1 })}
+        onClick={() => connect({ name: 'MetaMask', chainId: 1 })}
       >Connect wallet</button>
     )
   }

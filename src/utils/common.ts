@@ -166,8 +166,7 @@ const openLink = (url: string) => window?.open(url, '_blank')
 export const goMetamask = () => {
   if (isMobile(window.navigator).any) {
     const locationHref = window.location.href
-    let locationHrefNoProtocol = locationHref.replace('http://', '')
-    locationHrefNoProtocol = locationHrefNoProtocol.replace('https://', '')
+    const locationHrefNoProtocol = locationHref.replace(/https?:\/\//, '')
     window.location.href = `https://metamask.app.link/dapp/${locationHrefNoProtocol}`
   } else {
     openLink('https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn')
