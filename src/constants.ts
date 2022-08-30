@@ -42,7 +42,7 @@ export const NETWORK_IDS = {
   Moonbeam: 1284,
   Moonriver: 1285,
   MoonriverTestnet: 1287,
-  Fust: 122,
+  Fuse: 122,
   Cube: 1818,
   Aurora: 1313161554,
   Cronos: 25,
