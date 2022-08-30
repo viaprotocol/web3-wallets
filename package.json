@@ -37,9 +37,9 @@
     "lint:fix": "eslint . --fix",
     "package": "shx cp -R package.json ./build && shx cp -R README.md ./build",
     "publish:pre": "yarn build && yarn package",
-    "publish:yalc": "yarn build && yarn package && cd build && yalc publish --no-script --push",
-    "publish:rc": "npm version prerelease --preid=rc && yarn build && yarn package && cd build && npm publish --tag rc --access public",
-    "publish:latest": "yarn build && yarn package && cd build && npm publish --tag latest --access public"
+    "publish:yalc": "yarn publish:pre && cd build && yalc publish --no-script --push",
+    "publish:rc": "npm version prerelease --preid=rc && yarn publish:pre && cd build && npm publish --tag rc --access public",
+    "publish:latest": "yarn publish:pre && cd build && npm publish --tag latest --access public"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
