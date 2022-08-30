@@ -26,6 +26,7 @@ export const NETWORK_IDS = {
   Arbitrum: 42161,
   ArbitrumTestnet: 421611,
   Fantom: 250,
+  Astar: 592,
   FantomTestnet: 4002,
   Avalanche: 43114,
   AvalancheTestnet: 43113,
@@ -41,6 +42,7 @@ export const NETWORK_IDS = {
   Moonbeam: 1284,
   Moonriver: 1285,
   MoonriverTestnet: 1287,
+  Fuse: 122,
   Cube: 1818,
   Aurora: 1313161554,
   Cronos: 25,
@@ -76,7 +78,8 @@ export const EVM_WALLETS_CONFIG = [WALLET_NAMES.MetaMask, WALLET_NAMES.WalletCon
 export const SOL_WALLETS_CONFIG = [WALLET_NAMES.Phantom]
 export const COSMOS_WALLETS_CONFIG = [WALLET_NAMES.Keplr]
 
-export const EVM_CHAINS = Object.keys(NETWORK_IDS).filter(chainName => NETWORK_IDS[chainName as keyof typeof NETWORK_IDS] > 0).map(chainName => NETWORK_IDS[chainName as keyof typeof NETWORK_IDS])
+export const BTC_CHAINS = [NETWORK_IDS.BTC, NETWORK_IDS.Litecoin, NETWORK_IDS.BCH]
+export const EVM_CHAINS = Object.keys(NETWORK_IDS).filter(chainName => NETWORK_IDS[chainName as keyof typeof NETWORK_IDS] > 0).map(chainName => NETWORK_IDS[chainName as keyof typeof NETWORK_IDS]).concat(BTC_CHAINS)
 export const SOL_CHAINS = [NETWORK_IDS.Solana, NETWORK_IDS.SolanaTestnet]
 export const COSMOS_CHAINS = [NETWORK_IDS.Cosmos, NETWORK_IDS.Osmosis, NETWORK_IDS.Sifchain] as const
 
