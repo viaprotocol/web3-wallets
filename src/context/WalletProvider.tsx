@@ -24,6 +24,7 @@ import { INITIAL_STATE, INITIAL_WALLET_STATE, WalletContext } from './WalletCont
 import { QueryProvider } from './QueryProvider'
 import { isCosmosWallet, isEvmWallet, isSolWallet } from '@/utils/wallet'
 import { BalanceProvider } from '@/components/balance/BalanceProvider'
+import { RejectRequestError } from '@/errors'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
@@ -112,7 +113,9 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
       return true
     } catch (e: any) {
-      setWalletState(prev => ({ ...prev, Coinbase: { ...prev.Coinbase, status: WalletStatusEnum.NOT_INITED } }))
+      updateWalletState('Coinbase', { status: WalletStatusEnum.NOT_INITED })
+      setActiveWalletName(null)
+
       if (e.code === ERRCODE.UserRejected) {
         console.warn('[Wallet] User rejected the request')
         return false
@@ -152,6 +155,8 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       await provider.send('eth_requestAccounts', [])
     } catch (e: any) {
       updateWalletState('MetaMask', { status: WalletStatusEnum.NOT_INITED })
+      setActiveWalletName(null)
+
       if (e.code === ERRCODE.UserRejected) {
         console.warn('[Wallet] User rejected the request')
         return false
@@ -208,6 +213,8 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       await provider.send('eth_requestAccounts', [])
     } catch (e: any) {
       updateWalletState('xDefi', { status: WalletStatusEnum.NOT_INITED })
+      setActiveWalletName(null)
+
       if (e.code === ERRCODE.UserRejected) {
         console.warn('[Wallet] User rejected the request')
         return false
@@ -303,6 +310,8 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       return true
     } catch (err: any) {
       updateWalletState('WalletConnect', { status: WalletStatusEnum.NOT_INITED })
+      setActiveWalletName(null)
+
       if (err.toString().includes('User closed modal')) {
         return false
       }
@@ -352,6 +361,8 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       return true
     } catch (err: any) {
       updateWalletState('Phantom', { status: WalletStatusEnum.NOT_INITED })
+      setActiveWalletName(null)
+
       if (err.code === ERRCODE.UserRejected) {
         console.warn('[Wallet] User rejected the request.')
       }
@@ -409,6 +420,8 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       }
     } catch (err: any) {
       updateWalletState('Keplr', { status: WalletStatusEnum.NOT_INITED })
+      setActiveWalletName(null)
+
       console.error('[Wallet] connectWC error:', err)
       return false
     }
@@ -559,6 +572,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     updateWalletState(activeWalletNameRef.current, {
       isConnected: false,
       name: null,
+      status: WalletStatusEnum.NOT_INITED,
       provider: null,
       walletProvider: null,
       chainId: null,
@@ -702,12 +716,20 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         } catch (err: any) {
           if (err.code === ERRCODE.UserRejected) {
             console.warn('[Wallet] User rejected the request')
-            throw err // return false // todo: sendTx reject => false
+            throw new RejectRequestError()
           }
           throw err
         }
       } else if (isCosmosWallet(currentState)) {
-        return await executeCosmosTransaction(transaction as CosmosTransaction, currentState.provider)
+        try {
+          return await executeCosmosTransaction(transaction as CosmosTransaction, currentState.provider)
+        } catch (err: any) {
+          if (err?.message === 'Request rejected') {
+            console.warn('[Wallet] User rejected the request')
+            throw new RejectRequestError()
+          }
+          throw err
+        }
       } else {
         throw new Error('[Wallet] sendTx error: wallet is not supported')
       }
