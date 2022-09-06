@@ -9,6 +9,8 @@ import { Connection, Transaction, clusterApiUrl } from '@solana/web3.js'
 import type { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom'
 import type { CosmosTransaction } from 'rango-sdk/lib'
 import WalletConnectProvider from '@walletconnect/web3-provider'
+import { useSafeAppsSDK } from '@gnosis.pm/safe-apps-react-sdk'
+import { SafeAppProvider } from '@gnosis.pm/safe-apps-provider'
 import type { BigNumber } from 'ethers'
 import { ethers } from 'ethers'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
@@ -414,6 +416,59 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     }
 
     return false
+  }
+
+  const connectSafe = async (): Promise<boolean> => {
+    updateWalletState('Safe', { status: WalletStatusEnum.LOADING })
+
+    try {
+      const { sdk, safe } = useSafeAppsSDK()
+      const safeProvider = new SafeAppProvider(safe, sdk)
+      const web3Provider = new ethers.providers.Web3Provider(safeProvider, 'any')
+
+      const {
+        chainId: walletChainId,
+        address,
+        addressShort,
+        addressDomain
+      } = await fetchEvmWalletInfo(web3Provider)
+
+      safeProvider.on('disconnect', (code: number, reason: string) => {
+        console.log('safeProvider disconnected', code, reason)
+        disconnect() // todo: only clear state (without duplicate code and disconnect events)
+      })
+      safeProvider.on('chainChanged', evmChainChangeHandler)
+      safeProvider.on('accountsChanged', evmAccountChangeHandler)
+
+      updateWalletState('WalletConnect', {
+        isConnected: true,
+        status: WalletStatusEnum.READY,
+        name: WALLET_NAMES.Safe,
+        subName: null,
+        provider: web3Provider,
+        walletProvider: safeProvider,
+        chainId: walletChainId,
+        address,
+        addressShort,
+        addressDomain
+      })
+
+      localStorage.setItem('web3-wallets-name', WALLET_NAMES.Safe)
+      localStorage.setItem(
+        LOCAL_STORAGE_WALLETS_KEY,
+        JSON.stringify({
+          name: WALLET_NAMES.WalletConnect,
+          chainId,
+          address: addressDomain || addressShort
+        })
+      )
+
+      return true
+    } catch (err: any) {
+      updateWalletState('Safe', { status: WalletStatusEnum.NOT_INITED })
+      console.error('[Wallet] connectSafe error:', err)
+      throw new Error(err)
+    }
   }
 
   const connect = async ({ name, chainId }: { name: string; chainId: number }): Promise<boolean> => {
