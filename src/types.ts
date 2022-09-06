@@ -7,7 +7,7 @@ import type { Connection, Signer, Transaction } from '@solana/web3.js'
 import type WalletConnectProvider from '@walletconnect/web3-provider'
 import type { BigNumber, ethers } from 'ethers'
 import type { CosmosTransaction } from 'rango-sdk/lib'
-import type { COSMOS_WALLETS_CONFIG, EVM_WALLETS_CONFIG, SOL_WALLETS_CONFIG, WALLET_NAMES } from './constants'
+import type { BTC_CHAINS, COSMOS_CHAINS, COSMOS_WALLETS_CONFIG, EVM_WALLETS_CONFIG, SOL_WALLETS_CONFIG, WALLET_NAMES } from './constants'
 
 type TAvailableWalletNames = keyof typeof WALLET_NAMES
 type TAvailableEvmWalletNames = typeof EVM_WALLETS_CONFIG[number]
@@ -15,7 +15,7 @@ type TAvailableSolWalletNames = typeof SOL_WALLETS_CONFIG[number]
 type TAvailableCosmosWalletNames = typeof COSMOS_WALLETS_CONFIG[number]
 
 type TWalletsTypeList = TAvailableEvmWalletNames | TAvailableSolWalletNames | TAvailableCosmosWalletNames
-type TAvailableWalletsGroups = 'EVM' | 'SOL' | 'COSMOS' | 'BTC'
+type TAvailableWalletsGroups = 'EVM' | 'SOL' | 'COSMOS' | 'BTC' | 'LTC' | 'BCH'
 
 type TChainsWithWalletsLink = {
   key: TAvailableWalletsGroups
@@ -109,5 +109,8 @@ type TWallet = {
 
 type TWalletValues = typeof WALLET_NAMES[keyof typeof WALLET_NAMES]
 
-export type { TAvailableWalletNames, TWallet, TWalletStore, TWalletLocalData, TWalletValues, TAvailableEvmWalletNames, TAvailableSolWalletNames, TEvmWalletStore, TSolWalletStore, TCosmosWalletStore, TConnectedWallet, TWalletAddressesHistory, TWalletState, TChainsWithWalletsLink, TWalletsTypeList }
+type TAvailableNetworkNames = 'COSMOS' | 'OSMOSIS' | 'SIF' | 'BTC' | 'LTC' | 'BCH'
+type TChainWallet = { name: TAvailableNetworkNames; chainId: typeof COSMOS_CHAINS[number] | typeof BTC_CHAINS[number] ; network: string }
+
+export type { TAvailableWalletNames, TWallet, TWalletStore, TWalletLocalData, TWalletValues, TAvailableEvmWalletNames, TAvailableSolWalletNames, TEvmWalletStore, TSolWalletStore, TCosmosWalletStore, TConnectedWallet, TWalletAddressesHistory, TWalletState, TChainsWithWalletsLink, TWalletsTypeList, TChainWallet }
 export { WalletStatusEnum }

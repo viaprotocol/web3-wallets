@@ -14,7 +14,7 @@ import { ethers } from 'ethers'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 
 import type { Window as KeplrWindow } from '@keplr-wallet/types'
-import { ERRCODE, EVM_CHAINS, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, SOL_CHAINS, WALLET_NAMES, WALLET_SUBNAME, cosmosChainsMap } from '../constants'
+import { ERRCODE, EVM_CHAINS, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, SOL_CHAINS, WALLET_NAMES, WALLET_SUBNAME, chainWalletMap, cosmosChainWalletMap } from '../constants'
 import type { TAvailableWalletNames, TWalletLocalData, TWalletState, TWalletStore } from '../types'
 import { WalletStatusEnum } from '../types'
 import { detectNewTxFromAddress, executeCosmosTransaction, getCluster, getCosmosConnectedWallets, getDomainAddress, goKeplr, goMetamask, goPhantom, isCosmosChain, isSolChain, mapRawWalletSubName, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
@@ -24,6 +24,7 @@ import { INITIAL_STATE, INITIAL_WALLET_STATE, WalletContext } from './WalletCont
 import { QueryProvider } from './QueryProvider'
 import { isCosmosWallet, isEvmWallet, isSolWallet } from '@/utils/wallet'
 import { BalanceProvider } from '@/components/balance/BalanceProvider'
+import { getBTCConnectedWallets } from '@/utils/btc'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
@@ -200,9 +201,22 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
     updateWalletState('xDefi', { status: WalletStatusEnum.LOADING })
 
+    const xDeFiProvider = {
+      BTC: window.xfi.bitcoin,
+      LTC: window.xfi.litecoin,
+      BCH: window.xfi.bitcoincash
+    }
+
     const walletProvider = window.xfi.ethereum
 
     const provider = new ethers.providers.Web3Provider(walletProvider, 'any')
+
+    // TEST
+    const test = getBTCConnectedWallets(xDeFiProvider)
+
+    console.log('test', test)
+
+    // TEST
 
     try {
       await provider.send('eth_requestAccounts', [])
@@ -369,14 +383,18 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       if (window.keplr) {
         updateWalletState('Keplr', { status: WalletStatusEnum.LOADING })
 
-        const chainxList = Object.values(cosmosChainsMap)
-        const currentChain = cosmosChainsMap[chainId as keyof typeof cosmosChainsMap]
+        const chainList = cosmosChainWalletMap.map(chainWallet => chainWallet.network)
+        const currentChain = chainWalletMap.find(chainWallet => chainWallet.chainId === chainId)
+
+        if (!currentChain) {
+          throw new Error(`Keplr chainId ${chainId} is not supported`)
+        }
 
         const provider = window.keplr
 
-        await provider.enable(chainxList)
+        await provider.enable(chainList)
 
-        const offlineSigner = provider.getOfflineSigner(currentChain)
+        const offlineSigner = provider.getOfflineSigner(currentChain.network)
         const addressesList = await offlineSigner.getAccounts()
         const { address } = addressesList[0]
         const addressShort = shortenAddress(address)

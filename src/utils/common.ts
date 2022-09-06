@@ -15,8 +15,8 @@ import {
   SOL_CHAINS,
   WALLET_SUBNAME
 } from '../constants'
-import type { TWalletState, TWalletsTypeList } from '..'
-import { WalletStatusEnum } from '..'
+import type { TChainWallet, TConnectedWallet, TWalletState, TWalletsTypeList } from '..'
+import { BTC_CHAINS, WalletStatusEnum } from '..'
 import { checkEnsValid, parseAddressFromEnsSolana } from './solana'
 import { getNetworkById, supportedNetworkIds } from '@/networks'
 
@@ -38,6 +38,7 @@ const addressRegExpList = {
 export const isEvmChain = (chainId: number) => chainId > 0
 export const isCosmosChain = (chainId: number) => COSMOS_CHAINS.includes(chainId as any)
 export const isSolChain = (chainId: number) => SOL_CHAINS.includes(chainId as any)
+export const isBTCChain = (chainId: number) => BTC_CHAINS.includes(chainId as any)
 
 export const isValidAddress = async (chainId: number, address: string) => {
   if (isEvmChain(chainId)) {
@@ -200,4 +201,18 @@ export const getActiveWalletName = (walletState: TWalletState, chainId: number) 
   const { wallets } = walletsData
 
   return getActiveWallets(walletState, wallets)
+}
+
+export const getConnectedWallets = async (walletMap: TChainWallet[], getAccounts: (data: TChainWallet) => Promise<string[]>): Promise<TConnectedWallet[]> => {
+  const connectedWallets: TConnectedWallet[] = []
+  for (const data of walletMap) {
+    const address = await getAccounts(data)
+
+    if (!!address && address.length > 0) {
+      const { name, chainId } = data
+      connectedWallets.push({ chainId, blockchain: name, addresses: address })
+    }
+  }
+
+  return connectedWallets
 }
