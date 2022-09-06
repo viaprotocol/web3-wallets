@@ -74,12 +74,13 @@ export const ERRCODE = {
   UnrecognizedChain: -32603
 }
 
+export const BTC_WALLETS_CONFIG = [WALLET_NAMES.xDefi]
 export const EVM_WALLETS_CONFIG = [WALLET_NAMES.MetaMask, WALLET_NAMES.WalletConnect, WALLET_NAMES.Coinbase, WALLET_NAMES.xDefi]
 export const SOL_WALLETS_CONFIG = [WALLET_NAMES.Phantom]
 export const COSMOS_WALLETS_CONFIG = [WALLET_NAMES.Keplr]
 
 export const BTC_CHAINS = [NETWORK_IDS.BTC, NETWORK_IDS.Litecoin, NETWORK_IDS.BCH]
-export const EVM_CHAINS = Object.keys(NETWORK_IDS).filter(chainName => NETWORK_IDS[chainName as keyof typeof NETWORK_IDS] > 0).map(chainName => NETWORK_IDS[chainName as keyof typeof NETWORK_IDS]).concat(BTC_CHAINS)
+export const EVM_CHAINS = Object.keys(NETWORK_IDS).filter(chainName => NETWORK_IDS[chainName as keyof typeof NETWORK_IDS] > 0).map(chainName => NETWORK_IDS[chainName as keyof typeof NETWORK_IDS])
 export const SOL_CHAINS = [NETWORK_IDS.Solana, NETWORK_IDS.SolanaTestnet]
 export const COSMOS_CHAINS = [NETWORK_IDS.Cosmos, NETWORK_IDS.Osmosis, NETWORK_IDS.Sifchain] as const
 
@@ -96,6 +97,11 @@ export const cosmosChainWalletMap: { name: string; chainId: typeof COSMOS_CHAINS
 ]
 
 export const CHAINS_WITH_WALLET: TChainsWithWalletsLink[] = [
+  {
+    key: 'BTC',
+    chains: BTC_CHAINS,
+    wallets: BTC_WALLETS_CONFIG
+  },
   {
     key: 'EVM',
     chains: EVM_CHAINS,

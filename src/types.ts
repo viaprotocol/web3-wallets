@@ -15,7 +15,7 @@ type TAvailableSolWalletNames = typeof SOL_WALLETS_CONFIG[number]
 type TAvailableCosmosWalletNames = typeof COSMOS_WALLETS_CONFIG[number]
 
 type TWalletsTypeList = TAvailableEvmWalletNames | TAvailableSolWalletNames | TAvailableCosmosWalletNames
-type TAvailableWalletsGroups = 'EVM' | 'SOL' | 'COSMOS'
+type TAvailableWalletsGroups = 'EVM' | 'SOL' | 'COSMOS' | 'BTC'
 
 type TChainsWithWalletsLink = {
   key: TAvailableWalletsGroups
