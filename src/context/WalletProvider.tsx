@@ -427,7 +427,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       const web3Provider = new ethers.providers.Web3Provider(safeProvider, 'any')
 
       const {
-        chainId: walletChainId,
+        chainId,
         address,
         addressShort,
         addressDomain
@@ -447,7 +447,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         subName: null,
         provider: web3Provider,
         walletProvider: safeProvider,
-        chainId: walletChainId,
+        chainId,
         address,
         addressShort,
         addressDomain
