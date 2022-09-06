@@ -426,12 +426,18 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       const safeProvider = new SafeAppProvider(safe, sdk)
       const web3Provider = new ethers.providers.Web3Provider(safeProvider, 'any')
 
+      console.log('safeProvider', safeProvider)
+      console.log('web3Provider', web3Provider)
+
       const {
         chainId,
         address,
         addressShort,
         addressDomain
       } = await fetchEvmWalletInfo(web3Provider)
+
+      console.log('chainId', chainId)
+      console.log('address', address)
 
       safeProvider.on('disconnect', (code: number, reason: string) => {
         console.log('safeProvider disconnected', code, reason)
@@ -532,6 +538,12 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
   const restore = async () => {
     console.log('Wallet.restore()')
+
+    const isSafeAutoconnected = await connectSafe()
+    if (isSafeAutoconnected) {
+      return
+    }
+
     const walletData = localStorage.getItem(LOCAL_STORAGE_WALLETS_KEY)
 
     if (walletData) {
