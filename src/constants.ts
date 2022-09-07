@@ -1,5 +1,4 @@
 import type { TChainWallet, TChainsWithWalletsLink } from './types'
-import { isBTCChain, isCosmosChain } from './utils'
 
 export const WALLET_NAMES = {
   WalletConnect: 'WalletConnect',
@@ -85,6 +84,13 @@ export const EVM_CHAINS = Object.keys(NETWORK_IDS).filter(chainName => NETWORK_I
 export const SOL_CHAINS = [NETWORK_IDS.Solana, NETWORK_IDS.SolanaTestnet]
 export const COSMOS_CHAINS = [NETWORK_IDS.Cosmos, NETWORK_IDS.Osmosis, NETWORK_IDS.Sifchain] as const
 
+export const isEvmChain = (chainId: number) => chainId > 0
+export const isCosmosChain = (chainId: number) => COSMOS_CHAINS.includes(chainId as any)
+export const isSolChain = (chainId: number) => SOL_CHAINS.includes(chainId as any)
+export const isBTCChain = (chainId: number) => BTC_CHAINS.includes(chainId as any)
+
+export const AVAILABLE_WALLETS_GROUPS_CONFIG = ['EVM', 'SOL', 'COSMOS', 'BTC', 'LTC', 'BCH'] as const
+
 export const chainWalletMap: TChainWallet[] = [
   { name: 'COSMOS', chainId: NETWORK_IDS.Cosmos, network: 'cosmoshub-4' },
   { name: 'OSMOSIS', chainId: NETWORK_IDS.Osmosis, network: 'osmosis-1' },
@@ -94,30 +100,34 @@ export const chainWalletMap: TChainWallet[] = [
   { name: 'BCH', chainId: NETWORK_IDS.BCH, network: 'bitcoincash' }
 ]
 
-export const cosmosChainWalletMap = chainWalletMap.filter(chainWallet => isCosmosChain(chainWallet.chainId))
+export const cosmosChainWalletMap = chainWalletMap.filter(chainWallet => COSMOS_CHAINS.includes(chainWallet.chainId as any))
 
-export const btcChainWalletMap = chainWalletMap.filter(chainWallet => isBTCChain(chainWallet.chainId))
+export const btcChainWalletMap = chainWalletMap.filter(chainWallet => BTC_CHAINS.includes(chainWallet.chainId as any))
 
 export const CHAINS_WITH_WALLET: TChainsWithWalletsLink[] = [
   {
     key: 'BTC',
     chains: BTC_CHAINS,
-    wallets: BTC_WALLETS_CONFIG
+    wallets: BTC_WALLETS_CONFIG,
+    validate: isBTCChain
   },
   {
     key: 'EVM',
     chains: EVM_CHAINS,
-    wallets: EVM_WALLETS_CONFIG
+    wallets: EVM_WALLETS_CONFIG,
+    validate: isEvmChain
   },
   {
     key: 'SOL',
     chains: SOL_CHAINS,
-    wallets: SOL_WALLETS_CONFIG
+    wallets: SOL_WALLETS_CONFIG,
+    validate: isSolChain
   },
   {
     key: 'COSMOS',
     chains: COSMOS_CHAINS,
-    wallets: COSMOS_WALLETS_CONFIG
+    wallets: COSMOS_WALLETS_CONFIG,
+    validate: isCosmosChain
   }
 ]
 

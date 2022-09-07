@@ -12,11 +12,11 @@ import {
   NETWORK_IDS,
   SOLANA_BASE_TOKEN_ADDRESS,
   SOLANA_ENS_POSTFIX,
-  SOL_CHAINS,
-  WALLET_SUBNAME
+  WALLET_SUBNAME,
+  isEvmChain
 } from '../constants'
 import type { TChainWallet, TConnectedWallet, TWalletState, TWalletsTypeList } from '..'
-import { BTC_CHAINS, WalletStatusEnum } from '..'
+import { WalletStatusEnum } from '..'
 import { checkEnsValid, parseAddressFromEnsSolana } from './solana'
 import { getNetworkById, supportedNetworkIds } from '@/networks'
 
@@ -34,11 +34,6 @@ const addressRegExpList = {
   [NETWORK_IDS.Litecoin]: /^(L|M|3)[A-Za-z0-9]{33}$|^(ltc1)[0-9A-Za-z]{39}$/,
   [NETWORK_IDS.BCH]: /^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$|^[0-9A-Za-z]{42,42}$/
 }
-
-export const isEvmChain = (chainId: number) => chainId > 0
-export const isCosmosChain = (chainId: number) => COSMOS_CHAINS.includes(chainId as any)
-export const isSolChain = (chainId: number) => SOL_CHAINS.includes(chainId as any)
-export const isBTCChain = (chainId: number) => BTC_CHAINS.includes(chainId as any)
 
 export const isValidAddress = async (chainId: number, address: string) => {
   if (isEvmChain(chainId)) {
@@ -216,3 +211,5 @@ export const getConnectedWallets = async (walletMap: TChainWallet[], getAccounts
 
   return connectedWallets
 }
+
+export const getAddresesInfo = (connectedWallets: TConnectedWallet[]) => connectedWallets.reduce((acc, { addresses, chainId }) => ({ ...acc, [addresses[0]]: [chainId] }), {})

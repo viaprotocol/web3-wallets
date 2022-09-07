@@ -14,10 +14,10 @@ import { ethers } from 'ethers'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 
 import type { Window as KeplrWindow } from '@keplr-wallet/types'
-import { ERRCODE, EVM_CHAINS, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, SOL_CHAINS, WALLET_NAMES, WALLET_SUBNAME, chainWalletMap, cosmosChainWalletMap } from '../constants'
+import { ERRCODE, EVM_CHAINS, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, SOL_CHAINS, WALLET_NAMES, WALLET_SUBNAME, chainWalletMap, cosmosChainWalletMap, isCosmosChain, isSolChain } from '../constants'
 import type { TAvailableWalletNames, TWalletLocalData, TWalletState, TWalletStore } from '../types'
 import { WalletStatusEnum } from '../types'
-import { detectNewTxFromAddress, executeCosmosTransaction, getCluster, getCosmosConnectedWallets, getDomainAddress, goKeplr, goMetamask, goPhantom, isCosmosChain, isSolChain, mapRawWalletSubName, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
+import { detectNewTxFromAddress, executeCosmosTransaction, getActiveWalletName, getAddresesInfo, getCluster, getCosmosConnectedWallets, getDomainAddress, goKeplr, goMetamask, goPhantom, mapRawWalletSubName, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
 import { getNetworkById, rpcMapping } from '../networks'
 import { useWalletAddressesHistory } from '../hooks'
 import { INITIAL_STATE, INITIAL_WALLET_STATE, WalletContext } from './WalletContext'
@@ -211,13 +211,6 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
     const provider = new ethers.providers.Web3Provider(walletProvider, 'any')
 
-    // TEST
-    const test = getBTCConnectedWallets(xDeFiProvider)
-
-    console.log('test', test)
-
-    // TEST
-
     try {
       await provider.send('eth_requestAccounts', [])
     } catch (e: any) {
@@ -235,11 +228,21 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     walletProvider.on('chainChanged', evmChainChangeHandler as any)
     walletProvider.on('accountsChanged', evmAccountChangeHandler as any)
 
+    const connectedWallets = await getBTCConnectedWallets(xDeFiProvider)
+    const addresesInfo = getAddresesInfo(connectedWallets)
+
+    console.log('connectedWallets', connectedWallets)
+    console.log('addresesInfo', addresesInfo)
+
+    addWalletAddress(addresesInfo)
+    addWalletAddress({ [address]: EVM_CHAINS })
+
     updateWalletState('xDefi', {
       isConnected: true,
       status: WalletStatusEnum.READY,
       name: WALLET_NAMES.xDefi,
       provider,
+      connectedWallets: [...state.connectedWallets, ...connectedWallets],
       walletProvider,
       chainId: walletChainId,
       address,
@@ -399,7 +402,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         const { address } = addressesList[0]
         const addressShort = shortenAddress(address)
         const connectedWallets = await getCosmosConnectedWallets(provider)
-        const addresesInfo = connectedWallets.reduce((acc, { addresses, chainId }) => ({ ...acc, [addresses[0]]: [chainId] }), {})
+        const addresesInfo = getAddresesInfo(connectedWallets)
 
         addWalletAddress(addresesInfo)
         updateWalletState('Keplr', {
@@ -646,11 +649,11 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     transaction: TransactionRequest | Transaction | CosmosTransaction,
     params?: {
       signers?: Signer[]
-      walletName?: TAvailableWalletNames
+      fromChainId?: number
     }
   ): Promise<string> => {
-    const { walletName } = params || {}
-    const currentName = walletName || activeWalletNameRef.current
+    const { fromChainId } = params || {}
+    const currentName = fromChainId ? getActiveWalletName(walletState, fromChainId) : activeWalletNameRef.current
 
     if (!currentName) {
       throw new Error('[Wallet] sendTx error: no wallet name')

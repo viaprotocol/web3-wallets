@@ -1,28 +1,28 @@
-import { cosmosChainWalletMap } from '@/constants'
+import type { TWalletInfo } from './types'
+import { AVAILABLE_WALLETS_GROUPS_CONFIG, CHAINS_WITH_WALLET, chainWalletMap, cosmosChainWalletMap } from '@/constants'
 import type { TWalletAddressesHistory } from '@/types'
-import { isCosmosChain } from '@/utils'
 
 const getWalletsByGroup = (walletAddressesHistory: TWalletAddressesHistory) => {
-  const cosmosWallets = []
-  const nonCosmosWallets = []
+  const output: TWalletInfo = AVAILABLE_WALLETS_GROUPS_CONFIG.reduce(
+    (acc, key) => ({ ...acc, [key]: [] }), {} as TWalletInfo
+  )
 
   for (const chainData of Object.entries(walletAddressesHistory)) {
     const [, chains] = chainData
-    // Address would have at least one chainId
-    if (isCosmosChain(chains[0])) {
-      cosmosWallets.push(chainData)
-    } else {
-      nonCosmosWallets.push(chainData)
+    const validChainWalletData = CHAINS_WITH_WALLET.find(({ validate }) => validate(chains[0]))
+
+    if (validChainWalletData) {
+      output[validChainWalletData.key].push(chainData)
     }
   }
 
-  return [cosmosWallets, nonCosmosWallets]
+  return output
 }
 
 const convertAddressHistoryToConnectedWallets = (walletAddressesHistory: TWalletAddressesHistory) => {
   return Object.entries(walletAddressesHistory).map(([historyAddress, chains]) => {
     const chain: number = chains[0]
-    const data = cosmosChainWalletMap.find(({ chainId }) => chainId === chain)
+    const data = chainWalletMap.find(({ chainId }) => chainId === chain)
 
     if (!data) {
       throw new Error(`convertAddressHistoryToConnectedWallets: not found name for chain ${chain}`)
