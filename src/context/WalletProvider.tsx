@@ -427,6 +427,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
   }
 
   const connectSafe = async (): Promise<boolean> => {
+    updateActiveWalletName('Safe')
     updateWalletState('Safe', { status: WalletStatusEnum.LOADING })
 
     try {
