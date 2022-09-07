@@ -493,6 +493,8 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       return true
     } catch (err: any) {
       updateWalletState('Safe', { status: WalletStatusEnum.NOT_INITED })
+      setActiveWalletName(null)
+
       console.error('[Wallet] connectSafe error:', err)
       throw new Error(err)
     }
