@@ -45,6 +45,8 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
   const [walletState, setWalletState] = useState<TWalletState>(INITIAL_WALLET_STATE)
   const [walletAddressesHistory, addWalletAddress] = useWalletAddressesHistory()
 
+  const { sdk: safeSdk, safe: safeInfo } = useSafeAppsSDK()
+
   const state = useMemo(() => {
     if (activeWalletNameRef.current) {
       return walletState[activeWalletNameRef.current]
@@ -428,8 +430,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     updateWalletState('Safe', { status: WalletStatusEnum.LOADING })
 
     try {
-      const { sdk, safe } = useSafeAppsSDK()
-      const safeProvider = new SafeAppProvider(safe, sdk)
+      const safeProvider = new SafeAppProvider(safeInfo, safeSdk)
       const web3Provider = new ethers.providers.Web3Provider(safeProvider, 'any')
 
       console.log('safeProvider', safeProvider)
