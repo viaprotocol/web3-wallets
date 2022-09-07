@@ -91,6 +91,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
       updateWalletState('Coinbase', {
         isConnected: true,
+        isDisconnectable: true,
         status: WalletStatusEnum.READY,
         name: WALLET_NAMES.Coinbase,
         provider,
@@ -171,6 +172,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
     updateWalletState('MetaMask', {
       isConnected: true,
+      isDisconnectable: true,
       status: WalletStatusEnum.READY,
       name: WALLET_NAMES.MetaMask,
       provider,
@@ -225,6 +227,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
     updateWalletState('xDefi', {
       isConnected: true,
+      isDisconnectable: true,
       status: WalletStatusEnum.READY,
       name: WALLET_NAMES.xDefi,
       provider,
@@ -280,6 +283,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
       updateWalletState('WalletConnect', {
         isConnected: true,
+        isDisconnectable: true,
         status: WalletStatusEnum.READY,
         name: WALLET_NAMES.WalletConnect,
         subName,
@@ -331,6 +335,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       addWalletAddress({ [address]: SOL_CHAINS })
       updateWalletState('Phantom', {
         isConnected: true,
+        isDisconnectable: true,
         status: WalletStatusEnum.READY,
         name: 'Phantom',
         provider,
@@ -388,6 +393,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         addWalletAddress(addresesInfo)
         updateWalletState('Keplr', {
           isConnected: true,
+          isDisconnectable: true,
           status: WalletStatusEnum.READY,
           connectedWallets,
           name: 'Keplr',
@@ -446,8 +452,9 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       safeProvider.on('chainChanged', evmChainChangeHandler)
       safeProvider.on('accountsChanged', evmAccountChangeHandler)
 
-      updateWalletState('WalletConnect', {
+      updateWalletState('Safe', {
         isConnected: true,
+        isDisconnectable: false,
         status: WalletStatusEnum.READY,
         name: WALLET_NAMES.Safe,
         subName: null,
@@ -625,6 +632,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
     updateWalletState(activeWalletNameRef.current, {
       isConnected: false,
+      isDisconnectable: false,
       name: null,
       provider: null,
       walletProvider: null,
@@ -869,6 +877,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
   const providerState = useMemo(() => ({
     isConnected: state.isConnected,
+    isDisconnectable: state.isDisconnectable,
     walletAddressesHistory,
     status: state.status,
     name: state.name,

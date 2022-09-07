@@ -45,6 +45,7 @@ type TWalletAddressesHistory = {
 type TWalletStateDefault = {
   connectedWallets: TConnectedWallet[]
   isConnected: boolean
+  isDisconnectable: boolean
   status: WalletStatusEnum
   subName: null | string
   walletProvider: WalletConnectProvider | MetaMaskInpageProvider | CoinbaseWalletProvider | SafeAppProvider | null
