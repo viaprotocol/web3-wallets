@@ -1,6 +1,8 @@
 import type { TWalletInfo } from './types'
-import { AVAILABLE_WALLETS_GROUPS_CONFIG, CHAINS_WITH_WALLET, chainWalletMap, cosmosChainWalletMap } from '@/constants'
+import { AVAILABLE_WALLETS_GROUPS_CONFIG, CHAINS_WITH_WALLET, chainWalletMap } from '@/constants'
 import type { TWalletAddressesHistory } from '@/types'
+
+const getWalletInfoByChainId = (chainId: number) => CHAINS_WITH_WALLET.find(({ validate }) => validate(chainId))
 
 const getWalletsByGroup = (walletAddressesHistory: TWalletAddressesHistory) => {
   const output: TWalletInfo = AVAILABLE_WALLETS_GROUPS_CONFIG.reduce(
@@ -9,7 +11,7 @@ const getWalletsByGroup = (walletAddressesHistory: TWalletAddressesHistory) => {
 
   for (const chainData of Object.entries(walletAddressesHistory)) {
     const [, chains] = chainData
-    const validChainWalletData = CHAINS_WITH_WALLET.find(({ validate }) => validate(chains[0]))
+    const validChainWalletData = getWalletInfoByChainId(chains[0])
 
     if (validChainWalletData) {
       output[validChainWalletData.key].push(chainData)
@@ -42,4 +44,4 @@ const getHistoryAddressByChaindId = (walletAddressesHistory: TWalletAddressesHis
   return walletData[0]
 }
 
-export { getWalletsByGroup, convertAddressHistoryToConnectedWallets, getHistoryAddressByChaindId }
+export { getWalletsByGroup, convertAddressHistoryToConnectedWallets, getHistoryAddressByChaindId, getWalletInfoByChainId }

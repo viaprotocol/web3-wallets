@@ -19,17 +19,19 @@ import type { TAvailableWalletNames, TWalletLocalData, TWalletState, TWalletStor
 import { WalletStatusEnum } from '../types'
 import { detectNewTxFromAddress, executeCosmosTransaction, getActiveWalletName, getAddresesInfo, getCluster, getCosmosConnectedWallets, getDomainAddress, goKeplr, goMetamask, goPhantom, mapRawWalletSubName, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
 import { getNetworkById, rpcMapping } from '../networks'
-import { useWalletAddressesHistory } from '../hooks'
+import { getWalletInfoByChainId, useWalletAddressesHistory } from '../hooks'
 import { INITIAL_STATE, INITIAL_WALLET_STATE, WalletContext } from './WalletContext'
 import { QueryProvider } from './QueryProvider'
-import { isCosmosWallet, isEvmWallet, isSolWallet } from '@/utils/wallet'
+import type { TXDeFiWeb3Provider } from './types'
+import { isBTClikeWallet, isCosmosWallet, isEvmWallet, isSolWallet } from '@/utils/wallet'
 import { BalanceProvider } from '@/components/balance/BalanceProvider'
 import { getBTCConnectedWallets } from '@/utils/btc'
+import { XDeFi } from '@/provider'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface Window extends KeplrWindow {
-    xfi: any
+    xfi: TXDeFiWeb3Provider
     solana: PhantomWalletAdapter & { isPhantom?: boolean }
   }
 }
@@ -201,13 +203,8 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
     updateWalletState('xDefi', { status: WalletStatusEnum.LOADING })
 
-    const xDeFiProvider = {
-      BTC: window.xfi.bitcoin,
-      LTC: window.xfi.litecoin,
-      BCH: window.xfi.bitcoincash
-    }
-
-    const walletProvider = window.xfi.ethereum
+    const xDeFiProvider = new XDeFi(window.xfi)
+    const walletProvider = xDeFiProvider.getProviderByKey('ETH').getProvider()
 
     const provider = new ethers.providers.Web3Provider(walletProvider, 'any')
 
@@ -231,9 +228,6 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     const connectedWallets = await getBTCConnectedWallets(xDeFiProvider)
     const addresesInfo = getAddresesInfo(connectedWallets)
 
-    console.log('connectedWallets', connectedWallets)
-    console.log('addresesInfo', addresesInfo)
-
     addWalletAddress(addresesInfo)
     addWalletAddress({ [address]: EVM_CHAINS })
 
@@ -241,7 +235,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       isConnected: true,
       status: WalletStatusEnum.READY,
       name: WALLET_NAMES.xDefi,
-      provider,
+      provider: xDeFiProvider,
       connectedWallets: [...state.connectedWallets, ...connectedWallets],
       walletProvider,
       chainId: walletChainId,
@@ -729,6 +723,16 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         }
       } else if (isCosmosWallet(currentState)) {
         return await executeCosmosTransaction(transaction as CosmosTransaction, currentState.provider)
+      } else if (isBTClikeWallet(currentState) && fromChainId) {
+        const walletInfo = getWalletInfoByChainId(fromChainId)
+        const provider = currentState.provider.getProviderByChainId(fromChainId)
+
+        if (!walletInfo || !provider) {
+          throw new Error(`[Wallet] sendTx error: no wallet info for chainId ${fromChainId}`)
+        }
+
+        // @ts-expect-error
+        provider.signTransaction(transaction)
       } else {
         throw new Error('[Wallet] sendTx error: wallet is not supported')
       }
