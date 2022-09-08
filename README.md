@@ -66,6 +66,7 @@ function NestedComponent() {
 - Phantom (Solana)
 - Keplr (Cosmos, Osmosis, Astar)
 - xDeFi (EVM networks, Bitcoin, Bitcoin Cash, Litecoin)
+- Safe (aka Gnosis Safe Multisig Wallet)
 
 
 ## Local development
