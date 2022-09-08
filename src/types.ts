@@ -9,6 +9,7 @@ import type { BigNumber, ethers } from 'ethers'
 import type { CosmosTransaction } from 'rango-sdk/lib'
 import type { AVAILABLE_WALLETS_GROUPS_CONFIG, BTC_CHAINS, BTC_WALLETS_CONFIG, COSMOS_CHAINS, COSMOS_WALLETS_CONFIG, EVM_WALLETS_CONFIG, SOL_WALLETS_CONFIG, WALLET_NAMES } from './constants'
 import type { XDeFi } from './provider'
+import type { BTClikeTransaction } from './provider/xDeFi/types'
 
 type TAvailableWalletNames = keyof typeof WALLET_NAMES
 type TAvailableEvmWalletNames = typeof EVM_WALLETS_CONFIG[number]
@@ -100,7 +101,7 @@ type TWallet = {
   connect: ({ name, chainId }: { name: any; chainId: any }) => Promise<boolean>
   changeNetwork: (chainId: number) => Promise<boolean>
   sendTx: (
-    transaction: TransactionRequest | Transaction | CosmosTransaction,
+    transaction: TransactionRequest | Transaction | CosmosTransaction | BTClikeTransaction,
     options?: {
       signers?: Signer[]
       fromChainId?: number

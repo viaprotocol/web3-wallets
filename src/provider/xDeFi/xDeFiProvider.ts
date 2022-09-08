@@ -1,10 +1,12 @@
-class XDeFiProvider {
-  constructor(provider: any, chains: number[]) {
+import type { BTClikeTransaction } from './types'
+
+class XDeFiProvider<ProviderType extends { request: any } = any> {
+  constructor(provider: ProviderType, chains: number[]) {
     this.provider = provider
     this.chains = chains
   }
 
-  private provider: any = null
+  private provider: ProviderType | null = null
   private chains: number[] = []
 
   getProvider = () => {
@@ -19,31 +21,26 @@ class XDeFiProvider {
     return this.chains.includes(chainId)
   }
 
-  getAccounts = async (): Promise<string[]> => {
+  getAccounts = () => {
+    return this.request<string[]>('request_accounts', [])
+  }
+
+  transfer = (transaction: BTClikeTransaction) => {
+    const { fromWalletAddress, recipientAddress, amount, decimals, memo } = transaction
+    const formattedAmount = Number(amount) * 10 ** decimals
+    console.log('recipient', { from: fromWalletAddress, recipient: recipientAddress, amount: formattedAmount, memo })
+    return this.request<string>('transfer', [{ from: fromWalletAddress, recipient: recipientAddress, amount: formattedAmount, memo }])
+  }
+
+  request = <OutputType = any>(method: string, data: any): Promise<OutputType> => {
     return new Promise((resolve, reject) => {
-      if (!window.xfi.bitcoin) {
-        resolve([])
-        return
+      if (!this.provider) {
+        return reject()
       }
 
       this.provider.request(
-        { method: 'request_accounts', params: [] },
-        (error: any, accounts: any) => {
-          if (error) {
-            reject(error)
-          }
-
-          resolve(accounts)
-        }
-      )
-    })
-  }
-
-  request = (method: string, data: any) => {
-    return new Promise((resolve, reject) => {
-      this.provider.request(
         { method, params: data },
-        (error: any, result: any) => {
+        (error: any, result: OutputType) => {
           if (error) {
             reject(error)
           }
@@ -55,7 +52,7 @@ class XDeFiProvider {
   }
 
   signTransaction = (hash: string) => {
-    return this.request('sign_transaction', [hash])
+    return this.request<string>('sign_transaction', [hash])
   }
 }
 

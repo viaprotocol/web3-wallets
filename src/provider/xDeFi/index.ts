@@ -1,2 +1,2 @@
 export * from './xDeFiProvider'
-export * from './XDeFi'
+export * from './xDeFi'

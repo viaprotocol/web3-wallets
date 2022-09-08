@@ -1,3 +1,4 @@
+import type { Web3Provider } from '@coinbase/wallet-sdk/dist/provider/Web3Provider'
 import type { TProviderType, TXDeFiAvailableProviders } from './types'
 import { XDeFiProvider } from './xDeFiProvider'
 import { EVM_CHAINS, NETWORK_IDS } from '@/constants'
@@ -7,7 +8,7 @@ class XDeFi {
   constructor(provider: TXDeFiWeb3Provider) {
     this.providers = {
       BTC: new XDeFiProvider(provider.bitcoin, [NETWORK_IDS.BTC]),
-      ETH: new XDeFiProvider(provider.ethereum, EVM_CHAINS),
+      ETH: new XDeFiProvider<Web3Provider>(provider.ethereum, EVM_CHAINS),
       BCH: new XDeFiProvider(provider.bitcoincash, [NETWORK_IDS.BCH]),
       LTC: new XDeFiProvider(provider.litecoin, [NETWORK_IDS.Litecoin])
     }

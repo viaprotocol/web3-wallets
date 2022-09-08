@@ -27,6 +27,7 @@ import { isBTClikeWallet, isCosmosWallet, isEvmWallet, isSolWallet } from '@/uti
 import { BalanceProvider } from '@/components/balance/BalanceProvider'
 import { getBTCConnectedWallets } from '@/utils/btc'
 import { XDeFi } from '@/provider'
+import type { BTClikeTransaction } from '@/provider/xDeFi/types'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
@@ -640,7 +641,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
   }
 
   const sendTx = async (
-    transaction: TransactionRequest | Transaction | CosmosTransaction,
+    transaction: TransactionRequest | Transaction | CosmosTransaction | BTClikeTransaction,
     params?: {
       signers?: Signer[]
       fromChainId?: number
@@ -691,7 +692,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
           console.log(`https://solscan.io/tx/${signature}${cluster === 'testnet' ? '?cluster=testnet' : ''}`)
         })()
         return signature
-      } else if (isEvmWallet(currentState)) {
+      } else if (isEvmWallet(currentState, fromChainId)) {
         // EVM tx
         const signer = currentState.provider!.getSigner()
         const tx = transaction as TransactionRequest
@@ -721,9 +722,9 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
           }
           throw err
         }
-      } else if (isCosmosWallet(currentState)) {
+      } else if (isCosmosWallet(currentState, fromChainId)) {
         return await executeCosmosTransaction(transaction as CosmosTransaction, currentState.provider)
-      } else if (isBTClikeWallet(currentState) && fromChainId) {
+      } else if (isBTClikeWallet(currentState, fromChainId) && fromChainId) {
         const walletInfo = getWalletInfoByChainId(fromChainId)
         const provider = currentState.provider.getProviderByChainId(fromChainId)
 
@@ -731,8 +732,11 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
           throw new Error(`[Wallet] sendTx error: no wallet info for chainId ${fromChainId}`)
         }
 
-        // @ts-expect-error
-        provider.signTransaction(transaction)
+        const result = await provider.transfer(transaction as BTClikeTransaction)
+
+        console.log('result!', result)
+
+        return result
       } else {
         throw new Error('[Wallet] sendTx error: wallet is not supported')
       }
