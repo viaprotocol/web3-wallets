@@ -65,7 +65,7 @@
     "@coinbase/wallet-sdk": "^3.3.0",
     "@cosmjs/stargate": "^0.27.0",
     "@gnosis.pm/safe-apps-provider": "^0.13.1",
-    "@gnosis.pm/safe-apps-react-sdk": "^4.6.2",
+    "@gnosis.pm/safe-apps-sdk": "^7.8.0",
     "@keplr-wallet/cosmos": "^0.9.9",
     "@keplr-wallet/types": "^0.10.13",
     "@metamask/providers": "^8.1.1",

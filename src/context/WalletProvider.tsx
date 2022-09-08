@@ -9,7 +9,7 @@ import { Connection, Transaction, clusterApiUrl } from '@solana/web3.js'
 import type { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom'
 import type { CosmosTransaction } from 'rango-sdk/lib'
 import WalletConnectProvider from '@walletconnect/web3-provider'
-import { useSafeAppsSDK } from '@gnosis.pm/safe-apps-react-sdk'
+import SafeAppsSDK from '@gnosis.pm/safe-apps-sdk'
 import { SafeAppProvider } from '@gnosis.pm/safe-apps-provider'
 import type { BigNumber } from 'ethers'
 import { ethers } from 'ethers'
@@ -35,6 +35,8 @@ declare global {
   }
 }
 
+console.log('TEST4')
+
 const WalletProvider = function WalletProvider({ children }: { children: React.ReactNode }) {
   const activeWalletNameRef = useRef<TAvailableWalletNames | null>(null)
 
@@ -44,8 +46,6 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
   const [walletState, setWalletState] = useState<TWalletState>(INITIAL_WALLET_STATE)
   const [walletAddressesHistory, addWalletAddress] = useWalletAddressesHistory()
-
-  const { sdk: safeSdk, safe: safeInfo } = useSafeAppsSDK()
 
   const state = useMemo(() => {
     if (activeWalletNameRef.current) {
@@ -439,10 +439,24 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
   }
 
   const connectSafe = async (): Promise<boolean> => {
+    console.log('connectSafe')
+
     updateActiveWalletName('Safe')
     updateWalletState('Safe', { status: WalletStatusEnum.LOADING })
 
     try {
+      type Opts = {
+        allowedDomains?: RegExp[]
+        debug?: boolean
+      }
+
+      const opts: Opts = {
+        allowedDomains: [/gnosis-safe.io/],
+        debug: false
+      }
+
+      const safeSdk = new SafeAppsSDK(opts)
+      const safeInfo = await safeSdk.safe.getInfo()
       const safeProvider = new SafeAppProvider(safeInfo, safeSdk)
       const web3Provider = new ethers.providers.Web3Provider(safeProvider, 'any')
 
