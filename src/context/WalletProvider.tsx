@@ -116,7 +116,9 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
       return true
     } catch (e: any) {
-      setWalletState(prev => ({ ...prev, Coinbase: { ...prev.Coinbase, status: WalletStatusEnum.NOT_INITED } }))
+      updateWalletState('Coinbase', { status: WalletStatusEnum.NOT_INITED })
+      setActiveWalletName(null)
+
       if (e.code === ERRCODE.UserRejected) {
         console.warn('[Wallet] User rejected the request')
         return false
@@ -156,6 +158,8 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       await provider.send('eth_requestAccounts', [])
     } catch (e: any) {
       updateWalletState('MetaMask', { status: WalletStatusEnum.NOT_INITED })
+      setActiveWalletName(null)
+
       if (e.code === ERRCODE.UserRejected) {
         console.warn('[Wallet] User rejected the request')
         return false
@@ -213,6 +217,8 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       await provider.send('eth_requestAccounts', [])
     } catch (e: any) {
       updateWalletState('xDefi', { status: WalletStatusEnum.NOT_INITED })
+      setActiveWalletName(null)
+
       if (e.code === ERRCODE.UserRejected) {
         console.warn('[Wallet] User rejected the request')
         return false
@@ -315,6 +321,8 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       return true
     } catch (err: any) {
       updateWalletState('WalletConnect', { status: WalletStatusEnum.NOT_INITED })
+      setActiveWalletName(null)
+
       if (err.toString().includes('User closed modal')) {
         return false
       }
@@ -364,6 +372,8 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       return true
     } catch (err: any) {
       updateWalletState('Phantom', { status: WalletStatusEnum.NOT_INITED })
+      setActiveWalletName(null)
+
       if (err.code === ERRCODE.UserRejected) {
         console.warn('[Wallet] User rejected the request.')
       }
@@ -425,6 +435,8 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       }
     } catch (err: any) {
       updateWalletState('Keplr', { status: WalletStatusEnum.NOT_INITED })
+      setActiveWalletName(null)
+
       console.error('[Wallet] connectWC error:', err)
       return false
     }
@@ -577,6 +589,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       name: null,
       provider: null,
       walletProvider: null,
+      status: WalletStatusEnum.NOT_INITED,
       chainId: null,
       address: null,
       addressShort: null,
@@ -698,10 +711,10 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         const tx = transaction as TransactionRequest
 
         try {
-          // EVM + Gnosis Safe tx
-          if (currentState.name === WALLET_NAMES.WalletConnect && currentState.subName === WALLET_SUBNAME.GnosisSafe && currentState.walletProvider instanceof WalletConnectProvider) {
+          // EVM + Safe tx
+          if (currentState.name === WALLET_NAMES.WalletConnect && currentState.subName === WALLET_SUBNAME.Safe && currentState.walletProvider instanceof WalletConnectProvider) {
           /*
-            Gnosis Safe cannot immediately return the transaction by design.
+            Safe cannot immediately return the transaction by design.
             Multi-signature can be done much later.
             It remains only to wait for the appearance of a new transaction from the sender's address (detectNewTxFromAddress)
           */
