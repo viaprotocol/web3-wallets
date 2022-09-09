@@ -439,24 +439,19 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
   }
 
   const connectSafe = async (): Promise<boolean> => {
-    console.log('connectSafe')
+    console.log('connectSafe...')
 
     updateActiveWalletName('Safe')
     updateWalletState('Safe', { status: WalletStatusEnum.LOADING })
 
     try {
-      type Opts = {
-        allowedDomains?: RegExp[]
-        debug?: boolean
-      }
-
-      const opts: Opts = {
+      const safeSdk = new SafeAppsSDK({
         allowedDomains: [/gnosis-safe.io/],
         debug: false
-      }
-
-      const safeSdk = new SafeAppsSDK(opts)
+      })
       const safeInfo = await safeSdk.safe.getInfo()
+      console.log('safeInfo', safeInfo)
+
       const safeProvider = new SafeAppProvider(safeInfo, safeSdk)
       const web3Provider = new ethers.providers.Web3Provider(safeProvider, 'any')
 
@@ -506,6 +501,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
       return true
     } catch (err: any) {
+      console.log('connectSafe fail')
       updateWalletState('Safe', { status: WalletStatusEnum.NOT_INITED })
       setActiveWalletName(null)
 
