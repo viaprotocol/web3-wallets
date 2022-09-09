@@ -12,7 +12,7 @@ export const WALLET_NAMES = {
 } as const
 
 export const WALLET_SUBNAME = {
-  GnosisSafe: 'GnosisSafe'
+  Safe: 'Safe'
 } as const
 
 export const NETWORK_IDS = {
