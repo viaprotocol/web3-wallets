@@ -19,7 +19,7 @@ import type { Window as KeplrWindow } from '@keplr-wallet/types'
 import { ERRCODE, EVM_CHAINS, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, SOL_CHAINS, WALLET_NAMES, WALLET_SUBNAME, cosmosChainsMap } from '../constants'
 import type { TAvailableWalletNames, TWalletLocalData, TWalletState, TWalletStore } from '../types'
 import { WalletStatusEnum } from '../types'
-import { detectNewTxFromAddress, executeCosmosTransaction, getCluster, getCosmosConnectedWallets, getDomainAddress, goKeplr, goMetamask, goPhantom, isCosmosChain, isSolChain, mapRawWalletSubName, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
+import { detectNewTxFromAddress, executeCosmosTransaction, getCluster, getCosmosConnectedWallets, getDomainAddress, goKeplr, goMetamask, goPhantom, inIframe, isCosmosChain, isSolChain, mapRawWalletSubName, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
 import { getNetworkById, rpcMapping } from '../networks'
 import { useWalletAddressesHistory } from '../hooks'
 import { INITIAL_STATE, INITIAL_WALLET_STATE, WalletContext } from './WalletContext'
@@ -572,9 +572,12 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
   const restore = async () => {
     console.log('Wallet.restore()')
 
-    const isSafeAutoconnected = await connectSafe()
-    if (isSafeAutoconnected) {
-      return
+    if (inIframe()) {
+      console.log('Iframe, connectSafe...')
+      const isSafeAutoconnected = await connectSafe()
+      if (isSafeAutoconnected) {
+        return true
+      }
     }
 
     const walletData = localStorage.getItem(LOCAL_STORAGE_WALLETS_KEY)
