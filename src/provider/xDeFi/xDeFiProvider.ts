@@ -26,10 +26,17 @@ class XDeFiProvider<ProviderType extends { request: any } = any> {
   }
 
   transfer = (transaction: BTClikeTransaction) => {
-    const { fromWalletAddress, recipientAddress, amount, decimals, memo } = transaction
-    const formattedAmount = Number(amount) * 10 ** decimals
-    console.log('recipient', { from: fromWalletAddress, recipient: recipientAddress, amount: formattedAmount, memo })
-    return this.request<string>('transfer', [{ from: fromWalletAddress, recipient: recipientAddress, amount: formattedAmount, memo }])
+    const { fromWalletAddress, recipientAddress, amount, decimals, memo, asset } = transaction
+    return this.request<string>('transfer', [{
+      from: fromWalletAddress,
+      recipient: recipientAddress,
+      asset,
+      amount: {
+        amount,
+        decimals
+      },
+      memo
+    }])
   }
 
   request = <OutputType = any>(method: string, data: any): Promise<OutputType> => {
