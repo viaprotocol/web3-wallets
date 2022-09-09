@@ -235,8 +235,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     const connectedWallets = await getBTCConnectedWallets(xDeFiProvider)
     const addresesInfo = getAddresesInfo(connectedWallets)
 
-    addWalletAddress(addresesInfo)
-    addWalletAddress({ [address]: EVM_CHAINS })
+    addWalletAddress({ ...addresesInfo, [address]: EVM_CHAINS })
 
     updateWalletState('xDefi', {
       isConnected: true,
