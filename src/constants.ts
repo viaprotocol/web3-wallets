@@ -46,7 +46,7 @@ export const NETWORK_IDS = {
   Cube: 1818,
   Aurora: 1313161554,
   Cronos: 25,
-  Boba: 288,
+  Boba: 228,
   Celo: 42220,
   Solana: -1,
   SolanaTestnet: -1001,
@@ -87,7 +87,7 @@ export const COSMOS_CHAINS = [NETWORK_IDS.Cosmos, NETWORK_IDS.Osmosis, NETWORK_I
 export const isEvmChain = (chainId: number) => chainId > 0
 export const isCosmosChain = (chainId: number) => COSMOS_CHAINS.includes(chainId as any)
 export const isSolChain = (chainId: number) => SOL_CHAINS.includes(chainId as any)
-export const isBTCChain = (chainId: number) => BTC_CHAINS.includes(chainId as any)
+export const isBTClikeChain = (chainId: number) => BTC_CHAINS.includes(chainId as any)
 
 export const AVAILABLE_WALLETS_GROUPS_CONFIG = ['EVM', 'SOL', 'COSMOS', 'BTC', 'LTC', 'BCH'] as const
 
