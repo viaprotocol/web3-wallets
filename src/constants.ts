@@ -109,7 +109,7 @@ export const CHAINS_WITH_WALLET: TChainsWithWalletsLink[] = [
     key: 'BTC',
     chains: BTC_CHAINS,
     wallets: BTC_WALLETS_CONFIG,
-    validate: isBTCChain
+    validate: isBTClikeChain
   },
   {
     key: 'EVM',
