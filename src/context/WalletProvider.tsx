@@ -746,8 +746,6 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
         const result = await provider.transfer(transaction as BTClikeTransaction)
 
-        console.log('result!', result)
-
         return result
       } else {
         throw new Error('[Wallet] sendTx error: wallet is not supported')
