@@ -87,6 +87,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       walletProvider.on('chainChanged', evmChainChangeHandler as any)
       walletProvider.on('accountsChanged', evmAccountChangeHandler as any)
 
+      addWalletAddress({ [address]: EVM_CHAINS })
       updateWalletState('Coinbase', {
         isConnected: true,
         status: WalletStatusEnum.READY,
@@ -166,11 +167,10 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
     let { chainId: walletChainId, address, addressShort, addressDomain } = await fetchEvmWalletInfo(provider)
 
-    addWalletAddress({ [address]: EVM_CHAINS })
-
     walletProvider.on('chainChanged', evmChainChangeHandler as any)
     walletProvider.on('accountsChanged', evmAccountChangeHandler as any)
 
+    addWalletAddress({ [address]: EVM_CHAINS })
     updateWalletState('MetaMask', {
       isConnected: true,
       status: WalletStatusEnum.READY,
@@ -227,6 +227,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     walletProvider.on('chainChanged', evmChainChangeHandler as any)
     walletProvider.on('accountsChanged', evmAccountChangeHandler as any)
 
+    addWalletAddress({ [address]: EVM_CHAINS })
     updateWalletState('xDefi', {
       isConnected: true,
       status: WalletStatusEnum.READY,
@@ -282,6 +283,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       walletConnectProvider.on('chainChanged', evmChainChangeHandler)
       walletConnectProvider.on('accountsChanged', evmAccountChangeHandler)
 
+      addWalletAddress({ [address]: EVM_CHAINS })
       updateWalletState('WalletConnect', {
         isConnected: true,
         status: WalletStatusEnum.READY,
