@@ -9,8 +9,6 @@ import { Connection, Transaction, clusterApiUrl } from '@solana/web3.js'
 import type { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom'
 import type { CosmosTransaction } from 'rango-sdk/lib'
 import WalletConnectProvider from '@walletconnect/web3-provider'
-import SafeAppsSDK from '@gnosis.pm/safe-apps-sdk'
-import { SafeAppProvider } from '@gnosis.pm/safe-apps-provider'
 import type { BigNumber } from 'ethers'
 import { ethers } from 'ethers'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
@@ -443,6 +441,9 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
     updateActiveWalletName('Safe')
     updateWalletState('Safe', { status: WalletStatusEnum.LOADING })
+
+    const SafeAppsSDK = (await import('@gnosis.pm/safe-apps-sdk')).default
+    const SafeAppProvider = (await import('@gnosis.pm/safe-apps-provider')).SafeAppProvider
 
     try {
       const safeSdk = new SafeAppsSDK({
