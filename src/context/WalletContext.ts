@@ -7,7 +7,6 @@ import { WalletStatusEnum } from '../types'
 const INITIAL_STATE: TWalletStore = {
   status: WalletStatusEnum.NOT_INITED,
   isConnected: false, // TODO: Remove (use status)
-  isDisconnectable: false,
   name: null,
   subName: null,
   chainId: null,
