@@ -485,7 +485,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       localStorage.setItem(
         LOCAL_STORAGE_WALLETS_KEY,
         JSON.stringify({
-          name: WALLET_NAMES.WalletConnect,
+          name: WALLET_NAMES.Safe,
           chainId,
           address: addressDomain || addressShort
         })
