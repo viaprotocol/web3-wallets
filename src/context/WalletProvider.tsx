@@ -9,6 +9,8 @@ import { Connection, Transaction, clusterApiUrl } from '@solana/web3.js'
 import type { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom'
 import type { CosmosTransaction } from 'rango-sdk/lib'
 import WalletConnectProvider from '@walletconnect/web3-provider'
+import SafeAppsSDK from '@gnosis.pm/safe-apps-sdk'
+import { SafeAppProvider } from '@gnosis.pm/safe-apps-provider'
 import type { BigNumber } from 'ethers'
 import { ethers } from 'ethers'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
@@ -437,27 +439,18 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
   }
 
   const connectSafe = async (): Promise<boolean> => {
-    console.log('connectSafe...')
-
     updateActiveWalletName('Safe')
     updateWalletState('Safe', { status: WalletStatusEnum.LOADING })
-
-    const SafeAppsSDK = (await import('@gnosis.pm/safe-apps-sdk')).default
-    const SafeAppProvider = (await import('@gnosis.pm/safe-apps-provider')).SafeAppProvider
 
     try {
       const safeSdk = new SafeAppsSDK({
         allowedDomains: [/gnosis-safe.io/],
         debug: false
       })
-      const safeInfo = await safeSdk.safe.getInfo()
-      console.log('safeInfo', safeInfo)
 
+      const safeInfo = await safeSdk.safe.getInfo()
       const safeProvider = new SafeAppProvider(safeInfo, safeSdk)
       const web3Provider = new ethers.providers.Web3Provider(safeProvider, 'any')
-
-      console.log('safeProvider', safeProvider)
-      console.log('web3Provider', web3Provider)
 
       const {
         chainId,
@@ -466,12 +459,9 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         addressDomain
       } = await fetchEvmWalletInfo(web3Provider)
 
-      console.log('chainId', chainId)
-      console.log('address', address)
-
       safeProvider.on('disconnect', (code: number, reason: string) => {
         console.log('safeProvider disconnected', code, reason)
-        disconnect() // todo: only clear state (without duplicate code and disconnect events)
+        disconnect()
       })
       safeProvider.on('chainChanged', evmChainChangeHandler)
       safeProvider.on('accountsChanged', evmAccountChangeHandler)
@@ -503,7 +493,6 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
       return true
     } catch (err: any) {
-      console.log('connectSafe fail')
       updateWalletState('Safe', { status: WalletStatusEnum.NOT_INITED })
       setActiveWalletName(null)
 
@@ -575,7 +564,6 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     console.log('Wallet.restore()')
 
     if (inIframe()) {
-      console.log('Iframe, connectSafe...')
       const isSafeAutoconnected = await connectSafe()
       if (isSafeAutoconnected) {
         return true
