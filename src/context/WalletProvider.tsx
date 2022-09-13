@@ -35,8 +35,6 @@ declare global {
   }
 }
 
-console.log('TEST4')
-
 const WalletProvider = function WalletProvider({ children }: { children: React.ReactNode }) {
   const activeWalletNameRef = useRef<TAvailableWalletNames | null>(null)
 
@@ -91,6 +89,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       walletProvider.on('chainChanged', evmChainChangeHandler as any)
       walletProvider.on('accountsChanged', evmAccountChangeHandler as any)
 
+      addWalletAddress({ [address]: EVM_CHAINS })
       updateWalletState('Coinbase', {
         isConnected: true,
         isDisconnectable: true,
@@ -171,11 +170,10 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
     let { chainId: walletChainId, address, addressShort, addressDomain } = await fetchEvmWalletInfo(provider)
 
-    addWalletAddress({ [address]: EVM_CHAINS })
-
     walletProvider.on('chainChanged', evmChainChangeHandler as any)
     walletProvider.on('accountsChanged', evmAccountChangeHandler as any)
 
+    addWalletAddress({ [address]: EVM_CHAINS })
     updateWalletState('MetaMask', {
       isConnected: true,
       isDisconnectable: true,
@@ -233,6 +231,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     walletProvider.on('chainChanged', evmChainChangeHandler as any)
     walletProvider.on('accountsChanged', evmAccountChangeHandler as any)
 
+    addWalletAddress({ [address]: EVM_CHAINS })
     updateWalletState('xDefi', {
       isConnected: true,
       isDisconnectable: true,
@@ -289,6 +288,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       walletConnectProvider.on('chainChanged', evmChainChangeHandler)
       walletConnectProvider.on('accountsChanged', evmAccountChangeHandler)
 
+      addWalletAddress({ [address]: EVM_CHAINS })
       updateWalletState('WalletConnect', {
         isConnected: true,
         isDisconnectable: true,
@@ -475,6 +475,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       safeProvider.on('chainChanged', evmChainChangeHandler)
       safeProvider.on('accountsChanged', evmAccountChangeHandler)
 
+      addWalletAddress({ [address]: EVM_CHAINS })
       updateWalletState('Safe', {
         isConnected: true,
         isDisconnectable: false,
