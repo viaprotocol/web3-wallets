@@ -24,6 +24,7 @@ import { INITIAL_STATE, INITIAL_WALLET_STATE, WalletContext } from './WalletCont
 import { QueryProvider } from './QueryProvider'
 import { isCosmosWallet, isEvmWallet, isSolWallet } from '@/utils/wallet'
 import { BalanceProvider } from '@/components/balance/BalanceProvider'
+import { RejectRequestError } from '@/errors'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
@@ -573,9 +574,9 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     updateWalletState(activeWalletNameRef.current, {
       isConnected: false,
       name: null,
+      status: WalletStatusEnum.NOT_INITED,
       provider: null,
       walletProvider: null,
-      status: WalletStatusEnum.NOT_INITED,
       chainId: null,
       address: null,
       addressShort: null,
@@ -717,12 +718,20 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         } catch (err: any) {
           if (err.code === ERRCODE.UserRejected) {
             console.warn('[Wallet] User rejected the request')
-            throw err // return false // todo: sendTx reject => false
+            throw new RejectRequestError()
           }
           throw err
         }
       } else if (isCosmosWallet(currentState)) {
-        return await executeCosmosTransaction(transaction as CosmosTransaction, currentState.provider)
+        try {
+          return await executeCosmosTransaction(transaction as CosmosTransaction, currentState.provider)
+        } catch (err: any) {
+          if (err?.message === 'Request rejected') {
+            console.warn('[Wallet] User rejected the request')
+            throw new RejectRequestError()
+          }
+          throw err
+        }
       } else {
         throw new Error('[Wallet] sendTx error: wallet is not supported')
       }
