@@ -28,6 +28,7 @@ import { BalanceProvider } from '@/components/balance/BalanceProvider'
 import { getBTCConnectedWallets } from '@/utils/btc'
 import { XDeFi } from '@/provider'
 import type { BTClikeTransaction } from '@/provider/xDeFi/types'
+import { RejectRequestError } from '@/errors'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
@@ -587,9 +588,9 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     updateWalletState(activeWalletNameRef.current, {
       isConnected: false,
       name: null,
+      status: WalletStatusEnum.NOT_INITED,
       provider: null,
       walletProvider: null,
-      status: WalletStatusEnum.NOT_INITED,
       chainId: null,
       address: null,
       addressShort: null,
@@ -731,12 +732,10 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         } catch (err: any) {
           if (err.code === ERRCODE.UserRejected) {
             console.warn('[Wallet] User rejected the request')
-            throw err // return false // todo: sendTx reject => false
+            throw new RejectRequestError()
           }
           throw err
         }
-      } else if (isCosmosWallet(currentState, fromChainId)) {
-        return await executeCosmosTransaction(transaction as CosmosTransaction, currentState.provider)
       } else if (isBTClikeWallet(currentState, fromChainId) && fromChainId) {
         const walletInfo = getWalletInfoByChainId(fromChainId)
         const provider = currentState.provider.getProviderByChainId(fromChainId)
@@ -748,6 +747,16 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         const result = await provider.transfer(transaction as BTClikeTransaction)
 
         return result
+      } else if (isCosmosWallet(currentState)) {
+        try {
+          return await executeCosmosTransaction(transaction as CosmosTransaction, currentState.provider)
+        } catch (err: any) {
+          if (err?.message === 'Request rejected') {
+            console.warn('[Wallet] User rejected the request')
+            throw new RejectRequestError()
+          }
+          throw err
+        }
       } else {
         throw new Error('[Wallet] sendTx error: wallet is not supported')
       }

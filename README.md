@@ -19,6 +19,18 @@
 - 🦄 TypeScript ready
 - 🌏 All supported networks are in [networks.ts](https://github.com/viaprotocol/web3-wallets/blob/main/src/networks.ts)
 
+
+## Supported wallets
+
+- MetaMask
+- WalletConnect (all WalletConnect-compatible wallets are supported, **>100 wallets!**)
+- Coinbase Wallet
+- Phantom (Solana)
+- Keplr (Cosmos, Osmosis, Astar)
+- xDeFi (EVM networks, Bitcoin, Bitcoin Cash, Litecoin)
+- Safe (aka Gnosis Safe Multisig Wallet)
+
+
 ## Installation
 
 ```bash
@@ -57,16 +69,6 @@ function NestedComponent() {
   )
 }
 ```
-
-## Supported wallets
-
-- MetaMask
-- WalletConnect (all WalletConnect-compatible wallets are supported, >100 wallets!)
-- Coinbase Wallet
-- Phantom (Solana)
-- Keplr (Cosmos, Osmosis, Astar)
-- xDeFi (EVM networks, Bitcoin, Bitcoin Cash, Litecoin)
-- Safe (aka Gnosis Safe Multisig Wallet)
 
 
 ## Local development
