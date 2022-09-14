@@ -577,7 +577,6 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       status: WalletStatusEnum.NOT_INITED,
       provider: null,
       walletProvider: null,
-      status: WalletStatusEnum.NOT_INITED,
       chainId: null,
       address: null,
       addressShort: null,
