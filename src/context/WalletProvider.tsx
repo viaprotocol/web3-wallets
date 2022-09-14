@@ -88,6 +88,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       walletProvider.on('chainChanged', evmChainChangeHandler as any)
       walletProvider.on('accountsChanged', evmAccountChangeHandler as any)
 
+      addWalletAddress({ [address]: EVM_CHAINS })
       updateWalletState('Coinbase', {
         isConnected: true,
         status: WalletStatusEnum.READY,
@@ -167,11 +168,10 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
     let { chainId: walletChainId, address, addressShort, addressDomain } = await fetchEvmWalletInfo(provider)
 
-    addWalletAddress({ [address]: EVM_CHAINS })
-
     walletProvider.on('chainChanged', evmChainChangeHandler as any)
     walletProvider.on('accountsChanged', evmAccountChangeHandler as any)
 
+    addWalletAddress({ [address]: EVM_CHAINS })
     updateWalletState('MetaMask', {
       isConnected: true,
       status: WalletStatusEnum.READY,
@@ -228,6 +228,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     walletProvider.on('chainChanged', evmChainChangeHandler as any)
     walletProvider.on('accountsChanged', evmAccountChangeHandler as any)
 
+    addWalletAddress({ [address]: EVM_CHAINS })
     updateWalletState('xDefi', {
       isConnected: true,
       status: WalletStatusEnum.READY,
@@ -283,6 +284,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       walletConnectProvider.on('chainChanged', evmChainChangeHandler)
       walletConnectProvider.on('accountsChanged', evmAccountChangeHandler)
 
+      addWalletAddress({ [address]: EVM_CHAINS })
       updateWalletState('WalletConnect', {
         isConnected: true,
         status: WalletStatusEnum.READY,
@@ -575,6 +577,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       status: WalletStatusEnum.NOT_INITED,
       provider: null,
       walletProvider: null,
+      status: WalletStatusEnum.NOT_INITED,
       chainId: null,
       address: null,
       addressShort: null,
@@ -696,10 +699,10 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         const tx = transaction as TransactionRequest
 
         try {
-          // EVM + Gnosis Safe tx
-          if (currentState.name === WALLET_NAMES.WalletConnect && currentState.subName === WALLET_SUBNAME.GnosisSafe && currentState.walletProvider instanceof WalletConnectProvider) {
+          // EVM + Safe tx
+          if (currentState.name === WALLET_NAMES.WalletConnect && currentState.subName === WALLET_SUBNAME.Safe && currentState.walletProvider instanceof WalletConnectProvider) {
           /*
-            Gnosis Safe cannot immediately return the transaction by design.
+            Safe cannot immediately return the transaction by design.
             Multi-signature can be done much later.
             It remains only to wait for the appearance of a new transaction from the sender's address (detectNewTxFromAddress)
           */
