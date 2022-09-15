@@ -1,5 +1,6 @@
 import type { CoinbaseWalletProvider } from '@coinbase/wallet-sdk'
 import type { TransactionRequest, Web3Provider } from '@ethersproject/providers'
+import type { SafeAppProvider } from '@gnosis.pm/safe-apps-provider'
 import type { Keplr } from '@keplr-wallet/types'
 import type { MetaMaskInpageProvider } from '@metamask/providers'
 import type { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom'
@@ -7,6 +8,7 @@ import type { Connection, Signer, Transaction } from '@solana/web3.js'
 import type WalletConnectProvider from '@walletconnect/web3-provider'
 import type { BigNumber, ethers } from 'ethers'
 import type { CosmosTransaction } from 'rango-sdk/lib'
+
 import type { COSMOS_WALLETS_CONFIG, EVM_WALLETS_CONFIG, SOL_WALLETS_CONFIG, WALLET_NAMES } from './constants'
 
 type TAvailableWalletNames = keyof typeof WALLET_NAMES
@@ -45,7 +47,7 @@ type TWalletStateDefault = {
   isConnected: boolean
   status: WalletStatusEnum
   subName: null | string
-  walletProvider: WalletConnectProvider | MetaMaskInpageProvider | CoinbaseWalletProvider | null
+  walletProvider: WalletConnectProvider | MetaMaskInpageProvider | CoinbaseWalletProvider | SafeAppProvider | null
   connection: Connection | null
   chainId: null | number
   address: string | null

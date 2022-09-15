@@ -9,6 +9,8 @@ import { Connection, Transaction, clusterApiUrl } from '@solana/web3.js'
 import type { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom'
 import type { CosmosTransaction } from 'rango-sdk/lib'
 import WalletConnectProvider from '@walletconnect/web3-provider'
+import SafeAppsSDK from '@gnosis.pm/safe-apps-sdk'
+import { SafeAppProvider } from '@gnosis.pm/safe-apps-provider'
 import type { BigNumber } from 'ethers'
 import { ethers } from 'ethers'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
@@ -17,7 +19,7 @@ import type { Window as KeplrWindow } from '@keplr-wallet/types'
 import { ERRCODE, EVM_CHAINS, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, SOL_CHAINS, WALLET_NAMES, WALLET_SUBNAME, cosmosChainsMap } from '../constants'
 import type { TAvailableWalletNames, TWalletLocalData, TWalletState, TWalletStore } from '../types'
 import { WalletStatusEnum } from '../types'
-import { detectNewTxFromAddress, executeCosmosTransaction, getCluster, getCosmosConnectedWallets, getDomainAddress, goKeplr, goMetamask, goPhantom, isCosmosChain, isSolChain, mapRawWalletSubName, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
+import { detectNewTxFromAddress, executeCosmosTransaction, getCluster, getCosmosConnectedWallets, getDomainAddress, goKeplr, goMetamask, goPhantom, inIframe, isCosmosChain, isSolChain, mapRawWalletSubName, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
 import { getNetworkById, rpcMapping } from '../networks'
 import { useWalletAddressesHistory } from '../hooks'
 import { INITIAL_STATE, INITIAL_WALLET_STATE, WalletContext } from './WalletContext'
@@ -431,6 +433,68 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     return false
   }
 
+  const connectSafe = async (): Promise<boolean> => {
+    updateActiveWalletName('Safe')
+    updateWalletState('Safe', { status: WalletStatusEnum.LOADING })
+
+    try {
+      const safeSdk = new SafeAppsSDK({
+        allowedDomains: [/gnosis-safe.io/],
+        debug: false
+      })
+
+      const safeInfo = await safeSdk.safe.getInfo()
+      const safeProvider = new SafeAppProvider(safeInfo, safeSdk)
+      const web3Provider = new ethers.providers.Web3Provider(safeProvider, 'any')
+
+      const {
+        chainId,
+        address,
+        addressShort,
+        addressDomain
+      } = await fetchEvmWalletInfo(web3Provider)
+
+      safeProvider.on('disconnect', (code: number, reason: string) => {
+        console.log('safeProvider disconnected', code, reason)
+        disconnect()
+      })
+      safeProvider.on('chainChanged', evmChainChangeHandler)
+      safeProvider.on('accountsChanged', evmAccountChangeHandler)
+
+      addWalletAddress({ [address]: EVM_CHAINS })
+      updateWalletState('Safe', {
+        isConnected: true,
+        status: WalletStatusEnum.READY,
+        name: WALLET_NAMES.Safe,
+        subName: null,
+        provider: web3Provider,
+        walletProvider: safeProvider,
+        chainId,
+        address,
+        addressShort,
+        addressDomain
+      })
+
+      localStorage.setItem('web3-wallets-name', WALLET_NAMES.Safe)
+      localStorage.setItem(
+        LOCAL_STORAGE_WALLETS_KEY,
+        JSON.stringify({
+          name: WALLET_NAMES.Safe,
+          chainId,
+          address: addressDomain || addressShort
+        })
+      )
+
+      return true
+    } catch (err: any) {
+      updateWalletState('Safe', { status: WalletStatusEnum.NOT_INITED })
+      setActiveWalletName(null)
+
+      console.error('[Wallet] connectSafe error:', err)
+      throw new Error(err)
+    }
+  }
+
   const connect = async ({ name, chainId }: { name: string; chainId: number }): Promise<boolean> => {
     console.log('[Wallet] connect()', name, chainId)
     if (!(Object.values(WALLET_NAMES) as string[]).includes(name)) {
@@ -492,6 +556,14 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
   const restore = async () => {
     console.log('Wallet.restore()')
+
+    if (inIframe()) {
+      const isSafeAutoconnected = await connectSafe()
+      if (isSafeAutoconnected) {
+        return true
+      }
+    }
+
     const walletData = localStorage.getItem(LOCAL_STORAGE_WALLETS_KEY)
 
     if (walletData) {

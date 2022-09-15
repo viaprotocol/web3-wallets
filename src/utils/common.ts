@@ -201,3 +201,11 @@ export const getActiveWalletName = (walletState: TWalletState, chainId: number) 
 
   return getActiveWallets(walletState, wallets)
 }
+
+export const inIframe = () => {
+  try {
+    return window.self !== window.top
+  } catch (e) {
+    return true
+  }
+}
