@@ -1,4 +1,4 @@
-import type { TChainsWithWalletsLink } from './types'
+import type { TChainWallet, TChainsWithWalletsLink } from './types'
 
 export const WALLET_NAMES = {
   WalletConnect: 'WalletConnect',
@@ -47,7 +47,7 @@ export const NETWORK_IDS = {
   Cube: 1818,
   Aurora: 1313161554,
   Cronos: 25,
-  Boba: 288,
+  Boba: 228,
   Celo: 42220,
   Solana: -1,
   SolanaTestnet: -1001,
@@ -75,6 +75,7 @@ export const ERRCODE = {
   UnrecognizedChain: -32603
 }
 
+export const BTC_WALLETS_CONFIG = [WALLET_NAMES.xDefi]
 export const EVM_WALLETS_CONFIG = [
   WALLET_NAMES.MetaMask,
   WALLET_NAMES.WalletConnect,
@@ -86,37 +87,54 @@ export const SOL_WALLETS_CONFIG = [WALLET_NAMES.Phantom]
 export const COSMOS_WALLETS_CONFIG = [WALLET_NAMES.Keplr]
 
 export const BTC_CHAINS = [NETWORK_IDS.BTC, NETWORK_IDS.Litecoin, NETWORK_IDS.BCH]
-export const EVM_CHAINS = Object.keys(NETWORK_IDS).filter(chainName => NETWORK_IDS[chainName as keyof typeof NETWORK_IDS] > 0).map(chainName => NETWORK_IDS[chainName as keyof typeof NETWORK_IDS]).concat(BTC_CHAINS)
+export const EVM_CHAINS = Object.keys(NETWORK_IDS).filter(chainName => NETWORK_IDS[chainName as keyof typeof NETWORK_IDS] > 0).map(chainName => NETWORK_IDS[chainName as keyof typeof NETWORK_IDS])
 export const SOL_CHAINS = [NETWORK_IDS.Solana, NETWORK_IDS.SolanaTestnet]
 export const COSMOS_CHAINS = [NETWORK_IDS.Cosmos, NETWORK_IDS.Osmosis, NETWORK_IDS.Sifchain] as const
 
-export const cosmosChainsMap: { [key in typeof COSMOS_CHAINS[number]]: string } = {
-  [NETWORK_IDS.Cosmos]: 'cosmoshub-4',
-  [NETWORK_IDS.Osmosis]: 'osmosis-1',
-  [NETWORK_IDS.Sifchain]: 'sifchain-1'
-}
+export const isEvmChain = (chainId: number) => chainId > 0
+export const isCosmosChain = (chainId: number) => COSMOS_CHAINS.includes(chainId as any)
+export const isSolChain = (chainId: number) => SOL_CHAINS.includes(chainId as any)
+export const isBTClikeChain = (chainId: number) => BTC_CHAINS.includes(chainId as any)
 
-export const cosmosChainWalletMap: { name: string; chainId: typeof COSMOS_CHAINS[number] }[] = [
-  { name: 'COSMOS', chainId: NETWORK_IDS.Cosmos },
-  { name: 'OSMOSIS', chainId: NETWORK_IDS.Osmosis },
-  { name: 'SIF', chainId: NETWORK_IDS.Sifchain }
+export const AVAILABLE_WALLETS_GROUPS_CONFIG = ['EVM', 'SOL', 'COSMOS', 'BTC', 'LTC', 'BCH'] as const
+
+export const chainWalletMap: TChainWallet[] = [
+  { name: 'COSMOS', chainId: NETWORK_IDS.Cosmos, network: 'cosmoshub-4' },
+  { name: 'OSMOSIS', chainId: NETWORK_IDS.Osmosis, network: 'osmosis-1' },
+  { name: 'SIF', chainId: NETWORK_IDS.Sifchain, network: 'sifchain-1' },
+  { name: 'BTC', chainId: NETWORK_IDS.BTC, network: 'bitcoin' },
+  { name: 'LTC', chainId: NETWORK_IDS.Litecoin, network: 'litecoin' },
+  { name: 'BCH', chainId: NETWORK_IDS.BCH, network: 'bitcoincash' }
 ]
+
+export const cosmosChainWalletMap = chainWalletMap.filter(chainWallet => COSMOS_CHAINS.includes(chainWallet.chainId as any))
+
+export const btcChainWalletMap = chainWalletMap.filter(chainWallet => BTC_CHAINS.includes(chainWallet.chainId as any))
 
 export const CHAINS_WITH_WALLET: TChainsWithWalletsLink[] = [
   {
+    key: 'BTC',
+    chains: BTC_CHAINS,
+    wallets: BTC_WALLETS_CONFIG,
+    validate: isBTClikeChain
+  },
+  {
     key: 'EVM',
     chains: EVM_CHAINS,
-    wallets: EVM_WALLETS_CONFIG
+    wallets: EVM_WALLETS_CONFIG,
+    validate: isEvmChain
   },
   {
     key: 'SOL',
     chains: SOL_CHAINS,
-    wallets: SOL_WALLETS_CONFIG
+    wallets: SOL_WALLETS_CONFIG,
+    validate: isSolChain
   },
   {
     key: 'COSMOS',
     chains: COSMOS_CHAINS,
-    wallets: COSMOS_WALLETS_CONFIG
+    wallets: COSMOS_WALLETS_CONFIG,
+    validate: isCosmosChain
   }
 ]
 

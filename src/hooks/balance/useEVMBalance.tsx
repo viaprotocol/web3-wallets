@@ -10,7 +10,7 @@ const balanceFetcher = async (options: TEvmWalletStore) => {
 }
 
 function useEVMBalance(options: TEvmWalletStore & TUseBalanceOptions) {
-  const { address, chainId, updateDelay } = options
+  const { address, chainId, updateDelay, provider } = options
   const queryClient = useQueryClient()
   const { data: balance } = useQuery(['evmBalance', address, chainId], () => balanceFetcher(options), {
     retry: 2,
@@ -24,12 +24,12 @@ function useEVMBalance(options: TEvmWalletStore & TUseBalanceOptions) {
 
   // Subscribe to block changes
   useEffect(() => {
-    options.provider.on('block', getBalanceFromProvider)
+    provider.on('block', getBalanceFromProvider)
 
     return () => {
-      options.provider.off('block', getBalanceFromProvider)
+      provider.off('block', getBalanceFromProvider)
     }
-  }, [address, chainId, queryClient, options.provider])
+  }, [address, chainId, queryClient, provider])
 
   return balance
 }

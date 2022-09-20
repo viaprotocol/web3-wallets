@@ -4,8 +4,9 @@ import type { CosmosTransaction } from 'rango-sdk/lib'
 import { cosmos } from '@keplr-wallet/cosmos'
 import { SigningStargateClient } from '@cosmjs/stargate'
 import Long from 'long'
-import type { TConnectedWallet } from '..'
-import { cosmosChainWalletMap, cosmosChainsMap } from '../constants'
+import type { TChainWallet } from '..'
+import { cosmosChainWalletMap } from '..'
+import { getConnectedWallets } from './common'
 
 const uint8ArrayToHex = (buffer: Uint8Array): string => {
   return [...buffer]
@@ -28,20 +29,17 @@ const STARGATE_CLIENT_OPTIONS = {
   }
 }
 
-const getCosmosConnectedWallets = async (provider: Keplr): Promise<TConnectedWallet[]> => {
-  const connectedWallets: TConnectedWallet[] = []
-  for (const { name, chainId } of cosmosChainWalletMap) {
-    const offlineSigner = await provider.getOfflineSigner(cosmosChainsMap[chainId])
-    const accounts = await offlineSigner?.getAccounts()
-    if (!!accounts && accounts.length > 0) {
-      const address = accounts.map((account: { address: string }) => {
-        return account.address
-      })
-      connectedWallets.push({ chainId, blockchain: name, addresses: address })
-    }
-  }
+const getCosmosAccounts = async (provider: Keplr, chainId: string) => {
+  const offlineSigner = await provider.getOfflineSigner(chainId)
+  const accounts = await offlineSigner?.getAccounts()
 
-  return connectedWallets
+  return accounts.map((account: { address: string }) => {
+    return account.address
+  })
+}
+
+const getCosmosConnectedWallets = async (provider: Keplr) => {
+  return await getConnectedWallets(cosmosChainWalletMap, (walletData: TChainWallet) => getCosmosAccounts(provider, walletData.network))
 }
 
 const executeCosmosTransaction = async (cosmosTx: CosmosTransaction, provider: Keplr) => {
@@ -148,4 +146,4 @@ const executeCosmosTransaction = async (cosmosTx: CosmosTransaction, provider: K
   }
 }
 
-export { getCosmosConnectedWallets, executeCosmosTransaction }
+export { getCosmosAccounts, executeCosmosTransaction, getCosmosConnectedWallets }

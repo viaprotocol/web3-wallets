@@ -1,6 +1,7 @@
 import { BalanceEVM } from './BalanceEVM'
 import { BalanceSolana } from './BalanceSolana'
 import { BalanceCosmos } from './BalanceCosmos'
+import { BalanceXDeFi } from './BalanceXDeFi'
 import type { TBalanceProviderMetadata } from './types'
 import type { TAvailableWalletNames, TWalletStore } from '@/types'
 
@@ -20,7 +21,7 @@ const BALANCE_PROVIDER_BY_NAME: Record<TAvailableWalletNames, TBalanceProviderMe
     validatePropsFunc: evmValidator
   },
   xDefi: {
-    component: BalanceEVM,
+    component: BalanceXDeFi,
     validatePropsFunc: evmValidator
   },
   Safe: {

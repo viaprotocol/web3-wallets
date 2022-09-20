@@ -1,7 +1,7 @@
 import type { PropsWithChildren } from 'react'
 import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import type { TUseBalanceOptions } from '../../hooks/balance/types'
+import type { TBalanceProviderOptions } from '../../hooks/balance/types'
 import { BALANCE_PROVIDER_BY_NAME } from './config'
 import type { TBalanceCallback } from './types'
 import { UPDATE_DELAY_KEY } from '@/hooks/balance/config'
@@ -10,7 +10,7 @@ function BalanceProvider({
   options,
   setBalance
 }: PropsWithChildren<{
-  options: TUseBalanceOptions
+  options: TBalanceProviderOptions
   setBalance: TBalanceCallback
 }>) {
   const { data: balanceUpdateDelay } = useQuery([UPDATE_DELAY_KEY]) ?? false

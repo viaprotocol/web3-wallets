@@ -8,21 +8,24 @@ import type { Connection, Signer, Transaction } from '@solana/web3.js'
 import type WalletConnectProvider from '@walletconnect/web3-provider'
 import type { BigNumber, ethers } from 'ethers'
 import type { CosmosTransaction } from 'rango-sdk/lib'
-
-import type { COSMOS_WALLETS_CONFIG, EVM_WALLETS_CONFIG, SOL_WALLETS_CONFIG, WALLET_NAMES } from './constants'
+import type { AVAILABLE_WALLETS_GROUPS_CONFIG, BTC_CHAINS, BTC_WALLETS_CONFIG, COSMOS_CHAINS, COSMOS_WALLETS_CONFIG, EVM_WALLETS_CONFIG, SOL_WALLETS_CONFIG, WALLET_NAMES } from './constants'
+import type { XDeFi } from './provider'
+import type { BTClikeTransaction } from './provider/xDeFi/types'
 
 type TAvailableWalletNames = keyof typeof WALLET_NAMES
 type TAvailableEvmWalletNames = typeof EVM_WALLETS_CONFIG[number]
 type TAvailableSolWalletNames = typeof SOL_WALLETS_CONFIG[number]
 type TAvailableCosmosWalletNames = typeof COSMOS_WALLETS_CONFIG[number]
+type TAvailableBTCWalletNames = typeof BTC_WALLETS_CONFIG[number]
 
 type TWalletsTypeList = TAvailableEvmWalletNames | TAvailableSolWalletNames | TAvailableCosmosWalletNames
-type TAvailableWalletsGroups = 'EVM' | 'SOL' | 'COSMOS'
+type TAvailableWalletsGroups = typeof AVAILABLE_WALLETS_GROUPS_CONFIG[number]
 
 type TChainsWithWalletsLink = {
   key: TAvailableWalletsGroups
   chains: readonly number[]
   wallets: TWalletsTypeList[]
+  validate: (chainId: number) => boolean
 }
 
 enum WalletStatusEnum {
@@ -76,7 +79,12 @@ type TWalletBodyDefaultState = {
   provider: null
 } & TWalletStateDefault
 
-type TWalletStore = TEvmWalletStore | TSolWalletStore | TCosmosWalletStore | TWalletBodyDefaultState
+type TBTCWalletStore = {
+  name: TAvailableBTCWalletNames
+  provider: XDeFi
+} & TWalletStateDefault
+
+type TWalletStore = TEvmWalletStore | TSolWalletStore | TCosmosWalletStore | TBTCWalletStore | TWalletBodyDefaultState
 
 type TWalletState = {
   [walletName in TAvailableWalletNames]: TWalletStore
@@ -94,10 +102,10 @@ type TWallet = {
   connect: ({ name, chainId }: { name: any; chainId: any }) => Promise<boolean>
   changeNetwork: (chainId: number) => Promise<boolean>
   sendTx: (
-    transaction: TransactionRequest | Transaction | CosmosTransaction,
+    transaction: TransactionRequest | Transaction | CosmosTransaction | BTClikeTransaction,
     options?: {
       signers?: Signer[]
-      walletName?: TAvailableWalletNames
+      fromChainId?: number
     }
   ) => Promise<string /* | false */> // todo: sendTx reject => false
   disconnect: () => void
@@ -111,5 +119,8 @@ type TWallet = {
 
 type TWalletValues = typeof WALLET_NAMES[keyof typeof WALLET_NAMES]
 
-export type { TAvailableWalletNames, TWallet, TWalletStore, TWalletLocalData, TWalletValues, TAvailableEvmWalletNames, TAvailableSolWalletNames, TEvmWalletStore, TSolWalletStore, TCosmosWalletStore, TConnectedWallet, TWalletAddressesHistory, TWalletState, TChainsWithWalletsLink, TWalletsTypeList }
+type TAvailableNetworkNames = 'COSMOS' | 'OSMOSIS' | 'SIF' | 'BTC' | 'LTC' | 'BCH'
+type TChainWallet = { name: TAvailableNetworkNames; chainId: typeof COSMOS_CHAINS[number] | typeof BTC_CHAINS[number] ; network: string }
+
+export type { TAvailableWalletNames, TWallet, TWalletStore, TWalletLocalData, TWalletValues, TAvailableEvmWalletNames, TAvailableSolWalletNames, TEvmWalletStore, TSolWalletStore, TCosmosWalletStore, TConnectedWallet, TWalletAddressesHistory, TWalletState, TChainsWithWalletsLink, TWalletsTypeList, TChainWallet, TAvailableWalletsGroups, TBTCWalletStore }
 export { WalletStatusEnum }
