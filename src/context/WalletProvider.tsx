@@ -868,7 +868,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
   const waitForTransaction = async (hash: string, { confirmations, fromChainId }: { confirmations?: number; fromChainId?: number } = {}): Promise<void> => {
     const currentChainId = fromChainId || state.chainId
 
-    if (currentChainId === NETWORK_IDS.Solana) {
+    if (isSolWallet(state, currentChainId)) {
       const cluster = getCluster(currentChainId)
       const solanaNetwork = clusterApiUrl(cluster)
       const connection = new Connection(solanaNetwork)
@@ -878,7 +878,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       } catch (e) {
         throw new Error('[Wallet] waitForTransaction error: execution reverted')
       }
-    } else if (isEvmWallet(state)) {
+    } else if (isEvmWallet(state, currentChainId)) {
       // EVM tx
       // Status 0 === Tx Reverted
       // @see https://docs.ethers.io/v5/api/providers/types/#providers-TransactionReceipt
