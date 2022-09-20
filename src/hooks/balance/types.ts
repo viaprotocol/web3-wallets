@@ -1,7 +1,11 @@
 import type { TWalletStore } from '../../types'
 
-type TUseBalanceOptions = TWalletStore & {
+type TBalanceProviderOptions = {
   updateDelay?: number
-}
+} & TWalletStore
 
-export type { TUseBalanceOptions }
+type TUseBalanceOptions = {
+  updateDelay?: number
+} & Pick<TWalletStore, 'provider' | 'address' | 'chainId' | 'connection'>
+
+export type { TUseBalanceOptions, TBalanceProviderOptions }

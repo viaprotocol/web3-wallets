@@ -1,7 +1,6 @@
 import { ethers } from 'ethers'
 
-import { isEvmChain } from './common'
-import { EVM_NON_CONTRACT_ADDRESS_CODE, NETWORK_IDS } from '@/constants'
+import { EVM_NON_CONTRACT_ADDRESS_CODE, NETWORK_IDS, isEvmChain } from '@/constants'
 import { getNetworkById } from '@/networks'
 
 export const getDomainAddress = async (address: string) => {
