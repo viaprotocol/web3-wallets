@@ -47,7 +47,7 @@ export const NETWORK_IDS = {
   Cube: 1818,
   Aurora: 1313161554,
   Cronos: 25,
-  Boba: 228,
+  Boba: 288,
   Celo: 42220,
   Solana: -1,
   SolanaTestnet: -1001,
