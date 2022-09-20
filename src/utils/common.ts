@@ -213,3 +213,11 @@ export const getConnectedWallets = async (walletMap: TChainWallet[], getAccounts
 }
 
 export const getAddresesInfo = (connectedWallets: TConnectedWallet[]) => connectedWallets.reduce((acc, { addresses, chainId }) => ({ ...acc, [addresses[0]]: [chainId] }), {})
+
+export const inIframe = () => {
+  try {
+    return window.self !== window.top
+  } catch (e) {
+    return true
+  }
+}

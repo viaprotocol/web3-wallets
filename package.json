@@ -1,6 +1,6 @@
 {
   "name": "@viaprotocol/web3-wallets",
-  "version": "1.0.25",
+  "version": "1.0.26-rc.3",
   "private": false,
   "description": "Universal interface for web3 wallets",
   "author": "Via Protocol (https://via.exchange)",
@@ -64,6 +64,8 @@
   "dependencies": {
     "@coinbase/wallet-sdk": "^3.3.0",
     "@cosmjs/stargate": "^0.27.0",
+    "@gnosis.pm/safe-apps-provider": "^0.13.1",
+    "@gnosis.pm/safe-apps-sdk": "^7.8.0",
     "@keplr-wallet/cosmos": "^0.9.9",
     "@keplr-wallet/types": "^0.10.13",
     "@metamask/providers": "^8.1.1",

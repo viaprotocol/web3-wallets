@@ -7,7 +7,8 @@ export const WALLET_NAMES = {
   Phantom: 'Phantom',
   Near: 'Near',
   Coinbase: 'Coinbase',
-  Keplr: 'Keplr'
+  Keplr: 'Keplr',
+  Safe: 'Safe'
 } as const
 
 export const WALLET_SUBNAME = {
@@ -75,7 +76,13 @@ export const ERRCODE = {
 }
 
 export const BTC_WALLETS_CONFIG = [WALLET_NAMES.xDefi]
-export const EVM_WALLETS_CONFIG = [WALLET_NAMES.MetaMask, WALLET_NAMES.WalletConnect, WALLET_NAMES.Coinbase, WALLET_NAMES.xDefi]
+export const EVM_WALLETS_CONFIG = [
+  WALLET_NAMES.MetaMask,
+  WALLET_NAMES.WalletConnect,
+  WALLET_NAMES.Coinbase,
+  WALLET_NAMES.xDefi,
+  WALLET_NAMES.Safe
+]
 export const SOL_WALLETS_CONFIG = [WALLET_NAMES.Phantom]
 export const COSMOS_WALLETS_CONFIG = [WALLET_NAMES.Keplr]
 

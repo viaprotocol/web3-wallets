@@ -24,6 +24,10 @@ const BALANCE_PROVIDER_BY_NAME: Record<TAvailableWalletNames, TBalanceProviderMe
     component: BalanceXDeFi,
     validatePropsFunc: evmValidator
   },
+  Safe: {
+    component: BalanceEVM,
+    validatePropsFunc: evmValidator
+  },
   Phantom: {
     component: BalanceSolana,
     validatePropsFunc: ({ connection }) => Boolean(connection)
