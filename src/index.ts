@@ -1,4 +1,5 @@
 export * from './context'
 export * from './constants'
 export * from './hooks'
+export * from './errors'
 export * from './types'
