@@ -16,8 +16,7 @@ import { ethers } from 'ethers'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 
 import type { Window as KeplrWindow } from '@keplr-wallet/types'
-import type CoinbaseWalletSDK from '@coinbase/wallet-sdk'
-import { EVM_CHAINS, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, SOL_CHAINS, WALLET_NAMES, WALLET_SUBNAME, chainWalletMap, cosmosChainWalletMap, isCosmosChain, isSolChain } from '../constants'
+import { EVM_CHAINS, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, SOL_CHAINS, WALLET_NAMES, WALLET_SUBNAME, chainWalletMap, cosmosChainWalletMap, isCosmosChain, isEvmChain, isSolChain } from '../constants'
 import type { TAvailableWalletNames, TWalletLocalData, TWalletState, TWalletStore } from '../types'
 import { WalletStatusEnum } from '../types'
 import { detectNewTxFromAddress, executeCosmosTransaction, getActiveWalletName, getAddresesInfo, getCluster, getCosmosConnectedWallets, getDomainAddress, goKeplr, goMetamask, goPhantom, inIframe, mapRawWalletSubName, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
@@ -29,7 +28,7 @@ import type { TXDeFiWeb3Provider } from './types'
 import { isBTClikeWallet, isCosmosWallet, isEvmWallet, isSolWallet } from '@/utils/wallet'
 import { BalanceProvider } from '@/components/balance/BalanceProvider'
 import { getBTCConnectedWallets } from '@/utils/btc'
-import { XDeFi, isChainSupportedByWC } from '@/provider'
+import { XDeFi } from '@/provider'
 import type { BTClikeTransaction } from '@/provider/xDeFi/types'
 import { ERRCODE, ERROR_MESSAGE, RejectRequestError } from '@/errors'
 
@@ -272,7 +271,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
   const connectWC = async (chainId: number): Promise<boolean> => {
     updateWalletState('WalletConnect', { status: WalletStatusEnum.LOADING })
 
-    const wcChainId = isChainSupportedByWC(chainId) ? chainId : 1
+    const wcChainId = isEvmChain(chainId) ? chainId : 1
 
     try {
       const walletConnectProvider = new WalletConnectProvider({
