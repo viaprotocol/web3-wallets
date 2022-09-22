@@ -16,7 +16,7 @@ import { ethers } from 'ethers'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 
 import type { Window as KeplrWindow } from '@keplr-wallet/types'
-import { ERRCODE, EVM_CHAINS, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, SOL_CHAINS, WALLET_NAMES, WALLET_SUBNAME, chainWalletMap, cosmosChainWalletMap, isCosmosChain, isSolChain } from '../constants'
+import { EVM_CHAINS, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, SOL_CHAINS, WALLET_NAMES, WALLET_SUBNAME, chainWalletMap, cosmosChainWalletMap, isCosmosChain, isEvmChain, isSolChain } from '../constants'
 import type { TAvailableWalletNames, TWalletLocalData, TWalletState, TWalletStore } from '../types'
 import { WalletStatusEnum } from '../types'
 import { detectNewTxFromAddress, executeCosmosTransaction, getActiveWalletName, getAddresesInfo, getCluster, getCosmosConnectedWallets, getDomainAddress, goKeplr, goMetamask, goPhantom, inIframe, mapRawWalletSubName, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
@@ -30,7 +30,7 @@ import { BalanceProvider } from '@/components/balance/BalanceProvider'
 import { getBTCConnectedWallets } from '@/utils/btc'
 import { XDeFi } from '@/provider'
 import type { BTClikeTransaction } from '@/provider/xDeFi/types'
-import { RejectRequestError } from '@/errors'
+import { ERRCODE, ERROR_MESSAGE, RejectRequestError } from '@/errors'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
@@ -79,6 +79,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
     try {
       const CoinbaseWalletSDK = (await import('@coinbase/wallet-sdk')).default
+
       const coinbase = new CoinbaseWalletSDK({
         appName: document.title
       })
@@ -270,10 +271,12 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
   const connectWC = async (chainId: number): Promise<boolean> => {
     updateWalletState('WalletConnect', { status: WalletStatusEnum.LOADING })
 
+    const wcChainId = isEvmChain(chainId) ? chainId : 1
+
     try {
       const walletConnectProvider = new WalletConnectProvider({
         rpc: rpcMapping,
-        chainId
+        chainId: wcChainId
       })
 
       await walletConnectProvider.enable()
@@ -316,7 +319,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         JSON.stringify({
           name: WALLET_NAMES.WalletConnect,
           subName,
-          chainId,
+          chainId: wcChainId,
           address: addressDomain || addressShort
         })
       )
@@ -802,7 +805,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
           const sendedTransaction = await signer?.sendTransaction(tx)
           return sendedTransaction.hash
         } catch (err: any) {
-          if (err.code === ERRCODE.UserRejected) {
+          if (err.code === ERRCODE.UserRejected || err.code === ERROR_MESSAGE.MetaMask) {
             console.warn('[Wallet] User rejected the request')
             throw new RejectRequestError()
           }
@@ -815,15 +818,21 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         if (!walletInfo || !provider) {
           throw new Error(`[Wallet] sendTx error: no wallet info for chainId ${fromChainId}`)
         }
+        try {
+          const result = await provider.transfer(transaction as BTClikeTransaction)
 
-        const result = await provider.transfer(transaction as BTClikeTransaction)
-
-        return result
+          return result
+        } catch (error: any) {
+          if (error === ERROR_MESSAGE.xDeFi) {
+            throw new RejectRequestError()
+          }
+          throw error
+        }
       } else if (isCosmosWallet(currentState)) {
         try {
           return await executeCosmosTransaction(transaction as CosmosTransaction, currentState.provider)
         } catch (err: any) {
-          if (err?.message === 'Request rejected') {
+          if (err?.message === ERROR_MESSAGE.Keplr) {
             console.warn('[Wallet] User rejected the request')
             throw new RejectRequestError()
           }

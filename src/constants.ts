@@ -69,12 +69,6 @@ export const SOLANA_ENS_POSTFIX = '.sol'
 
 export const EVM_NON_CONTRACT_ADDRESS_CODE = '0x'
 
-export const ERRCODE = {
-  UserRejected: 4001,
-  UnrecognizedChain2: 4902,
-  UnrecognizedChain: -32603
-}
-
 export const BTC_WALLETS_CONFIG = [WALLET_NAMES.xDefi]
 export const EVM_WALLETS_CONFIG = [
   WALLET_NAMES.MetaMask,
