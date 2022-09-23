@@ -41,7 +41,7 @@ function useCosmosBalance(options: TCosmosWalletStore & Pick<TUseBalanceOptions,
 
   useEffect(() => {
     if (chainId) {
-      setClientInstance(rpcMapping[chainId])
+      setClientInstance(rpcMapping[chainId]!)
     }
   }, [chainId, setClientInstance])
 

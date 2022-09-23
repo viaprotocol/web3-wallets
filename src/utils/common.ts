@@ -94,7 +94,7 @@ export const getAddressUrl = (chainId: number, address: string) => {
   }
 
   const network = getNetworkById(chainId)
-  const explorerUrl = network.data.params[0].blockExplorerUrls[0]
+  const explorerUrl = network.data.params[0]!.blockExplorerUrls[0]
 
   if (isEvmChain(network.chain_id) || [NETWORK_IDS.Solana, ...COSMOS_CHAINS].includes(network.chain_id as any)) {
     return `${explorerUrl}/address/${address}`
@@ -113,7 +113,7 @@ export const getTxUrl = (chainId: number, txHash: string): string | undefined =>
   }
 
   const network = getNetworkById(chainId)
-  const explorerUrl = network.data.params[0].blockExplorerUrls[0]
+  const explorerUrl = network.data.params[0]!.blockExplorerUrls[0]
 
   if (network.chain_id > 0 || [NETWORK_IDS.Solana].includes(network.chain_id as any)) {
     return `${explorerUrl}/tx/${txHash}`
@@ -207,7 +207,7 @@ export const getConnectedWallets = async (walletMap: TChainWallet[], getAccounts
   return connectedWallets
 }
 
-export const getAddresesInfo = (connectedWallets: TConnectedWallet[]) => connectedWallets.reduce((acc, { addresses, chainId }) => ({ ...acc, [addresses[0]]: [chainId] }), {})
+export const getAddresesInfo = (connectedWallets: TConnectedWallet[]) => connectedWallets.reduce((acc, { addresses, chainId }) => ({ ...acc, [addresses[0] as string]: [chainId] }), {})
 
 export const inIframe = () => {
   try {

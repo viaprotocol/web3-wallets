@@ -408,7 +408,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
         const offlineSigner = provider.getOfflineSigner(currentChain.network)
         const addressesList = await offlineSigner.getAccounts()
-        const { address } = addressesList[0]
+        const { address } = addressesList[0]!
         const addressShort = shortenAddress(address)
         const connectedWallets = await getCosmosConnectedWallets(provider)
         const addresesInfo = getAddresesInfo(connectedWallets)
@@ -690,7 +690,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       disconnect()
     }
 
-    const address = accounts[0]
+    const address = accounts[0]!
     const addressDomain = await getDomainAddress(address)
 
     addWalletAddress({ [address]: EVM_CHAINS })
@@ -853,7 +853,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
   const fetchEvmWalletInfo = async (provider: Web3Provider) => {
     const address = await provider.getSigner().getAddress()
 
-    let addressDomain = null
+    let addressDomain: string | null = null
     try {
       addressDomain = await getDomainAddress(address)
     } catch (e) {
