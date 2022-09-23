@@ -4,22 +4,17 @@
 /* eslint-disable prefer-const */
 
 import type { ExternalProvider, TransactionRequest } from '@ethersproject/providers'
-import type { Signer } from '@solana/web3.js'
-import { Connection, Transaction, clusterApiUrl } from '@solana/web3.js'
+import type { Signer, Transaction } from '@solana/web3.js'
 import type { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom'
 import type { CosmosTransaction } from 'rango-sdk/lib'
-import WalletConnectProvider from '@walletconnect/web3-provider'
-import SafeAppsSDK from '@gnosis.pm/safe-apps-sdk'
-import { SafeAppProvider } from '@gnosis.pm/safe-apps-provider'
 import type { BigNumber } from 'ethers'
-import { ethers } from 'ethers'
+import { Web3Provider } from '@ethersproject/providers/'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 
 import type { Window as KeplrWindow } from '@keplr-wallet/types'
 import { EVM_CHAINS, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, SOL_CHAINS, WALLET_NAMES, WALLET_SUBNAME, chainWalletMap, cosmosChainWalletMap, isCosmosChain, isEvmChain, isSolChain } from '../constants'
 import type { TAvailableWalletNames, TWalletLocalData, TWalletState, TWalletStore } from '../types'
 import { WalletStatusEnum } from '../types'
-import { detectNewTxFromAddress, executeCosmosTransaction, getActiveWalletName, getAddresesInfo, getCluster, getCosmosConnectedWallets, getDomainAddress, goKeplr, goMetamask, goPhantom, inIframe, mapRawWalletSubName, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
 import { getNetworkById, rpcMapping } from '../networks'
 import { getWalletInfoByChainId, useWalletAddressesHistory } from '../hooks'
 import { INITIAL_STATE, INITIAL_WALLET_STATE, WalletContext } from './WalletContext'
@@ -31,6 +26,10 @@ import { getBTCConnectedWallets } from '@/utils/btc'
 import { XDeFi } from '@/provider'
 import type { BTClikeTransaction } from '@/provider/xDeFi/types'
 import { ERRCODE, ERROR_MESSAGE, RejectRequestError } from '@/errors'
+import { getActiveWalletName, getAddresesInfo, goKeplr, goMetamask, goPhantom, inIframe, mapRawWalletSubName, shortenAddress } from '@/utils/common'
+import { executeCosmosTransaction, getCosmosConnectedWallets } from '@/utils/cosmos'
+import { detectNewTxFromAddress, getDomainAddress } from '@/utils/evm'
+import { getCluster, parseEnsFromSolanaAddress } from '@/utils/solana'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
@@ -87,7 +86,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       const rpcUrl = rpcMapping[chainId]
       const walletProvider = coinbase.makeWeb3Provider(rpcUrl, chainId)
 
-      const provider = new ethers.providers.Web3Provider(walletProvider as unknown as ExternalProvider, 'any')
+      const provider = new Web3Provider(walletProvider as unknown as ExternalProvider, 'any')
       await provider.send('eth_requestAccounts', [])
 
       let { chainId: walletChainId, address, addressShort, addressDomain } = await fetchEvmWalletInfo(provider)
@@ -157,7 +156,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
     const walletProvider = findedProvider()
 
-    const provider = new ethers.providers.Web3Provider(walletProvider as ExternalProvider, 'any')
+    const provider = new Web3Provider(walletProvider as ExternalProvider, 'any')
 
     try {
       await provider.send('eth_requestAccounts', [])
@@ -215,7 +214,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     const xDeFiProvider = new XDeFi(window.xfi)
     const walletProvider = xDeFiProvider.getProviderByKey('ETH').getProvider()
 
-    const provider = new ethers.providers.Web3Provider(walletProvider, 'any')
+    const provider = new Web3Provider(walletProvider, 'any')
 
     try {
       await provider.send('eth_requestAccounts', [])
@@ -274,13 +273,14 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     const wcChainId = isEvmChain(chainId) ? chainId : 1
 
     try {
+      const WalletConnectProvider = await import('@walletconnect/web3-provider').then(m => m.default)
       const walletConnectProvider = new WalletConnectProvider({
         rpc: rpcMapping,
         chainId: wcChainId
       })
 
       await walletConnectProvider.enable()
-      const web3Provider = new ethers.providers.Web3Provider(walletConnectProvider, 'any')
+      const web3Provider = new Web3Provider(walletConnectProvider, 'any')
 
       const {
         chainId: walletChainId,
@@ -343,6 +343,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     }
     updateWalletState('Phantom', { status: WalletStatusEnum.LOADING })
     try {
+      const { Connection, clusterApiUrl } = await import('@solana/web3.js')
       await window.solana.connect()
       const address = window.solana.publicKey!.toString()
       const addressDomain = await parseEnsFromSolanaAddress(address)
@@ -455,6 +456,8 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     updateWalletState('Safe', { status: WalletStatusEnum.LOADING })
 
     try {
+      const SafeAppsSDK = await import('@gnosis.pm/safe-apps-sdk').then(m => m.default)
+      const { SafeAppProvider } = await import('@gnosis.pm/safe-apps-provider')
       const safeSdk = new SafeAppsSDK({
         allowedDomains: [/gnosis-safe.io/],
         debug: false
@@ -462,7 +465,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
       const safeInfo = await safeSdk.safe.getInfo()
       const safeProvider = new SafeAppProvider(safeInfo, safeSdk)
-      const web3Provider = new ethers.providers.Web3Provider(safeProvider, 'any')
+      const web3Provider = new Web3Provider(safeProvider, 'any')
 
       const {
         chainId,
@@ -650,7 +653,9 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     if (isEvmWallet(state)) {
       if (state.walletProvider) {
         state.walletProvider.removeAllListeners()
-        if (state.walletProvider instanceof WalletConnectProvider) {
+        // @ts-expect-error-next-line WalletConnect Provider
+        if (state.walletProvider?.disconnect) {
+          // @ts-expect-error-next-line WalletConnect Provider
           state.walletProvider?.disconnect()
         }
       }
@@ -747,10 +752,11 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     // todo: sendTx reject => false
     console.log('[Wallet] sendTx', transaction)
 
-    const isSolanaTransaction = transaction instanceof Transaction
+    const isSolanaTransaction = 'partialSign' in transaction
 
     try {
       if (isSolanaTransaction) {
+        const { Connection, clusterApiUrl } = await import('@solana/web3.js')
         const cluster = getCluster(currentState.chainId)
         const solanaNetwork = clusterApiUrl(cluster)
         const connection = new Connection(solanaNetwork)
@@ -788,7 +794,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
         try {
           // EVM + Safe tx
-          if (currentState.name === WALLET_NAMES.WalletConnect && currentState.subName === WALLET_SUBNAME.Safe && currentState.walletProvider instanceof WalletConnectProvider) {
+          if (currentState.name === WALLET_NAMES.WalletConnect && currentState.subName === WALLET_SUBNAME.Safe) {
           /*
             Safe cannot immediately return the transaction by design.
             Multi-signature can be done much later.
@@ -853,7 +859,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     }
   }
 
-  const fetchEvmWalletInfo = async (provider: ethers.providers.Web3Provider) => {
+  const fetchEvmWalletInfo = async (provider: Web3Provider) => {
     const address = await provider.getSigner().getAddress()
 
     let addressDomain = null
@@ -878,6 +884,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     const currentChainId = fromChainId || state.chainId
 
     if (isSolWallet(state, currentChainId)) {
+      const { Connection, clusterApiUrl } = await import('@solana/web3.js')
       const cluster = getCluster(currentChainId)
       const solanaNetwork = clusterApiUrl(cluster)
       const connection = new Connection(solanaNetwork)

@@ -1,7 +1,3 @@
-import { PublicKey } from '@solana/web3.js'
-import type { BytesLike } from 'ethers'
-import { ethers } from 'ethers'
-import type { Hexable } from 'ethers/lib/utils'
 import isMobile from 'ismobilejs'
 
 import {
@@ -20,10 +16,6 @@ import { WalletStatusEnum } from '..'
 import { checkEnsValid, parseAddressFromEnsSolana } from './solana'
 import { getNetworkById, supportedNetworkIds } from '@/networks'
 
-export const { BigNumber } = ethers
-
-export const toHex = (value: BytesLike | Hexable | number | bigint) => ethers.utils.hexlify(value)
-
 const addressRegExpList = {
   [NETWORK_IDS.TON]: /^[a-zA-Z0-9_-]*$/,
   [NETWORK_IDS.TONTestnet]: /^[a-zA-Z0-9_-]*$/,
@@ -36,6 +28,7 @@ const addressRegExpList = {
 }
 
 export const isValidAddress = async (chainId: number, address: string) => {
+  const { ethers } = await import('ethers')
   if (isEvmChain(chainId)) {
     // Chain ID > 0 === EVM-like network
     if (address.slice(-4) === EVM_ENS_POSTFIX) {
@@ -52,6 +45,7 @@ export const isValidAddress = async (chainId: number, address: string) => {
         await checkEnsValid(address)
         return true
       }
+      const { PublicKey } = await import('@solana/web3.js')
       return Boolean(new PublicKey(address))
     } catch (e) {
       return false
@@ -151,6 +145,7 @@ export const parseAddressFromEns = async (input: string) => {
 
   if (input.slice(-4) === EVM_ENS_POSTFIX) {
     const rpc = getNetworkById(NETWORK_IDS.Ethereum).rpc_url
+    const { ethers } = await import('ethers')
     const provider = new ethers.providers.JsonRpcProvider(rpc)
     return provider.resolveName(input) as Promise<string>
   }
