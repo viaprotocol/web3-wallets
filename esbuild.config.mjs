@@ -5,6 +5,7 @@ import { nodeExternalsPlugin } from 'esbuild-node-externals'
 esbuild
   .build({
     entryPoints: [
+      './src/index.ts',
       './src/context/index.ts',
       './src/types.ts',
       './src/utils/common.ts',
@@ -12,6 +13,7 @@ esbuild
       './src/utils/evm.ts',
       './src/utils/solana.ts',
       './src/utils/wallet.ts',
+      './src/hooks/index.ts',
       './src/constants.ts',
       './src/networks.ts'
     ],
