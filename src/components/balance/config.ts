@@ -8,6 +8,7 @@ import type { TAvailableWalletNames, TWalletStore } from '@/types'
 const evmValidator = ({ provider }: TWalletStore) => Boolean(provider)
 
 const BALANCE_PROVIDER_BY_NAME: Record<TAvailableWalletNames, TBalanceProviderMetadata | null> = {
+  // 🚧 TODO: Refactor using lazy loading
   MetaMask: {
     component: BalanceEVM,
     validatePropsFunc: evmValidator

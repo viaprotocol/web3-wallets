@@ -17,6 +17,7 @@
     "web3",
     "typescript"
   ],
+  "sideEffects": false,
   "browser": {
     "events": "events",
     "path": "path-browserify",
