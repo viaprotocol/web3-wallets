@@ -1,5 +1,5 @@
 import { createContext } from 'react'
-import { WALLET_NAMES } from '..'
+import { WALLET_NAMES } from '../constants'
 
 import type { TWallet, TWalletState, TWalletStore } from '../types'
 import { WalletStatusConst } from '../types'

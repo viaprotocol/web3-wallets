@@ -11,10 +11,10 @@ import {
   WALLET_SUBNAME,
   isEvmChain
 } from '../constants'
-import type { TChainWallet, TConnectedWallet, TWalletState, TWalletsTypeList } from '..'
-import { WalletStatusConst } from '..'
+import type { TChainWallet, TConnectedWallet, TWalletState, TWalletsTypeList } from '../types'
+import { WalletStatusConst } from '../types'
+import { getNetworkById, supportedNetworkIds } from '../networks'
 import { checkEnsValid, parseAddressFromEnsSolana } from './solana'
-import { getNetworkById, supportedNetworkIds } from '@/networks'
 
 const addressRegExpList = /* #__PURE__ */ {
   [NETWORK_IDS.TON]: /^[a-zA-Z0-9_-]*$/,

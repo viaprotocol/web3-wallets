@@ -1,5 +1,5 @@
-import type { TChainWallet } from '..'
-import { btcChainWalletMap } from '..'
+import type { TChainWallet } from '../types'
+import { btcChainWalletMap } from '../constants'
 import { getConnectedWallets } from './common'
 import type { XDeFi } from '@/provider'
 
