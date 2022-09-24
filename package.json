@@ -65,7 +65,7 @@
   },
   "main": "build/index.cjs.js",
   "module": "build/index.esm.js",
-  "types": "build/index.cjs.d.ts",
+  "types": "build/types.d.ts",
   "files": [
     "/build"
   ],
