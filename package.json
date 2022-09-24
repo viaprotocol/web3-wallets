@@ -75,7 +75,7 @@
   },
   "scripts": {
     "clean": "shx rm -rf ./build",
-    "build": "yarn clean && microbundle --visualize --target=node --tsconfig tsconfig.json --format esm,cjs",
+    "build": "yarn clean && microbundle --entry src/index.ts --jsx React.createElement --visualize --tsconfig tsconfig.json --compress false --format esm,cjs",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "package": "shx cp -R package.json ./build && shx cp -R README.md ./build",
@@ -83,7 +83,8 @@
     "publish:yalc": "yarn publish:pre && yalc publish --no-script --push",
     "publish:rc": "npm version prerelease --preid=rc && yarn publish:pre && npm publish --tag rc --access public",
     "publish:latest": "yarn publish:pre && npm publish --tag latest --access public",
-    "build:test": "microbundle --visualise --tsconfig tsconfig.json"
+    "build:test": "microbundle --visualise --tsconfig tsconfig.json",
+    "test:treeshake": "agadoo"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
@@ -108,7 +109,9 @@
   },
   "dependencies": {
     "@coinbase/wallet-sdk": "^3.3.0",
+    "@cosmjs/launchpad": "0.24.1",
     "@cosmjs/stargate": "^0.27.0",
+    "@ethersproject/providers": "5.6.8",
     "@gnosis.pm/safe-apps-provider": "^0.13.1",
     "@gnosis.pm/safe-apps-sdk": "^7.8.0",
     "@keplr-wallet/cosmos": "^0.9.9",
@@ -126,9 +129,13 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^0.25.1",
+    "@babel/cli": "^7.18.10",
     "@types/node-fetch": "^2.6.2",
     "@types/react": "^18.0.12",
+    "agadoo": "^2.0.0",
+    "babel-plugin-annotate-pure-calls": "^0.4.0",
     "eslint": "^8.18.0",
+    "eslint-plugin-import": "^2.26.0",
     "microbundle": "^0.15.1",
     "rollup-plugin-polyfill-node": "^0.10.2",
     "shx": "^0.3.4",

@@ -5,7 +5,7 @@ type TQueryProviderProps = {
   children: ReactNode
 }
 
-const queryClient = new QueryClient()
+const queryClient = /* #__PURE__ */ new QueryClient()
 
 function QueryProvider({ children }: TQueryProviderProps) {
   return (

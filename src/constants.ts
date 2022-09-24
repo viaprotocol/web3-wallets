@@ -1,6 +1,6 @@
 import type { TChainWallet, TChainsWithWalletsLink } from './types'
 
-export const WALLET_NAMES = {
+export const WALLET_NAMES = /* #__PURE__ */ {
   WalletConnect: 'WalletConnect',
   MetaMask: 'MetaMask',
   xDefi: 'xDefi',
@@ -11,11 +11,11 @@ export const WALLET_NAMES = {
   Safe: 'Safe'
 } as const
 
-export const WALLET_SUBNAME = {
+export const WALLET_SUBNAME = /* #__PURE__ */ {
   Safe: 'Safe'
 } as const
 
-export const NETWORK_IDS = {
+export const NETWORK_IDS = /* #__PURE__ */ {
   Ethereum: 1,
   Rinkeby: 4,
   Optimism: 10,
@@ -81,7 +81,7 @@ export const SOL_WALLETS_CONFIG = [WALLET_NAMES.Phantom]
 export const COSMOS_WALLETS_CONFIG = [WALLET_NAMES.Keplr]
 
 export const BTC_CHAINS = [NETWORK_IDS.BTC, NETWORK_IDS.Litecoin, NETWORK_IDS.BCH]
-export const EVM_CHAINS = Object.keys(NETWORK_IDS).filter(chainName => NETWORK_IDS[chainName as keyof typeof NETWORK_IDS] > 0).map(chainName => NETWORK_IDS[chainName as keyof typeof NETWORK_IDS])
+export const EVM_CHAINS = /* #__PURE__ */ Object.keys(NETWORK_IDS).filter(chainName => NETWORK_IDS[chainName as keyof typeof NETWORK_IDS] > 0).map(chainName => NETWORK_IDS[chainName as keyof typeof NETWORK_IDS])
 export const SOL_CHAINS = [NETWORK_IDS.Solana, NETWORK_IDS.SolanaTestnet]
 export const COSMOS_CHAINS = [NETWORK_IDS.Cosmos, NETWORK_IDS.Osmosis, NETWORK_IDS.Sifchain] as const
 
@@ -101,11 +101,11 @@ export const chainWalletMap: TChainWallet[] = [
   { name: 'BCH', chainId: NETWORK_IDS.BCH, network: 'bitcoincash' }
 ]
 
-export const cosmosChainWalletMap = chainWalletMap.filter(chainWallet => COSMOS_CHAINS.includes(chainWallet.chainId as any))
+export const cosmosChainWalletMap = /* #__PURE__ */ chainWalletMap.filter(chainWallet => COSMOS_CHAINS.includes(chainWallet.chainId as any))
 
-export const btcChainWalletMap = chainWalletMap.filter(chainWallet => BTC_CHAINS.includes(chainWallet.chainId as any))
+export const btcChainWalletMap = /* #__PURE__ */ chainWalletMap.filter(chainWallet => BTC_CHAINS.includes(chainWallet.chainId as any))
 
-export const CHAINS_WITH_WALLET: TChainsWithWalletsLink[] = [
+export const CHAINS_WITH_WALLET: TChainsWithWalletsLink[] = /* #__PURE__ */ [
   {
     key: 'BTC',
     chains: BTC_CHAINS,

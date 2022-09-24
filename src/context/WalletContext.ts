@@ -2,10 +2,10 @@ import { createContext } from 'react'
 import { WALLET_NAMES } from '..'
 
 import type { TWallet, TWalletState, TWalletStore } from '../types'
-import { WalletStatusEnum } from '../types'
+import { WalletStatusConst } from '../types'
 
-const INITIAL_STATE: TWalletStore = {
-  status: WalletStatusEnum.NOT_INITED,
+const INITIAL_STATE: TWalletStore = /* #__PURE__ */ {
+  status: WalletStatusConst.NOT_INITED,
   isConnected: false, // TODO: Remove (use status)
   name: null,
   subName: null,
@@ -22,7 +22,7 @@ const INITIAL_STATE: TWalletStore = {
 
 const INITIAL_WALLET_STATE = Object.values(WALLET_NAMES).reduce((acc, walletName) => ({ ...acc, [walletName]: INITIAL_STATE }), {} as TWalletState)
 
-const WalletContext = createContext<TWallet>({
+const WalletContext = /* #__PURE__ */ createContext<TWallet>({
   ...INITIAL_STATE,
   walletAddressesHistory: {},
   walletState: INITIAL_WALLET_STATE,

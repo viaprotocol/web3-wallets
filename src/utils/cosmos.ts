@@ -14,7 +14,7 @@ const uint8ArrayToHex = (buffer: Uint8Array): string => {
     .join('')
 }
 
-const SignMode = cosmos.tx.signing.v1beta1.SignMode
+const SignMode = /* #__PURE__ */ cosmos.tx.signing.v1beta1.SignMode
 const STARGATE_CLIENT_OPTIONS = {
   gasLimits: {
     send: 80000,

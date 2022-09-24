@@ -12,11 +12,11 @@ import {
   isEvmChain
 } from '../constants'
 import type { TChainWallet, TConnectedWallet, TWalletState, TWalletsTypeList } from '..'
-import { WalletStatusEnum } from '..'
+import { WalletStatusConst } from '..'
 import { checkEnsValid, parseAddressFromEnsSolana } from './solana'
 import { getNetworkById, supportedNetworkIds } from '@/networks'
 
-const addressRegExpList = {
+const addressRegExpList = /* #__PURE__ */ {
   [NETWORK_IDS.TON]: /^[a-zA-Z0-9_-]*$/,
   [NETWORK_IDS.TONTestnet]: /^[a-zA-Z0-9_-]*$/,
   [NETWORK_IDS.Cosmos]: /^(cosmos1)[0-9a-z]{38}$/,
@@ -46,7 +46,7 @@ export const isValidAddress = async (chainId: number, address: string) => {
         return true
       }
       const { PublicKey } = await import('@solana/web3.js')
-      return Boolean(new PublicKey(address))
+      return Boolean(/* #__PURE__ */ new PublicKey(address))
     } catch (e) {
       return false
     }
@@ -177,7 +177,7 @@ export const mapRawWalletSubName = (subName: string) => {
 
 export const getActiveWallets = (walletState: TWalletState, wallets: TWalletsTypeList[]) => {
   return wallets.find(
-    walletName => walletState[walletName].status === WalletStatusEnum.READY
+    walletName => walletState[walletName].status === WalletStatusConst.READY
   )
 }
 

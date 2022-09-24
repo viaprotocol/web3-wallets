@@ -1,4 +1,4 @@
-const networksRaw = [
+const networksRaw = /* #__PURE__ */ [
   // Ethereum
   {
     chain_id: 1,
@@ -556,7 +556,7 @@ const networksRaw = [
   }
 ]
 
-const networks = networksRaw.map(item => ({
+const networks = /* #__PURE__ */ networksRaw.map(item => ({
   ...item,
   chainID: item.chain_id,
   icon: item.logo_url,
@@ -579,7 +579,7 @@ const networks = networksRaw.map(item => ({
   }
 }))
 
-export const rpcMapping = networksRaw.reduce((mapper: { [chainId: number]: string }, network) => {
+export const rpcMapping = /* #__PURE__ */ networksRaw.reduce((mapper: { [chainId: number]: string }, network) => {
   mapper[network.chain_id] = network.rpc_url
   return mapper
 }, {})
