@@ -25,11 +25,21 @@
     ".": {
       "module": "./build/index.esm.js",
       "default": "./build/index.cjs.js"
+    },
+    "./types": {
+      "types": "./build/types.d.ts"
     }
   },
   "main": "build/index.cjs.js",
   "module": "build/index.esm.js",
   "types": "build/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "types": [
+        "build/types.d.ts"
+      ]
+    }
+  },
   "files": [
     "/build"
   ],
