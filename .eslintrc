@@ -31,7 +31,7 @@
       "type"
     ],
     /**
-     * ESLint import правила
+     * ESLint import rules
      */
     "import/no-extraneous-dependencies": 1,
   }
