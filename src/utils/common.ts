@@ -12,7 +12,7 @@ import {
   isEvmChain
 } from '../constants'
 import type { TChainWallet, TConnectedWallet, TWalletState, TWalletsTypeList } from '../types'
-import { WalletStatusConst } from '../types'
+import { WALLET_STATUS } from '../types'
 import { getNetworkById, supportedNetworkIds } from '../networks'
 import { checkEnsValid, parseAddressFromEnsSolana } from './solana'
 
@@ -177,7 +177,7 @@ export const mapRawWalletSubName = (subName: string) => {
 
 export const getActiveWallets = (walletState: TWalletState, wallets: TWalletsTypeList[]) => {
   return wallets.find(
-    walletName => walletState[walletName].status === WalletStatusConst.READY
+    walletName => walletState[walletName].status === WALLET_STATUS.READY
   )
 }
 

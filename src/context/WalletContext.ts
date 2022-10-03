@@ -2,10 +2,10 @@ import { createContext } from 'react'
 import { WALLET_NAMES } from '../constants'
 
 import type { TWallet, TWalletState, TWalletStore } from '../types'
-import { WalletStatusConst } from '../types'
+import { WALLET_STATUS } from '../types'
 
 const INITIAL_STATE: TWalletStore = /* #__PURE__ */ {
-  status: WalletStatusConst.NOT_INITED,
+  status: WALLET_STATUS.NOT_INITED,
   isConnected: false, // TODO: Remove (use status)
   name: null,
   subName: null,

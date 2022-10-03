@@ -28,14 +28,14 @@ type TChainsWithWalletsLink = {
   validate: (chainId: number) => boolean
 }
 
-const WalletStatusConst = /* #__PURE__ */ {
+const WALLET_STATUS = /* #__PURE__ */ {
   NOT_INITED: 'NOT_INITED',
   CONNECTING: 'CONNECTING',
   LOADING: 'LOADING',
   READY: 'READY'
 }
 
-type WalletStatus = typeof WalletStatusConst
+type WalletStatus = typeof WALLET_STATUS
 type WalletStatusEnum = WalletStatus[keyof WalletStatus]
 
 type TConnectedWallet = {
@@ -126,4 +126,4 @@ type TAvailableNetworkNames = 'COSMOS' | 'OSMOSIS' | 'SIF' | 'BTC' | 'LTC' | 'BC
 type TChainWallet = { name: TAvailableNetworkNames; chainId: typeof COSMOS_CHAINS[number] | typeof BTC_CHAINS[number] ; network: string }
 
 export type { TAvailableWalletNames, TWallet, TWalletStore, TWalletLocalData, TWalletValues, TAvailableEvmWalletNames, TAvailableSolWalletNames, TEvmWalletStore, TSolWalletStore, TCosmosWalletStore, TConnectedWallet, TWalletAddressesHistory, TWalletState, TChainsWithWalletsLink, TWalletsTypeList, TChainWallet, TAvailableWalletsGroups, TBTCWalletStore, WalletStatusEnum, WalletStatus }
-export { WalletStatusConst }
+export { WALLET_STATUS }
