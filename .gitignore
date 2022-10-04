@@ -8,3 +8,6 @@ yarn-error.log
 # Yalc
 .yalc
 yalc.lock
+
+stats.html
+.idea

@@ -5,7 +5,7 @@ import type { TUseBalanceOptions } from './types'
 
 const balanceFetcher = async (options: TUseBalanceOptions) => {
   const { connection, address } = options
-  const balance = await connection!.getBalance(new PublicKey(address!), 'confirmed')
+  const balance = await connection!.getBalance(/* #__PURE__ */ new PublicKey(address!), 'confirmed')
   return String(balance)
 }
 

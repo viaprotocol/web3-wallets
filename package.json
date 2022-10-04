@@ -1,6 +1,6 @@
 {
   "name": "@viaprotocol/web3-wallets",
-  "version": "1.0.31",
+  "version": "1.1.0",
   "private": false,
   "description": "Universal interface for web3 wallets",
   "author": "Via Protocol (https://via.exchange)",
@@ -17,29 +17,45 @@
     "web3",
     "typescript"
   ],
-  "browser": {
-    "events": "events",
-    "path": "path-browserify",
-    "stream": "stream-browserify",
-    "util": "node-util"
+  "sideEffects": false,
+  "source": "src/index.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "module": "./build/index.esm.js",
+      "default": "./build/index.cjs.js"
+    },
+    "./types": {
+      "types": "./build/types.d.ts"
+    }
   },
-  "main": "index.js",
-  "module": "index.js",
-  "types": "index.d.ts",
+  "main": "build/index.cjs.js",
+  "module": "build/index.esm.js",
+  "types": "build/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "types": [
+        "build/types.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "/build"
+  ],
   "engines": {
     "node": ">=16",
     "npm": ">=7"
   },
   "scripts": {
     "clean": "shx rm -rf ./build",
-    "build": "yarn clean && node esbuild.config.mjs && ts-patch i -s && tsc -p tsconfig.build.json",
+    "build": "yarn clean && microbundle --entry src/index.ts --jsx React.createElement --visualize --tsconfig tsconfig.json --compress false --format esm,cjs",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "package": "shx cp -R package.json ./build && shx cp -R README.md ./build",
-    "publish:pre": "yarn build && yarn package",
-    "publish:yalc": "yarn publish:pre && cd build && yalc publish --no-script --push",
-    "publish:rc": "npm version prerelease --preid=rc && yarn publish:pre && cd build && npm publish --tag rc --access public",
-    "publish:latest": "yarn publish:pre && cd build && npm publish --tag latest --access public"
+    "publish:yalc": "yarn build && yalc publish --no-script --push",
+    "publish:rc": "npm version prerelease --preid=rc && yarn build && npm publish --tag rc --access public",
+    "publish:latest": "yarn build && npm publish --tag latest --access public",
+    "build:test": "microbundle --visualise --tsconfig tsconfig.json",
+    "test:treeshake": "agadoo"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
@@ -59,11 +75,14 @@
     }
   ],
   "peerDependencies": {
+    "ethers": "^5.6.8",
     "react": "^18.1.0"
   },
   "dependencies": {
     "@coinbase/wallet-sdk": "^3.3.0",
+    "@cosmjs/launchpad": "0.24.1",
     "@cosmjs/stargate": "^0.27.0",
+    "@ethersproject/providers": "^5.6.8",
     "@gnosis.pm/safe-apps-provider": "^0.13.1",
     "@gnosis.pm/safe-apps-sdk": "^7.8.0",
     "@keplr-wallet/cosmos": "^0.9.9",
@@ -75,19 +94,19 @@
     "@solana/web3.js": "^1.43.5",
     "@tanstack/react-query": "^4.1.3",
     "@walletconnect/web3-provider": "^1.7.8",
-    "ethers": "^5.6.8",
     "ismobilejs": "^1.1.1",
     "long": "^5.2.0",
-    "path": "^0.12.7",
     "rango-sdk": "^0.0.5"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^0.25.1",
     "@types/node-fetch": "^2.6.2",
     "@types/react": "^18.0.12",
-    "esbuild": "^0.14.42",
-    "esbuild-node-externals": "^1.4.1",
+    "agadoo": "^2.0.0",
     "eslint": "^8.18.0",
+    "eslint-plugin-import": "^2.26.0",
+    "microbundle": "^0.15.1",
+    "rollup-plugin-polyfill-node": "^0.10.2",
     "shx": "^0.3.4",
     "ts-patch": "^2.0.1",
     "typescript": "^4.7.3",

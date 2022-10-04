@@ -4,8 +4,8 @@ import type { CosmosTransaction } from 'rango-sdk/lib'
 import { cosmos } from '@keplr-wallet/cosmos'
 import { SigningStargateClient } from '@cosmjs/stargate'
 import Long from 'long'
-import type { TChainWallet } from '..'
-import { cosmosChainWalletMap } from '..'
+import type { TChainWallet } from '../types'
+import { cosmosChainWalletMap } from '../constants'
 import { getConnectedWallets } from './common'
 
 const uint8ArrayToHex = (buffer: Uint8Array): string => {
@@ -14,7 +14,7 @@ const uint8ArrayToHex = (buffer: Uint8Array): string => {
     .join('')
 }
 
-const SignMode = cosmos.tx.signing.v1beta1.SignMode
+const SignMode = /* #__PURE__ */ cosmos.tx.signing.v1beta1.SignMode
 const STARGATE_CLIENT_OPTIONS = {
   gasLimits: {
     send: 80000,
@@ -127,7 +127,7 @@ const executeCosmosTransaction = async (cosmosTx: CosmosTransaction, provider: K
     const sendingStargateClient = await SigningStargateClient?.connectWithSigner(
       rpcUrl,
       sendingSigner,
-      // @ts-expect-error
+      // @ts-expect-error 👨🏼‍💻
       STARGATE_CLIENT_OPTIONS
     )
     const feeArray = fee?.amount[0] ? [{ denom: fee.amount[0].denom, amount: fee?.amount[0].amount }] : []

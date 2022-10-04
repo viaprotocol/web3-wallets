@@ -1,7 +1,3 @@
-import { PublicKey } from '@solana/web3.js'
-import type { BytesLike } from 'ethers'
-import { ethers } from 'ethers'
-import type { Hexable } from 'ethers/lib/utils'
 import isMobile from 'ismobilejs'
 
 import {
@@ -15,16 +11,12 @@ import {
   WALLET_SUBNAME,
   isEvmChain
 } from '../constants'
-import type { TChainWallet, TConnectedWallet, TWalletState, TWalletsTypeList } from '..'
-import { WalletStatusEnum } from '..'
+import type { TChainWallet, TConnectedWallet, TWalletState, TWalletsTypeList } from '../types'
+import { WALLET_STATUS } from '../types'
+import { getNetworkById, supportedNetworkIds } from '../networks'
 import { checkEnsValid, parseAddressFromEnsSolana } from './solana'
-import { getNetworkById, supportedNetworkIds } from '@/networks'
 
-export const { BigNumber } = ethers
-
-export const toHex = (value: BytesLike | Hexable | number | bigint) => ethers.utils.hexlify(value)
-
-const addressRegExpList = {
+const addressRegExpList = /* #__PURE__ */ {
   [NETWORK_IDS.TON]: /^[a-zA-Z0-9_-]*$/,
   [NETWORK_IDS.TONTestnet]: /^[a-zA-Z0-9_-]*$/,
   [NETWORK_IDS.Cosmos]: /^(cosmos1)[0-9a-z]{38}$/,
@@ -36,6 +28,7 @@ const addressRegExpList = {
 }
 
 export const isValidAddress = async (chainId: number, address: string) => {
+  const { ethers } = await import('ethers')
   if (isEvmChain(chainId)) {
     // Chain ID > 0 === EVM-like network
     if (address.slice(-4) === EVM_ENS_POSTFIX) {
@@ -52,7 +45,8 @@ export const isValidAddress = async (chainId: number, address: string) => {
         await checkEnsValid(address)
         return true
       }
-      return Boolean(new PublicKey(address))
+      const { PublicKey } = await import('@solana/web3.js')
+      return Boolean(/* #__PURE__ */ new PublicKey(address))
     } catch (e) {
       return false
     }
@@ -100,7 +94,7 @@ export const getAddressUrl = (chainId: number, address: string) => {
   }
 
   const network = getNetworkById(chainId)
-  const explorerUrl = network.data.params[0].blockExplorerUrls[0]
+  const explorerUrl = network.data.params[0]!.blockExplorerUrls[0]
 
   if (isEvmChain(network.chain_id) || [NETWORK_IDS.Solana, ...COSMOS_CHAINS].includes(network.chain_id as any)) {
     return `${explorerUrl}/address/${address}`
@@ -119,7 +113,7 @@ export const getTxUrl = (chainId: number, txHash: string): string | undefined =>
   }
 
   const network = getNetworkById(chainId)
-  const explorerUrl = network.data.params[0].blockExplorerUrls[0]
+  const explorerUrl = network.data.params[0]!.blockExplorerUrls[0]
 
   if (network.chain_id > 0 || [NETWORK_IDS.Solana].includes(network.chain_id as any)) {
     return `${explorerUrl}/tx/${txHash}`
@@ -151,6 +145,7 @@ export const parseAddressFromEns = async (input: string) => {
 
   if (input.slice(-4) === EVM_ENS_POSTFIX) {
     const rpc = getNetworkById(NETWORK_IDS.Ethereum).rpc_url
+    const { ethers } = await import('ethers')
     const provider = new ethers.providers.JsonRpcProvider(rpc)
     return provider.resolveName(input) as Promise<string>
   }
@@ -182,7 +177,7 @@ export const mapRawWalletSubName = (subName: string) => {
 
 export const getActiveWallets = (walletState: TWalletState, wallets: TWalletsTypeList[]) => {
   return wallets.find(
-    walletName => walletState[walletName].status === WalletStatusEnum.READY
+    walletName => walletState[walletName].status === WALLET_STATUS.READY
   )
 }
 
@@ -212,7 +207,7 @@ export const getConnectedWallets = async (walletMap: TChainWallet[], getAccounts
   return connectedWallets
 }
 
-export const getAddresesInfo = (connectedWallets: TConnectedWallet[]) => connectedWallets.reduce((acc, { addresses, chainId }) => ({ ...acc, [addresses[0]]: [chainId] }), {})
+export const getAddresesInfo = (connectedWallets: TConnectedWallet[]) => connectedWallets.reduce((acc, { addresses, chainId }) => ({ ...acc, [addresses[0] as string]: [chainId] }), {})
 
 export const inIframe = () => {
   try {

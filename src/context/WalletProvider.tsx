@@ -4,22 +4,17 @@
 /* eslint-disable prefer-const */
 
 import type { ExternalProvider, TransactionRequest } from '@ethersproject/providers'
-import type { Signer } from '@solana/web3.js'
-import { Connection, Transaction, clusterApiUrl } from '@solana/web3.js'
+import type { Signer, Transaction } from '@solana/web3.js'
 import type { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom'
 import type { CosmosTransaction } from 'rango-sdk/lib'
-import WalletConnectProvider from '@walletconnect/web3-provider'
-import SafeAppsSDK from '@gnosis.pm/safe-apps-sdk'
-import { SafeAppProvider } from '@gnosis.pm/safe-apps-provider'
 import type { BigNumber } from 'ethers'
-import { ethers } from 'ethers'
+import { Web3Provider } from '@ethersproject/providers/'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 
 import type { Window as KeplrWindow } from '@keplr-wallet/types'
 import { EVM_CHAINS, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, SOL_CHAINS, WALLET_NAMES, WALLET_SUBNAME, chainWalletMap, cosmosChainWalletMap, isCosmosChain, isEvmChain, isSolChain } from '../constants'
 import type { TAvailableWalletNames, TWalletLocalData, TWalletState, TWalletStore } from '../types'
-import { WalletStatusEnum } from '../types'
-import { detectNewTxFromAddress, executeCosmosTransaction, getActiveWalletName, getAddresesInfo, getCluster, getCosmosConnectedWallets, getDomainAddress, goKeplr, goMetamask, goPhantom, inIframe, mapRawWalletSubName, parseEnsFromSolanaAddress, shortenAddress } from '../utils'
+import { WALLET_STATUS } from '../types'
 import { getNetworkById, rpcMapping } from '../networks'
 import { getWalletInfoByChainId, useWalletAddressesHistory } from '../hooks'
 import { INITIAL_STATE, INITIAL_WALLET_STATE, WalletContext } from './WalletContext'
@@ -31,6 +26,10 @@ import { getBTCConnectedWallets } from '@/utils/btc'
 import { XDeFi } from '@/provider'
 import type { BTClikeTransaction } from '@/provider/xDeFi/types'
 import { ERRCODE, ERROR_MESSAGE, RejectRequestError } from '@/errors'
+import { getActiveWalletName, getAddresesInfo, goKeplr, goMetamask, goPhantom, inIframe, mapRawWalletSubName, shortenAddress } from '@/utils/common'
+import { executeCosmosTransaction, getCosmosConnectedWallets } from '@/utils/cosmos'
+import { detectNewTxFromAddress, getDomainAddress } from '@/utils/evm'
+import { getCluster, parseEnsFromSolanaAddress } from '@/utils/solana'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
@@ -75,7 +74,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       return false
     }
 
-    updateWalletState('Coinbase', { status: WalletStatusEnum.LOADING })
+    updateWalletState('Coinbase', { status: WALLET_STATUS.LOADING })
 
     try {
       const CoinbaseWalletSDK = (await import('@coinbase/wallet-sdk')).default
@@ -87,7 +86,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       const rpcUrl = rpcMapping[chainId]
       const walletProvider = coinbase.makeWeb3Provider(rpcUrl, chainId)
 
-      const provider = new ethers.providers.Web3Provider(walletProvider as unknown as ExternalProvider, 'any')
+      const provider = new Web3Provider(walletProvider as unknown as ExternalProvider, 'any')
       await provider.send('eth_requestAccounts', [])
 
       let { chainId: walletChainId, address, addressShort, addressDomain } = await fetchEvmWalletInfo(provider)
@@ -98,7 +97,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       addWalletAddress({ [address]: EVM_CHAINS })
       updateWalletState('Coinbase', {
         isConnected: true,
-        status: WalletStatusEnum.READY,
+        status: WALLET_STATUS.READY,
         name: WALLET_NAMES.Coinbase,
         provider,
         walletProvider,
@@ -121,7 +120,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
       return true
     } catch (e: any) {
-      updateWalletState('Coinbase', { status: WalletStatusEnum.NOT_INITED })
+      updateWalletState('Coinbase', { status: WALLET_STATUS.NOT_INITED })
       setActiveWalletName(null)
 
       if (e.code === ERRCODE.UserRejected) {
@@ -140,7 +139,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
     const ethereum: any = window.ethereum
 
-    updateWalletState('MetaMask', { status: WalletStatusEnum.LOADING })
+    updateWalletState('MetaMask', { status: WALLET_STATUS.LOADING })
 
     const findedProvider = () => {
       if (ethereum.providers?.length) {
@@ -157,12 +156,12 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
     const walletProvider = findedProvider()
 
-    const provider = new ethers.providers.Web3Provider(walletProvider as ExternalProvider, 'any')
+    const provider = new Web3Provider(walletProvider as ExternalProvider, 'any')
 
     try {
       await provider.send('eth_requestAccounts', [])
     } catch (e: any) {
-      updateWalletState('MetaMask', { status: WalletStatusEnum.NOT_INITED })
+      updateWalletState('MetaMask', { status: WALLET_STATUS.NOT_INITED })
       setActiveWalletName(null)
 
       if (e.code === ERRCODE.UserRejected) {
@@ -181,7 +180,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     addWalletAddress({ [address]: EVM_CHAINS })
     updateWalletState('MetaMask', {
       isConnected: true,
-      status: WalletStatusEnum.READY,
+      status: WALLET_STATUS.READY,
       name: WALLET_NAMES.MetaMask,
       provider,
       walletProvider,
@@ -210,17 +209,17 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       return false
     }
 
-    updateWalletState('xDefi', { status: WalletStatusEnum.LOADING })
+    updateWalletState('xDefi', { status: WALLET_STATUS.LOADING })
 
     const xDeFiProvider = new XDeFi(window.xfi)
     const walletProvider = xDeFiProvider.getProviderByKey('ETH').getProvider()
 
-    const provider = new ethers.providers.Web3Provider(walletProvider, 'any')
+    const provider = new Web3Provider(walletProvider, 'any')
 
     try {
       await provider.send('eth_requestAccounts', [])
     } catch (e: any) {
-      updateWalletState('xDefi', { status: WalletStatusEnum.NOT_INITED })
+      updateWalletState('xDefi', { status: WALLET_STATUS.NOT_INITED })
       setActiveWalletName(null)
 
       if (e.code === ERRCODE.UserRejected) {
@@ -243,7 +242,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
     updateWalletState('xDefi', {
       isConnected: true,
-      status: WalletStatusEnum.READY,
+      status: WALLET_STATUS.READY,
       name: WALLET_NAMES.xDefi,
       provider: xDeFiProvider,
       connectedWallets: [...state.connectedWallets, ...connectedWallets],
@@ -269,18 +268,19 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
   }
 
   const connectWC = async (chainId: number): Promise<boolean> => {
-    updateWalletState('WalletConnect', { status: WalletStatusEnum.LOADING })
+    updateWalletState('WalletConnect', { status: WALLET_STATUS.LOADING })
 
     const wcChainId = isEvmChain(chainId) ? chainId : 1
 
     try {
+      const WalletConnectProvider = await import('@walletconnect/web3-provider').then(m => m.default)
       const walletConnectProvider = new WalletConnectProvider({
         rpc: rpcMapping,
         chainId: wcChainId
       })
 
       await walletConnectProvider.enable()
-      const web3Provider = new ethers.providers.Web3Provider(walletConnectProvider, 'any')
+      const web3Provider = new Web3Provider(walletConnectProvider, 'any')
 
       const {
         chainId: walletChainId,
@@ -302,7 +302,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       addWalletAddress({ [address]: EVM_CHAINS })
       updateWalletState('WalletConnect', {
         isConnected: true,
-        status: WalletStatusEnum.READY,
+        status: WALLET_STATUS.READY,
         name: WALLET_NAMES.WalletConnect,
         subName,
         provider: web3Provider,
@@ -326,7 +326,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
       return true
     } catch (err: any) {
-      updateWalletState('WalletConnect', { status: WalletStatusEnum.NOT_INITED })
+      updateWalletState('WalletConnect', { status: WALLET_STATUS.NOT_INITED })
       setActiveWalletName(null)
 
       if (err.toString().includes('User closed modal')) {
@@ -341,21 +341,22 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     if (!isSolChain(chainId)) {
       throw new Error(`Unknown Phantom chainId ${chainId}`)
     }
-    updateWalletState('Phantom', { status: WalletStatusEnum.LOADING })
+    updateWalletState('Phantom', { status: WALLET_STATUS.LOADING })
     try {
+      const { Connection, clusterApiUrl } = await import('@solana/web3.js')
       await window.solana.connect()
       const address = window.solana.publicKey!.toString()
       const addressDomain = await parseEnsFromSolanaAddress(address)
       const provider = window.solana
       const cluster = getCluster(chainId)
-      const solanaNetwork = clusterApiUrl(cluster)
-      const connection = new Connection(solanaNetwork)
+      const solanaNetwork = /* #__PURE__ */ clusterApiUrl(cluster)
+      const connection = /* #__PURE__ */ new Connection(solanaNetwork)
       const addressShort = shortenAddress(address)
 
       addWalletAddress({ [address]: SOL_CHAINS })
       updateWalletState('Phantom', {
         isConnected: true,
-        status: WalletStatusEnum.READY,
+        status: WALLET_STATUS.READY,
         name: 'Phantom',
         provider,
         chainId,
@@ -377,7 +378,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       )
       return true
     } catch (err: any) {
-      updateWalletState('Phantom', { status: WalletStatusEnum.NOT_INITED })
+      updateWalletState('Phantom', { status: WALLET_STATUS.NOT_INITED })
       setActiveWalletName(null)
 
       if (err.code === ERRCODE.UserRejected) {
@@ -395,7 +396,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
     try {
       if (window.keplr) {
-        updateWalletState('Keplr', { status: WalletStatusEnum.LOADING })
+        updateWalletState('Keplr', { status: WALLET_STATUS.LOADING })
 
         const chainList = cosmosChainWalletMap.map(chainWallet => chainWallet.network)
         const currentChain = chainWalletMap.find(chainWallet => chainWallet.chainId === chainId)
@@ -410,7 +411,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
         const offlineSigner = provider.getOfflineSigner(currentChain.network)
         const addressesList = await offlineSigner.getAccounts()
-        const { address } = addressesList[0]
+        const { address } = addressesList[0]!
         const addressShort = shortenAddress(address)
         const connectedWallets = await getCosmosConnectedWallets(provider)
         const addresesInfo = getAddresesInfo(connectedWallets)
@@ -418,7 +419,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         addWalletAddress(addresesInfo)
         updateWalletState('Keplr', {
           isConnected: true,
-          status: WalletStatusEnum.READY,
+          status: WALLET_STATUS.READY,
           connectedWallets,
           name: 'Keplr',
           chainId,
@@ -440,7 +441,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         return true
       }
     } catch (err: any) {
-      updateWalletState('Keplr', { status: WalletStatusEnum.NOT_INITED })
+      updateWalletState('Keplr', { status: WALLET_STATUS.NOT_INITED })
       setActiveWalletName(null)
 
       console.error('[Wallet] connectWC error:', err)
@@ -452,9 +453,11 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
   const connectSafe = async (): Promise<boolean> => {
     updateActiveWalletName('Safe')
-    updateWalletState('Safe', { status: WalletStatusEnum.LOADING })
+    updateWalletState('Safe', { status: WALLET_STATUS.LOADING })
 
     try {
+      const SafeAppsSDK = await import('@gnosis.pm/safe-apps-sdk').then(m => m.default)
+      const { SafeAppProvider } = await import('@gnosis.pm/safe-apps-provider')
       const safeSdk = new SafeAppsSDK({
         allowedDomains: [/gnosis-safe.io/],
         debug: false
@@ -462,7 +465,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
       const safeInfo = await safeSdk.safe.getInfo()
       const safeProvider = new SafeAppProvider(safeInfo, safeSdk)
-      const web3Provider = new ethers.providers.Web3Provider(safeProvider, 'any')
+      const web3Provider = new Web3Provider(safeProvider, 'any')
 
       const {
         chainId,
@@ -481,7 +484,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       addWalletAddress({ [address]: EVM_CHAINS })
       updateWalletState('Safe', {
         isConnected: true,
-        status: WalletStatusEnum.READY,
+        status: WALLET_STATUS.READY,
         name: WALLET_NAMES.Safe,
         subName: null,
         provider: web3Provider,
@@ -504,7 +507,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
       return true
     } catch (err: any) {
-      updateWalletState('Safe', { status: WalletStatusEnum.NOT_INITED })
+      updateWalletState('Safe', { status: WALLET_STATUS.NOT_INITED })
       setActiveWalletName(null)
 
       console.error('[Wallet] connectSafe error:', err)
@@ -650,7 +653,9 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     if (isEvmWallet(state)) {
       if (state.walletProvider) {
         state.walletProvider.removeAllListeners()
-        if (state.walletProvider instanceof WalletConnectProvider) {
+        // @ts-expect-error-next-line WalletConnect Provider
+        if (state.walletProvider?.disconnect) {
+          // @ts-expect-error-next-line WalletConnect Provider
           state.walletProvider?.disconnect()
         }
       }
@@ -663,7 +668,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     updateWalletState(activeWalletNameRef.current, {
       isConnected: false,
       name: null,
-      status: WalletStatusEnum.NOT_INITED,
+      status: WALLET_STATUS.NOT_INITED,
       provider: null,
       walletProvider: null,
       chainId: null,
@@ -688,7 +693,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       disconnect()
     }
 
-    const address = accounts[0]
+    const address = accounts[0]!
     const addressDomain = await getDomainAddress(address)
 
     addWalletAddress({ [address]: EVM_CHAINS })
@@ -747,13 +752,14 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     // todo: sendTx reject => false
     console.log('[Wallet] sendTx', transaction)
 
-    const isSolanaTransaction = transaction instanceof Transaction
+    const isSolanaTransaction = 'partialSign' in transaction
 
     try {
       if (isSolanaTransaction) {
+        const { Connection, clusterApiUrl } = await import('@solana/web3.js')
         const cluster = getCluster(currentState.chainId)
-        const solanaNetwork = clusterApiUrl(cluster)
-        const connection = new Connection(solanaNetwork)
+        const solanaNetwork = /* #__PURE__ */ clusterApiUrl(cluster)
+        const connection = /* #__PURE__ */ new Connection(solanaNetwork)
 
         // @ts-expect-error need types for state provider
         transaction.feePayer = currentState.provider.publicKey
@@ -788,7 +794,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
 
         try {
           // EVM + Safe tx
-          if (currentState.name === WALLET_NAMES.WalletConnect && currentState.subName === WALLET_SUBNAME.Safe && currentState.walletProvider instanceof WalletConnectProvider) {
+          if (currentState.name === WALLET_NAMES.WalletConnect && currentState.subName === WALLET_SUBNAME.Safe) {
           /*
             Safe cannot immediately return the transaction by design.
             Multi-signature can be done much later.
@@ -853,10 +859,10 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     }
   }
 
-  const fetchEvmWalletInfo = async (provider: ethers.providers.Web3Provider) => {
+  const fetchEvmWalletInfo = async (provider: Web3Provider) => {
     const address = await provider.getSigner().getAddress()
 
-    let addressDomain = null
+    let addressDomain: string | null = null
     try {
       addressDomain = await getDomainAddress(address)
     } catch (e) {
@@ -878,9 +884,10 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     const currentChainId = fromChainId || state.chainId
 
     if (isSolWallet(state, currentChainId)) {
+      const { Connection, clusterApiUrl } = await import('@solana/web3.js')
       const cluster = getCluster(currentChainId)
-      const solanaNetwork = clusterApiUrl(cluster)
-      const connection = new Connection(solanaNetwork)
+      const solanaNetwork = /* #__PURE__ */ clusterApiUrl(cluster)
+      const connection = /* #__PURE__ */ new Connection(solanaNetwork)
 
       try {
         await connection.getTransaction(hash)

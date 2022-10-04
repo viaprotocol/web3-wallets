@@ -1,5 +1,8 @@
 {
-  "extends": "@antfu",
+  "extends": [
+    "@antfu",
+    "plugin:import/recommended",
+  ],
   "rules": {
     "brace-style": [
       "error",
@@ -26,6 +29,10 @@
     "@typescript-eslint/consistent-type-definitions": [
       "error",
       "type"
-    ]
+    ],
+    /**
+     * ESLint import rules
+     */
+    "import/no-extraneous-dependencies": 1,
   }
 }

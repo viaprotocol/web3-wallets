@@ -1,4 +1,4 @@
-import { ERRCODE } from '..'
+import { ERRCODE } from './codes'
 
 class RejectRequestError extends Error {
   message = '[Wallet] User rejected the request'

@@ -3,9 +3,9 @@ import { Connection, PublicKey, clusterApiUrl } from '@solana/web3.js'
 
 import { NETWORK_IDS, SOLANA_ENS_POSTFIX } from '../constants'
 
-const SOL_TLD_AUTHORITY = new PublicKey('58PwtjSDuFHuUkYjH9BYnnQKHfwo9reZhC2zMJv9JPkx')
-const solanaNetwork = clusterApiUrl('mainnet-beta')
-const connection = new Connection(solanaNetwork)
+const SOL_TLD_AUTHORITY = /* #__PURE__ */ new PublicKey('58PwtjSDuFHuUkYjH9BYnnQKHfwo9reZhC2zMJv9JPkx')
+const solanaNetwork = /* #__PURE__ */ clusterApiUrl('mainnet-beta')
+const connection = /* #__PURE__ */ new Connection(solanaNetwork)
 
 const getInputKey = async (input: string) => {
   const hashedInputName = await getHashedName(input)

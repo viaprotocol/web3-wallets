@@ -1,5 +1,5 @@
-import type { TWalletAddressesHistory } from '../..'
-import { LOCAL_STORAGE_WALLETS_ADDRESSES } from '../..'
+import type { TWalletAddressesHistory } from '../../types'
+import { LOCAL_STORAGE_WALLETS_ADDRESSES } from '../../constants'
 import { useLocalStorage } from '../useLocalStorage'
 import type { TUseWalletAddressesHistory, TUseWalletAddressesOptions } from './types'
 

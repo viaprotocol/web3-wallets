@@ -11,7 +11,7 @@ const getWalletsByGroup = (walletAddressesHistory: TWalletAddressesHistory) => {
 
   for (const chainData of Object.entries(walletAddressesHistory)) {
     const [, chains] = chainData
-    const validChainWalletData = getWalletInfoByChainId(chains[0])
+    const validChainWalletData = getWalletInfoByChainId(chains[0]!)
 
     if (validChainWalletData) {
       output[validChainWalletData.key].push(chainData)
@@ -23,7 +23,7 @@ const getWalletsByGroup = (walletAddressesHistory: TWalletAddressesHistory) => {
 
 const convertAddressHistoryToConnectedWallets = (walletAddressesHistory: TWalletAddressesHistory) => {
   return Object.entries(walletAddressesHistory).map(([historyAddress, chains]) => {
-    const chain: number = chains[0]
+    const chain = chains[0]!
     const data = chainWalletMap.find(({ chainId }) => chainId === chain)
 
     if (!data) {
