@@ -6,11 +6,15 @@
     "incremental": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
-    "lib": ["es2019", "es2017", "dom"],
+    "lib": [
+      "es2019",
+      "es2017",
+      "dom"
+    ],
     "module": "ESNext",
     "moduleResolution": "node",
     "noEmit": true,
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "noUncheckedIndexedAccess": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -20,7 +24,9 @@
     "strictNullChecks": true,
     "target": "es2021",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ]
     },
     "types": [
       "node",
@@ -29,7 +35,9 @@
       "@ethersproject/providers"
     ]
   },
-  "include": ["src"],
+  "include": [
+    "src"
+  ],
   "exclude": [
     "build/**/*",
     "node_modules",
