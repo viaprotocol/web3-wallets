@@ -34,5 +34,24 @@
      * ESLint import rules
      */
     "import/no-extraneous-dependencies": 1,
+  },
+  "settings": {
+    "import/core-modules": [
+      "react"
+    ],
+    "import/resolver": {
+      "alias": {
+        "map": [
+          [
+            "@",
+            "./src"
+          ]
+        ],
+        "extensions": [
+          ".ts",
+          ".tsx"
+        ]
+      }
+    }
   }
 }

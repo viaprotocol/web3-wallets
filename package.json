@@ -49,8 +49,8 @@
   "scripts": {
     "clean": "shx rm -rf ./build",
     "build": "yarn clean && microbundle --entry src/index.ts --jsx React.createElement --visualize --tsconfig tsconfig.json --compress false --format esm,cjs",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
+    "lint": "eslint ./src",
+    "lint:fix": "eslint ./src --fix",
     "publish:yalc": "yarn build && yalc publish --no-script --push",
     "publish:rc": "npm version prerelease --preid=rc && yarn build && npm publish --tag rc --access public",
     "publish:latest": "yarn build && npm publish --tag latest --access public",
@@ -104,6 +104,7 @@
     "@types/react": "^18.0.12",
     "agadoo": "^2.0.0",
     "eslint": "^8.18.0",
+    "eslint-import-resolver-alias": "^1.1.2",
     "eslint-plugin-import": "^2.26.0",
     "microbundle": "^0.15.1",
     "rollup-plugin-polyfill-node": "^0.10.2",
