@@ -4,6 +4,7 @@
     "plugin:import/recommended",
   ],
   "rules": {
+    "no-console": "off",
     "brace-style": [
       "error",
       "1tbs"

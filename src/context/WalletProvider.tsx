@@ -1,15 +1,13 @@
 /* 🚧 NEED TO BE REFACTORED 🚧 */
-/* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-use-before-define */
-/* eslint-disable prefer-const */
-
+import type { ReactNode } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import type { ExternalProvider, TransactionRequest } from '@ethersproject/providers'
 import type { Signer, Transaction } from '@solana/web3.js'
 import type { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom'
 import type { CosmosTransaction } from 'rango-sdk/lib'
 import type { BigNumber } from 'ethers'
 import { Web3Provider } from '@ethersproject/providers/'
-import React, { useCallback, useMemo, useRef, useState } from 'react'
 
 import type { Window as KeplrWindow } from '@keplr-wallet/types'
 import { EVM_CHAINS, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, SOL_CHAINS, WALLET_NAMES, WALLET_SUBNAME, chainWalletMap, cosmosChainWalletMap, isCosmosChain, isEvmChain, isSolChain } from '../constants'
@@ -39,7 +37,7 @@ declare global {
   }
 }
 
-const WalletProvider = function WalletProvider({ children }: { children: React.ReactNode }) {
+const WalletProvider = function WalletProvider({ children }: { children: ReactNode }) {
   const activeWalletNameRef = useRef<TAvailableWalletNames | null>(null)
 
   const setActiveWalletName = (newWalletName: TAvailableWalletNames | null) => {
@@ -89,7 +87,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       const provider = new Web3Provider(walletProvider as unknown as ExternalProvider, 'any')
       await provider.send('eth_requestAccounts', [])
 
-      let { chainId: walletChainId, address, addressShort, addressDomain } = await fetchEvmWalletInfo(provider)
+      const { chainId: walletChainId, address, addressShort, addressDomain } = await fetchEvmWalletInfo(provider)
 
       walletProvider.on('chainChanged', evmChainChangeHandler as any)
       walletProvider.on('accountsChanged', evmAccountChangeHandler as any)
@@ -172,7 +170,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       }
     }
 
-    let { chainId: walletChainId, address, addressShort, addressDomain } = await fetchEvmWalletInfo(provider)
+    const { chainId: walletChainId, address, addressShort, addressDomain } = await fetchEvmWalletInfo(provider)
 
     walletProvider.on('chainChanged', evmChainChangeHandler as any)
     walletProvider.on('accountsChanged', evmAccountChangeHandler as any)
@@ -230,7 +228,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
       }
     }
 
-    let { chainId: walletChainId, address, addressShort, addressDomain } = await fetchEvmWalletInfo(provider)
+    const { chainId: walletChainId, address, addressShort, addressDomain } = await fetchEvmWalletInfo(provider)
 
     walletProvider.on('chainChanged', evmChainChangeHandler as any)
     walletProvider.on('accountsChanged', evmAccountChangeHandler as any)
