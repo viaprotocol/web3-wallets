@@ -30,6 +30,7 @@ const WalletContext = /* #__PURE__ */ createContext<TWallet>({
   connect: () => Promise.reject(),
   changeNetwork: () => Promise.reject(),
   sendTx: () => Promise.reject(),
+  signMessage: () => Promise.reject(),
   disconnect: () => {},
   estimateGas: () => Promise.reject(),
   waitForTransaction: () => Promise.reject(),

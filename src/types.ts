@@ -111,6 +111,7 @@ type TWallet = {
       fromChainId?: number
     }
   ) => Promise<string /* | false */> // todo: sendTx reject => false
+  signMessage: () => Promise<string>
   disconnect: () => void
   estimateGas: (data: TransactionRequest) => Promise<BigNumber | undefined>
   waitForTransaction: (transactionHash: string, config?: { confirmations?: number; fromChainId?: number }) => Promise<void>

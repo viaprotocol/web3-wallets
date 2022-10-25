@@ -851,6 +851,24 @@ const WalletProvider = function WalletProvider({ children }: { children: ReactNo
     }
   }
 
+  const signMessage = async (message: string, params?: { fromChainId?: number }): Promise<string> => {
+    const { fromChainId } = params || {}
+    const currentName = fromChainId ? getActiveWalletName(walletState, fromChainId) : activeWalletNameRef.current
+
+    if (!currentName) {
+      throw new Error('[Wallet] signMessage error: no wallet name')
+    }
+
+    const currentState = walletState[currentName]
+
+    if (isEvmWallet(currentState, fromChainId)) {
+      const signer = currentState.provider!.getSigner()
+      return signer?.signMessage(message)
+    } else {
+      throw new Error(`[Wallet] signMessage error: ${currentName} is not supported`)
+    }
+  }
+
   const estimateGas = async (data: TransactionRequest): Promise<BigNumber | undefined> => {
     if (state.provider && 'estimateGas' in state.provider) {
       return state.provider.estimateGas(data)
@@ -957,6 +975,7 @@ const WalletProvider = function WalletProvider({ children }: { children: ReactNo
     changeNetwork,
     connectedWallets: state.connectedWallets,
     sendTx,
+    signMessage,
     disconnect,
     walletState
   }), [state, walletAddressesHistory, estimateGas, waitForTransaction, getTransaction, restore, connect, changeNetwork, sendTx, disconnect, walletState])
