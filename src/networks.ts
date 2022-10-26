@@ -593,6 +593,6 @@ export const getNetworkById = (chainId: string | number) => {
   throw new Error(`Unknown chainId ${chainId}`)
 }
 
-export const supportedNetworkIds = networks.map(net => net.chainID)
+export const supportedNetworkIds = /* #__PURE__ */ networks.map(net => net.chainID)
 
 export default networks
