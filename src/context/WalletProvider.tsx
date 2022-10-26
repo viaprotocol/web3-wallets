@@ -7,6 +7,7 @@ import type { Signer, Transaction } from '@solana/web3.js'
 import type { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom'
 import type { CosmosTransaction } from 'rango-sdk/lib'
 import type { BigNumber } from 'ethers'
+import { ethers } from 'ethers'
 import { Web3Provider } from '@ethersproject/providers/'
 
 import type { Window as KeplrWindow } from '@keplr-wallet/types'
@@ -17,7 +18,7 @@ import { getNetworkById, rpcMapping } from '../networks'
 import { getWalletInfoByChainId, useWalletAddressesHistory } from '../hooks'
 import { INITIAL_STATE, INITIAL_WALLET_STATE, WalletContext } from './WalletContext'
 import { QueryProvider } from './QueryProvider'
-import type { TXDeFiWeb3Provider } from './types'
+import type { TErc20SendTokenOptions, TXDeFiWeb3Provider } from './types'
 import { isBTClikeWallet, isCosmosWallet, isEvmWallet, isSolWallet } from '@/utils/wallet'
 import { BalanceProvider } from '@/components/balance/BalanceProvider'
 import { getBTCConnectedWallets } from '@/utils/btc'
@@ -28,6 +29,7 @@ import { getActiveWalletName, getAddresesInfo, goKeplr, goMetamask, goPhantom, i
 import { executeCosmosTransaction, getCosmosConnectedWallets } from '@/utils/cosmos'
 import { detectNewTxFromAddress, getDomainAddress } from '@/utils/evm'
 import { getCluster, parseEnsFromSolanaAddress } from '@/utils/solana'
+import { ERC20Abi } from '@/abi'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
@@ -910,6 +912,43 @@ const WalletProvider = function WalletProvider({ children }: { children: ReactNo
     // todo: add cosmos support
   }
 
+  const erc20SendToken = async (options: TErc20SendTokenOptions) => {
+    const { chainId, contractAddress, toAddress, decimals, amount } = options
+    const currentName = chainId ? getActiveWalletName(walletState, chainId) : activeWalletNameRef.current
+
+    if (!currentName) {
+      throw new Error('[Wallet] erc20SendToken error: no wallet name')
+    }
+
+    const currentState = walletState[currentName]
+
+    if (isEvmWallet(currentState, chainId)) {
+      try {
+        const signer = currentState.provider!.getSigner()
+
+        const contract = new ethers.Contract(
+          contractAddress,
+          ERC20Abi,
+          signer
+        )
+
+        const tokensCount = ethers.utils.parseUnits(amount, decimals)
+        const connection = await contract.connect(signer)
+        const result = await connection.transfer(toAddress, tokensCount)
+
+        return result
+      } catch (err: any) {
+        if (err.code === ERRCODE.UserRejected || err.code === ERROR_MESSAGE.MetaMask) {
+          console.warn('[Wallet] User rejected the request')
+          throw new RejectRequestError()
+        }
+        throw err
+      }
+    } else {
+      throw new Error('[Wallet] erc20SendToken error: wallet is not supported')
+    }
+  }
+
   const getTransaction = async (hash: string) => {
     if (isEvmWallet(state)) {
       // Status 0 === Tx Reverted
@@ -958,7 +997,8 @@ const WalletProvider = function WalletProvider({ children }: { children: ReactNo
     connectedWallets: state.connectedWallets,
     sendTx,
     disconnect,
-    walletState
+    walletState,
+    erc20SendToken
   }), [state, walletAddressesHistory, estimateGas, waitForTransaction, getTransaction, restore, connect, changeNetwork, sendTx, disconnect, walletState])
 
   return (

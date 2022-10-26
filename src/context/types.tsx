@@ -8,4 +8,12 @@ type TXDeFiWeb3Provider = {
   terra: any
 }
 
-export type { TXDeFiWeb3Provider }
+type TErc20SendTokenOptions = {
+  chainId: number
+  contractAddress: string
+  amount: string
+  decimals: number
+  toAddress: string
+}
+
+export type { TXDeFiWeb3Provider, TErc20SendTokenOptions }
