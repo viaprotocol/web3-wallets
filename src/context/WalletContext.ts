@@ -20,7 +20,7 @@ const INITIAL_STATE: TWalletStore = /* #__PURE__ */ {
   connectedWallets: []
 }
 
-const INITIAL_WALLET_STATE = Object.values(WALLET_NAMES).reduce((acc, walletName) => ({ ...acc, [walletName]: INITIAL_STATE }), {} as TWalletState)
+const INITIAL_WALLET_STATE = /* #__PURE__ */ Object.values(WALLET_NAMES).reduce((acc, walletName) => ({ ...acc, [walletName]: INITIAL_STATE }), {} as TWalletState)
 
 const WalletContext = /* #__PURE__ */ createContext<TWallet>({
   ...INITIAL_STATE,
