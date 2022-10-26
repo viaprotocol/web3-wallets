@@ -34,7 +34,7 @@ const WalletContext = /* #__PURE__ */ createContext<TWallet>({
   estimateGas: () => Promise.reject(),
   waitForTransaction: () => Promise.reject(),
   getTransaction: () => Promise.reject(),
-  evmSendTokens: () => Promise.resolve()
+  erc20SendToken: () => Promise.resolve()
 })
 
 export { WalletContext, INITIAL_STATE, INITIAL_WALLET_STATE }

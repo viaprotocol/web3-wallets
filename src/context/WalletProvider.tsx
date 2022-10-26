@@ -20,7 +20,7 @@ import { getNetworkById, rpcMapping } from '../networks'
 import { getWalletInfoByChainId, useWalletAddressesHistory } from '../hooks'
 import { INITIAL_STATE, INITIAL_WALLET_STATE, WalletContext } from './WalletContext'
 import { QueryProvider } from './QueryProvider'
-import type { TEvmSendTokensOptions, TXDeFiWeb3Provider } from './types'
+import type { TErc20SendTokenOptions, TXDeFiWeb3Provider } from './types'
 import { isBTClikeWallet, isCosmosWallet, isEvmWallet, isSolWallet } from '@/utils/wallet'
 import { BalanceProvider } from '@/components/balance/BalanceProvider'
 import { getBTCConnectedWallets } from '@/utils/btc'
@@ -914,12 +914,12 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     // todo: add cosmos support
   }
 
-  const evmSendTokens = async (options: TEvmSendTokensOptions) => {
+  const erc20SendToken = async (options: TErc20SendTokenOptions) => {
     const { chainId, contractAddress, toAddress, decimals, amount } = options
     const currentName = chainId ? getActiveWalletName(walletState, chainId) : activeWalletNameRef.current
 
     if (!currentName) {
-      throw new Error('[Wallet] evmSendTokens error: no wallet name')
+      throw new Error('[Wallet] erc20SendToken error: no wallet name')
     }
 
     const currentState = walletState[currentName]
@@ -947,7 +947,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
         throw err
       }
     } else {
-      throw new Error('[Wallet] sendTx error: wallet is not supported')
+      throw new Error('[Wallet] erc20SendToken error: wallet is not supported')
     }
   }
 
@@ -1000,7 +1000,7 @@ const WalletProvider = function WalletProvider({ children }: { children: React.R
     sendTx,
     disconnect,
     walletState,
-    evmSendTokens
+    erc20SendToken
   }), [state, walletAddressesHistory, estimateGas, waitForTransaction, getTransaction, restore, connect, changeNetwork, sendTx, disconnect, walletState])
 
   return (
