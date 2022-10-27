@@ -195,7 +195,10 @@ export const getActiveWalletName = (walletState: TWalletState, chainId: number) 
 
 export const getConnectedWallets = async (walletMap: TChainWallet[], getAccounts: (data: TChainWallet) => Promise<string[]>): Promise<TConnectedWallet[]> => {
   const connectedWallets: TConnectedWallet[] = []
-  for (const data of walletMap) {
+
+  for (let i = 0; i < walletMap.length; i++) {
+    const data = walletMap[i] as TChainWallet
+
     const address = await getAccounts(data)
 
     if (!!address && address.length > 0) {
