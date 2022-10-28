@@ -14,7 +14,6 @@ const uint8ArrayToHex = (buffer: Uint8Array): string => {
     .join('')
 }
 
-const SignMode = /* #__PURE__ */ cosmos.tx.signing.v1beta1.SignMode
 const STARGATE_CLIENT_OPTIONS = {
   gasLimits: {
     send: 80000,
@@ -81,6 +80,7 @@ const executeCosmosTransaction = async (cosmosTx: CosmosTransaction, provider: K
   }))
 
   if (signType === 'AMINO') {
+    const SignMode = cosmos.tx.signing.v1beta1.SignMode
     const signDoc = makeSignDoc(msgsWithoutType as any, fee as any, chainId, memo || undefined, account_number, sequence)
     const signResponse = await provider.signAmino(chainId, cosmosTx.fromWalletAddress, signDoc)
 
