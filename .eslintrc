@@ -35,6 +35,7 @@
      * ESLint import rules
      */
     "import/no-extraneous-dependencies": 1,
+    "import/namespace": "off"
   },
   "settings": {
     "import/core-modules": [
