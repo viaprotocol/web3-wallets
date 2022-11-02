@@ -687,6 +687,23 @@ const WalletProvider = function WalletProvider({ children }: { children: ReactNo
     localStorage.removeItem('isFirstInited')
   }
 
+  const getNonce = async () => {
+    const currentName = activeWalletNameRef.current
+
+    if (!currentName) {
+      throw new Error('Wallet is not connected')
+    }
+
+    const currentState = walletState[currentName]
+    const isEvmConnected = isEvmWallet(currentState)
+    if (!isEvmConnected || !currentState.address) {
+      throw new Error('Wallet is not connected')
+    }
+
+    const { provider } = currentState
+    return provider.getTransactionCount(currentState.address)
+  }
+
   const evmAccountChangeHandler = async (accounts: string[]) => {
     console.log('* accountsChanged', accounts)
 
@@ -1052,6 +1069,7 @@ const WalletProvider = function WalletProvider({ children }: { children: ReactNo
     signMessage,
     signTypedData,
     disconnect,
+    getNonce,
     walletState,
     erc20SendToken
   }), [state, walletAddressesHistory, estimateGas, waitForTransaction, getTransaction, restore, connect, changeNetwork, sendTx, disconnect, walletState])

@@ -118,6 +118,7 @@ type TWallet = {
   }) => Promise<string>
   signTypedData: (options: SignTypedDataArgs<TypedData>) => Promise<SignTypedDataResult>
   disconnect: () => void
+  getNonce: () => Promise<number>
   estimateGas: (data: TransactionRequest) => Promise<BigNumber | undefined>
   waitForTransaction: (transactionHash: string, config?: { confirmations?: number; fromChainId?: number }) => Promise<void>
   getTransaction: (transactionHash: string) => Promise<ethers.providers.TransactionReceipt>
