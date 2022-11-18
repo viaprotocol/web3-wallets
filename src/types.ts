@@ -6,6 +6,7 @@ import type { MetaMaskInpageProvider } from '@metamask/providers'
 import type { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom'
 import type { Connection, Signer, Transaction } from '@solana/web3.js'
 import type WalletConnectProvider from '@walletconnect/web3-provider'
+import type { Narrow, TypedData, TypedDataDomain, TypedDataToPrimitiveTypes } from 'abitype'
 import type { BigNumber, ethers } from 'ethers'
 import type { CosmosTransaction } from 'rango-sdk/lib'
 import type { AVAILABLE_WALLETS_GROUPS_CONFIG, BTC_CHAINS, BTC_WALLETS_CONFIG, COSMOS_CHAINS, COSMOS_WALLETS_CONFIG, EVM_WALLETS_CONFIG, SOL_WALLETS_CONFIG, WALLET_NAMES } from './constants'
@@ -115,7 +116,9 @@ type TWallet = {
   signMessage: (message: string, options?: {
     fromChainId?: number
   }) => Promise<string>
+  signTypedData: (options: SignTypedDataArgs<TypedData>) => Promise<SignTypedDataResult>
   disconnect: () => void
+  getNonce: () => Promise<number>
   estimateGas: (data: TransactionRequest) => Promise<BigNumber | undefined>
   waitForTransaction: (transactionHash: string, config?: { confirmations?: number; fromChainId?: number }) => Promise<void>
   getTransaction: (transactionHash: string) => Promise<ethers.providers.TransactionReceipt>
@@ -130,5 +133,33 @@ type TWalletValues = typeof WALLET_NAMES[keyof typeof WALLET_NAMES]
 type TAvailableNetworkNames = 'COSMOS' | 'OSMOSIS' | 'SIF' | 'BTC' | 'LTC' | 'BCH'
 type TChainWallet = { name: TAvailableNetworkNames; chainId: typeof COSMOS_CHAINS[number] | typeof BTC_CHAINS[number] ; network: string }
 
-export type { TAvailableWalletNames, TWallet, TWalletStore, TWalletLocalData, TWalletValues, TAvailableEvmWalletNames, TAvailableSolWalletNames, TEvmWalletStore, TSolWalletStore, TCosmosWalletStore, TConnectedWallet, TWalletAddressesHistory, TWalletState, TChainsWithWalletsLink, TWalletsTypeList, TChainWallet, TAvailableWalletsGroups, TBTCWalletStore, WalletStatusEnum, WalletStatus }
+export type SignTypedDataArgs<TTypedData = unknown> = {
+  /** Domain or domain signature for origin or contract */
+  domain: TypedDataDomain
+  /** Named list of all type definitions */
+  types: Narrow<TTypedData>
+} & (TTypedData extends TypedData
+  ? TypedDataToPrimitiveTypes<TTypedData> extends infer TSchema
+    ? TSchema[keyof TSchema] extends infer TValue
+      ? // Check if we were able to infer the shape of typed data
+        { [key: string]: any } extends TValue
+          ? {
+            /**
+             * Data to sign
+             *
+             * Use a [const assertion](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions) on {@link types} for type inference.
+             */
+              value: { [key: string]: unknown }
+            }
+          : {
+            /** Data to sign */
+              value: TValue
+            }
+      : never
+    : never
+  : never)
+
+export type SignTypedDataResult = string
+
+export type { TAvailableWalletNames, TWallet, TWalletStore, TWalletLocalData, TWalletValues, TAvailableEvmWalletNames, TAvailableSolWalletNames, TEvmWalletStore, TSolWalletStore, TCosmosWalletStore, TConnectedWallet, TWalletAddressesHistory, TWalletState, TChainsWithWalletsLink, TWalletsTypeList, TChainWallet, TAvailableWalletsGroups, TBTCWalletStore, WalletStatusEnum, WalletStatus, TypedDataDomain }
 export { WALLET_STATUS }
