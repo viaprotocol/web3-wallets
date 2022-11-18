@@ -58,7 +58,8 @@ export const NETWORK_IDS = /* #__PURE__ */ {
   TONTestnet: -1003,
   BTC: -200,
   Litecoin: -201,
-  BCH: -202
+  BCH: -202,
+  Tron: -10
 } as const
 
 export const EVM_BASE_TOKEN_ADDRESS = '0x0000000000000000000000000000000000000000'
