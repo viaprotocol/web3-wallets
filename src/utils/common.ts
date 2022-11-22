@@ -29,8 +29,8 @@ const addressRegExpList = /* #__PURE__ */ {
 }
 
 export const isValidAddress = async (chainId: number, address: string) => {
+  const { ethers } = await import('ethers')
   if (isEvmChain(chainId)) {
-    const { ethers } = await import('ethers')
     // Chain ID > 0 === EVM-like network
     if (address.slice(-4) === EVM_ENS_POSTFIX) {
       const rpc = getNetworkById(NETWORK_IDS.Ethereum).rpc_url
