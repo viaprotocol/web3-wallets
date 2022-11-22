@@ -1,3 +1,5 @@
+import { NETWORK_IDS } from './constants'
+
 const networksRaw = /* #__PURE__ */ [
   // Ethereum
   {
@@ -526,6 +528,18 @@ const networksRaw = /* #__PURE__ */ [
     currency_name: 'Bitcoin Cash',
     currency_symbol: 'BCH',
     currency_decimals: 8,
+    is_testnet: false
+  },
+  {
+    chain_id: NETWORK_IDS.Tron,
+    name: 'Tron',
+    short_name: 'Tron',
+    logo_url: 'https://cdn.via.exchange/networks/BitcoinCash.svg',
+    explorer_url: 'https://tronscan.org/#/',
+    rpc_url: '',
+    currency_name: 'TRON',
+    currency_symbol: 'TRX',
+    currency_decimals: 6,
     is_testnet: false
   },
   // KuCoin Chain (KCC)
