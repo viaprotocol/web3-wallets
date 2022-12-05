@@ -98,12 +98,14 @@
     "ethers": "5.7.2",
     "ismobilejs": "^1.1.1",
     "long": "^5.2.0",
-    "rango-sdk": "^0.0.5"
+    "rango-sdk": "^0.0.5",
+    "utf8": "^3.0.0"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^0.25.1",
     "@types/node-fetch": "^2.6.2",
     "@types/react": "^18.0.12",
+    "@types/utf8": "^3.0.1",
     "agadoo": "^2.0.0",
     "eslint": "^8.18.0",
     "eslint-import-resolver-alias": "^1.1.2",
