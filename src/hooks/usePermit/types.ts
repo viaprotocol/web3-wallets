@@ -41,6 +41,7 @@ type TUsePermitOptions = {
 type TPermitToken = {
   address: string
   chainId: number
+  noncesFn?: string
 }
 
 export type { TDaiPermitMessage, TPermitToken, TERC2612PermitMessage, TDomain, TRSVResponse, TUsePermitOptions }
