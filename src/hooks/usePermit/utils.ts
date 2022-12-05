@@ -1,7 +1,7 @@
 import utf8 from 'utf8'
 import { EIP712Domain, NAME_FN } from './constants'
 import { call } from './rpc'
-import type { TDaiPermitMessage, TDomain, TERC2612PermitMessage, TRSVResponse } from './types'
+import type { TDaiPermitMessage, TDomain, TERC2612PermitMessage, TPermitToken, TRSVResponse } from './types'
 
 const hexToUtf8 = (hex: string) => {
   const str = hex.replace(/^0x/, '')
@@ -73,4 +73,8 @@ const createTypedERC2612Data = (message: TERC2612PermitMessage, domain: TDomain)
   return typedData
 }
 
-export { addZeros, splitSignatureToRSV, getTokenName, getDomain, createTypedDaiData, createTypedERC2612Data }
+const isTokenExists = (tokens: TPermitToken[], token: TPermitToken) => {
+  return tokens.find(t => t.address === token.address && t.chainId === token.chainId)
+}
+
+export { addZeros, isTokenExists, splitSignatureToRSV, getTokenName, getDomain, createTypedDaiData, createTypedERC2612Data }

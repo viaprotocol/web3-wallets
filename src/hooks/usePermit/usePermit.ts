@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 import { DAI_TOKENS, MAX_UINT256, NONCES_FN, SUPPORTED_TOKENS } from './constants'
 import { call, signData } from './rpc'
 import type { TDaiPermitMessage, TERC2612PermitMessage, TRSVResponse, TUsePermitOptions } from './types'
-import { addZeros, createTypedDaiData, createTypedERC2612Data, getDomain } from './utils'
+import { addZeros, createTypedDaiData, createTypedERC2612Data, getDomain, isTokenExists } from './utils'
 
 const usePermit = (options: TUsePermitOptions) => {
   const { provider, token, spender, owner, chainId, deadline } = options
@@ -42,9 +42,9 @@ const usePermit = (options: TUsePermitOptions) => {
   const permit = useCallback(async () => {
     const permitToken = { address: token, chainId }
 
-    if (SUPPORTED_TOKENS.includes(permitToken)) {
+    if (isTokenExists(SUPPORTED_TOKENS, permitToken)) {
       // We have a special case for DAI
-      if (DAI_TOKENS.includes(permitToken)) {
+      if (isTokenExists(DAI_TOKENS, permitToken)) {
         return signDaiPermit()
       } else {
         return signERC2612Permit()
