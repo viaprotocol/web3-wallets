@@ -34,7 +34,6 @@ type TUsePermitOptions = {
   token: string
   spender: string
   owner: string
-  amount: string
   chainId: number
   deadline?: number
 }
