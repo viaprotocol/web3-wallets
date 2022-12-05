@@ -74,7 +74,7 @@ const createTypedERC2612Data = (message: TERC2612PermitMessage, domain: TDomain)
 }
 
 const isTokenExists = (tokens: TPermitToken[], token: TPermitToken) => {
-  return tokens.find(t => t.address === token.address && t.chainId === token.chainId)
+  return tokens.find(t => t.address.toLowerCase() === token.address.toLowerCase() && t.chainId === token.chainId)
 }
 
 export { addZeros, isTokenExists, splitSignatureToRSV, getTokenName, getDomain, createTypedDaiData, createTypedERC2612Data }
