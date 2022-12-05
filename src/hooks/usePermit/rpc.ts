@@ -14,7 +14,8 @@ const signData = async (provider: Web3Provider, fromAddress: string, typeData: a
     throw new Error('Signer address does not match requested signing address')
   }
 
-  const { ...types } = typeData.types
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { EIP712Domain: _unused, ...types } = typeData.types
   const rawSignature = await signer._signTypedData(typeData.domain, types, typeData.message)
 
   return splitSignatureToRSV(rawSignature)
