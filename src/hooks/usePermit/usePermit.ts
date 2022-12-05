@@ -9,12 +9,12 @@ const usePermit = (options: TUsePermitOptions) => {
 
   const signDaiPermit = useCallback(async () => {
     const findToken = isTokenExists(DAI_TOKENS, { address: token, chainId })
-    const { noncesFn } = findToken || { noncesFn: NONCES_FN }
+    const { noncesFn } = findToken || { }
 
     const message: TDaiPermitMessage = {
       holder: owner,
       spender,
-      nonce: await call(provider, token, `${noncesFn}${addZeros(24)}${owner.slice(2)}`),
+      nonce: await call(provider, token, `${noncesFn || NONCES_FN}${addZeros(24)}${owner.slice(2)}`),
       expiry: deadline || MAX_UINT256,
       allowed: true
     }
