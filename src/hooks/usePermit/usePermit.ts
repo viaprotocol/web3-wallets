@@ -49,6 +49,8 @@ const usePermit = (options: TUsePermitOptions) => {
       } else {
         return signERC2612Permit()
       }
+    } else {
+      throw new Error('Token not supported')
     }
   }, [token, chainId, signDaiPermit, signERC2612Permit])
 
