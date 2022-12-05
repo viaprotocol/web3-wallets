@@ -2,16 +2,7 @@ import type { Web3Provider } from '@ethersproject/providers'
 import type { TRSVResponse } from './types'
 import { splitSignatureToRSV } from './utils'
 
-const send = (provider: Web3Provider, method: string, params: any[]) => new Promise<any>((resolve, reject) => {
-  const _provider = provider
-
-  _provider
-    .send(method, params)
-    .then((r: any) => resolve(r))
-    .catch((e: any) => reject(e))
-})
-
-const call = (provider: any, to: string, data: string) => send(provider, 'eth_call', [{
+const call = (provider: Web3Provider, to: string, data: string) => provider.send('eth_call', [{
   to,
   data
 }, 'latest'])
@@ -29,4 +20,4 @@ const signData = async (provider: Web3Provider, fromAddress: string, typeData: a
   return splitSignatureToRSV(rawSignature)
 }
 
-export { send, call, signData }
+export { call, signData }
