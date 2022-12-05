@@ -18,6 +18,7 @@ const usePermit = (options: TUsePermitOptions) => {
 
     const domain = await getDomain(provider, token, chainId)
     const typedData = createTypedDaiData(message, domain)
+    console.log({ typedData, message, domain })
     const sig = await signData(provider, owner, typedData)
 
     return { ...sig, ...message }
@@ -34,6 +35,8 @@ const usePermit = (options: TUsePermitOptions) => {
 
     const domain = await getDomain(provider, token, chainId)
     const typedData = createTypedERC2612Data(message, domain)
+
+    console.log({ typedData, message, domain })
     const sig = await signData(provider, owner, typedData)
 
     return { ...sig, ...message }
