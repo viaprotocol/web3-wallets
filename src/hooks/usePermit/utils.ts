@@ -25,12 +25,12 @@ const addZeros = (numZeros: number) => ''.padEnd(numZeros, '0')
 const getTokenName = async (provider: any, address: string) =>
   hexToUtf8((await call(provider, address, NAME_FN)).substr(130))
 
-const getDomain = async (provider: any, token: string, chainId: number): Promise<TDomain> => {
-  const tokenAddress = token as string
+const getDomain = async (provider: any, permitToken: TPermitToken): Promise<TDomain> => {
+  const { address, chainId } = permitToken
 
-  const name = await getTokenName(provider, tokenAddress)
+  const name = await getTokenName(provider, address)
 
-  const domain: TDomain = { name, version: '1', chainId, verifyingContract: tokenAddress }
+  const domain: TDomain = { name, version: '1', chainId, verifyingContract: address }
   return domain
 }
 

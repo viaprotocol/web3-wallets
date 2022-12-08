@@ -1,41 +1,45 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 
-import { DAI_TOKENS, ERC2612_TOKENS, MAX_UINT256 } from './constants'
+import { MAX_UINT256, SUPPORTED_TOKENS } from './constants'
 import { signData } from './rpc'
 import type { TDaiPermitMessage, TERC2612PermitMessage, TUsePermitOptions } from './types'
-import { createTypedDaiData, createTypedERC2612Data, getDomain, getPermitNonce, getTokenKey, isTokenExists } from './utils'
+import { createTypedDaiData, createTypedERC2612Data, getDomain, getPermitNonce, getTokenKey } from './utils'
 
 const usePermit = (options: TUsePermitOptions) => {
   const { provider, token, spender, owner, chainId, deadline } = options
+
+  const permitToken = useMemo(() => {
+    return Object.values(SUPPORTED_TOKENS).flat().find(t => t.address.toLowerCase() === token.toLowerCase() && t.chainId === chainId)
+  }, [token, chainId])
 
   const getDaiPermit = useCallback(async () => {
     const message: TDaiPermitMessage = {
       holder: owner,
       spender,
-      nonce: await getPermitNonce(provider, token, chainId),
+      nonce: await getPermitNonce(provider, permitToken!),
       expiry: deadline || MAX_UINT256,
       allowed: true
     }
 
-    const domain = await getDomain(provider, token, chainId)
+    const domain = await getDomain(provider, permitToken!)
     return createTypedDaiData(message, domain)
-  }, [provider, token, spender, owner, chainId, deadline])
+  }, [provider, spender, owner, permitToken, deadline])
 
   const getERC2612Permit = useCallback(async () => {
     const message: TERC2612PermitMessage = {
       owner,
       spender,
       value: MAX_UINT256,
-      nonce: await getPermitNonce(provider, token, chainId),
+      nonce: await getPermitNonce(provider, permitToken!),
       deadline: deadline || MAX_UINT256
     }
 
-    const domain = await getDomain(provider, token, chainId)
+    const domain = await getDomain(provider, permitToken!)
     return createTypedERC2612Data(message, domain)
-  }, [provider, token, spender, owner, chainId, deadline])
+  }, [provider, permitToken, spender, owner, deadline])
 
   const getTypedData = useCallback(async () => {
-    switch (getTokenKey({ address: token, chainId })) {
+    switch (getTokenKey(permitToken!)) {
       case 'DAI':
         return getDaiPermit()
       case 'ERC2612':
@@ -51,7 +55,7 @@ const usePermit = (options: TUsePermitOptions) => {
     return signData(provider, owner, typedData)
   }, [getTypedData, signData, provider, owner])
 
-  return { permit }
+  return { permit, isSupportedToken: !!permitToken }
 }
 
 export { usePermit }
