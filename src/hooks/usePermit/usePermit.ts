@@ -1,13 +1,14 @@
 import { useCallback } from 'react'
-import { DAI_TOKENS, MAX_UINT256, SUPPORTED_TOKENS } from './constants'
+
+import { DAI_TOKENS, ERC2612_TOKENS, MAX_UINT256 } from './constants'
 import { signData } from './rpc'
-import type { TDaiPermitMessage, TERC2612PermitMessage, TRSVResponse, TUsePermitOptions } from './types'
+import type { TDaiPermitMessage, TERC2612PermitMessage, TUsePermitOptions } from './types'
 import { createTypedDaiData, createTypedERC2612Data, getDomain, getPermitNonce, isTokenExists } from './utils'
 
 const usePermit = (options: TUsePermitOptions) => {
   const { provider, token, spender, owner, chainId, deadline } = options
 
-  const signDaiPermit = useCallback(async () => {
+  const getDaiPermit = useCallback(async () => {
     const message: TDaiPermitMessage = {
       holder: owner,
       spender,
@@ -17,14 +18,10 @@ const usePermit = (options: TUsePermitOptions) => {
     }
 
     const domain = await getDomain(provider, token, chainId)
-    const typedData = createTypedDaiData(message, domain)
-
-    const sig = await signData(provider, owner, typedData)
-
-    return { ...sig, ...message }
+    return createTypedDaiData(message, domain)
   }, [provider, token, spender, owner, chainId, deadline])
 
-  const signERC2612Permit = useCallback(async (): Promise<TERC2612PermitMessage & TRSVResponse> => {
+  const getERC2612Permit = useCallback(async () => {
     const message: TERC2612PermitMessage = {
       owner,
       spender,
@@ -34,27 +31,27 @@ const usePermit = (options: TUsePermitOptions) => {
     }
 
     const domain = await getDomain(provider, token, chainId)
-    const typedData = createTypedERC2612Data(message, domain)
-
-    const sig = await signData(provider, owner, typedData)
-
-    return { ...sig, ...message }
+    return createTypedERC2612Data(message, domain)
   }, [provider, token, spender, owner, chainId, deadline])
 
-  const permit = useCallback(async () => {
+  const getTypedData = useCallback(async () => {
     const permitToken = { address: token, chainId }
 
-    if (isTokenExists(SUPPORTED_TOKENS, permitToken)) {
-      // We have a special case for DAI
-      if (isTokenExists(DAI_TOKENS, permitToken)) {
-        return signDaiPermit()
-      } else {
-        return signERC2612Permit()
-      }
+    // We have a special case for DAI
+    if (isTokenExists(DAI_TOKENS, permitToken)) {
+      return getDaiPermit()
+    } else if (isTokenExists(ERC2612_TOKENS, permitToken)) {
+      return getERC2612Permit()
     } else {
       throw new Error('Token not supported')
     }
-  }, [token, chainId, signDaiPermit, signERC2612Permit])
+  }, [token, chainId, getDaiPermit, getERC2612Permit])
+
+  const permit = useCallback(async () => {
+    const typedData = await getTypedData()
+
+    return signData(provider, owner, typedData)
+  }, [getTypedData, signData, provider, owner])
 
   return { permit }
 }

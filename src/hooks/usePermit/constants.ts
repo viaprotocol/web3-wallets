@@ -13,7 +13,7 @@ const EIP712Domain = [
 const NONCES_FN = '0x7ecebe00'
 const NAME_FN = '0x06fdde03'
 
-const USDC_TOKENS: TPermitToken[] = [
+const ERC2612_TOKENS: TPermitToken[] = [
   {
     address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', // USDC
     chainId: NETWORK_IDS.Ethereum
@@ -36,6 +36,6 @@ const DAI_TOKENS: TPermitToken[] = [
   }
 ]
 
-const SUPPORTED_TOKENS = [...USDC_TOKENS, ...DAI_TOKENS]
+const SUPPORTED_TOKENS = [...ERC2612_TOKENS, ...DAI_TOKENS]
 
-export { MAX_UINT256, EIP712Domain, NONCES_FN, NAME_FN, SUPPORTED_TOKENS, DAI_TOKENS }
+export { MAX_UINT256, EIP712Domain, NONCES_FN, NAME_FN, SUPPORTED_TOKENS, DAI_TOKENS, ERC2612_TOKENS }
