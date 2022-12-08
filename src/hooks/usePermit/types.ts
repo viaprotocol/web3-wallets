@@ -38,10 +38,19 @@ type TUsePermitOptions = {
   deadline?: number
 }
 
+const PERMIT_TYPES = ['ERC2612', 'DAI'] as const
+
+type TPermitTypes = typeof PERMIT_TYPES[number]
+
 type TPermitToken = {
   address: string
   chainId: number
   noncesFn?: string
+  permitType?: TPermitTypes
 }
 
-export type { TDaiPermitMessage, TPermitToken, TERC2612PermitMessage, TDomain, TRSVResponse, TUsePermitOptions }
+type TPermitTokens = {
+  [key in TPermitTypes]: TPermitToken[]
+}
+
+export type { TDaiPermitMessage, TPermitToken, TERC2612PermitMessage, TDomain, TRSVResponse, TUsePermitOptions, TPermitTypes, TPermitTokens }

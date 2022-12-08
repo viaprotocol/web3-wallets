@@ -1,4 +1,4 @@
-import type { TPermitToken } from './types'
+import type { TPermitToken, TPermitTokens } from './types'
 import { NETWORK_IDS } from '@/constants'
 
 const MAX_UINT256 = '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
@@ -36,6 +36,9 @@ const DAI_TOKENS: TPermitToken[] = [
   }
 ]
 
-const SUPPORTED_TOKENS = [...ERC2612_TOKENS, ...DAI_TOKENS]
+const SUPPORTED_TOKENS: TPermitTokens = {
+  DAI: DAI_TOKENS,
+  ERC2612: ERC2612_TOKENS
+}
 
 export { MAX_UINT256, EIP712Domain, NONCES_FN, NAME_FN, SUPPORTED_TOKENS, DAI_TOKENS, ERC2612_TOKENS }

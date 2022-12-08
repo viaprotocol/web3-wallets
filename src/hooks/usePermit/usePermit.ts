@@ -3,7 +3,7 @@ import { useCallback } from 'react'
 import { DAI_TOKENS, ERC2612_TOKENS, MAX_UINT256 } from './constants'
 import { signData } from './rpc'
 import type { TDaiPermitMessage, TERC2612PermitMessage, TUsePermitOptions } from './types'
-import { createTypedDaiData, createTypedERC2612Data, getDomain, getPermitNonce, isTokenExists } from './utils'
+import { createTypedDaiData, createTypedERC2612Data, getDomain, getPermitNonce, getTokenKey, isTokenExists } from './utils'
 
 const usePermit = (options: TUsePermitOptions) => {
   const { provider, token, spender, owner, chainId, deadline } = options
@@ -35,15 +35,13 @@ const usePermit = (options: TUsePermitOptions) => {
   }, [provider, token, spender, owner, chainId, deadline])
 
   const getTypedData = useCallback(async () => {
-    const permitToken = { address: token, chainId }
-
-    // We have a special case for DAI
-    if (isTokenExists(DAI_TOKENS, permitToken)) {
-      return getDaiPermit()
-    } else if (isTokenExists(ERC2612_TOKENS, permitToken)) {
-      return getERC2612Permit()
-    } else {
-      throw new Error('Token not supported')
+    switch (getTokenKey({ address: token, chainId })) {
+      case 'DAI':
+        return getDaiPermit()
+      case 'ERC2612':
+        return getERC2612Permit()
+      default:
+        throw new Error('Token not supported')
     }
   }, [token, chainId, getDaiPermit, getERC2612Permit])
 
