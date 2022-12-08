@@ -1,20 +1,17 @@
 import { useCallback } from 'react'
-import { DAI_TOKENS, MAX_UINT256, NONCES_FN, SUPPORTED_TOKENS } from './constants'
-import { call, signData } from './rpc'
+import { DAI_TOKENS, MAX_UINT256, SUPPORTED_TOKENS } from './constants'
+import { signData } from './rpc'
 import type { TDaiPermitMessage, TERC2612PermitMessage, TRSVResponse, TUsePermitOptions } from './types'
-import { addZeros, createTypedDaiData, createTypedERC2612Data, getDomain, isTokenExists } from './utils'
+import { createTypedDaiData, createTypedERC2612Data, getDomain, getPermitNonce, isTokenExists } from './utils'
 
 const usePermit = (options: TUsePermitOptions) => {
   const { provider, token, spender, owner, chainId, deadline } = options
 
   const signDaiPermit = useCallback(async () => {
-    const findToken = isTokenExists(DAI_TOKENS, { address: token, chainId })
-    const { noncesFn } = findToken || { }
-
     const message: TDaiPermitMessage = {
       holder: owner,
       spender,
-      nonce: await call(provider, token, `${noncesFn || NONCES_FN}${addZeros(24)}${owner.slice(2)}`),
+      nonce: await getPermitNonce(provider, token, chainId),
       expiry: deadline || MAX_UINT256,
       allowed: true
     }
@@ -32,7 +29,7 @@ const usePermit = (options: TUsePermitOptions) => {
       owner,
       spender,
       value: MAX_UINT256,
-      nonce: await call(provider, token, `${NONCES_FN}${addZeros(24)}${owner.slice(2)}`),
+      nonce: await getPermitNonce(provider, token, chainId),
       deadline: deadline || MAX_UINT256
     }
 

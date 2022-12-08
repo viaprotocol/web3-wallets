@@ -1,5 +1,6 @@
+import type { Web3Provider } from '@ethersproject/providers'
 import utf8 from 'utf8'
-import { EIP712Domain, NAME_FN } from './constants'
+import { DAI_TOKENS, EIP712Domain, NAME_FN, NONCES_FN } from './constants'
 import { call } from './rpc'
 import type { TDaiPermitMessage, TDomain, TERC2612PermitMessage, TPermitToken, TRSVResponse } from './types'
 
@@ -77,4 +78,12 @@ const isTokenExists = (tokens: TPermitToken[], token: TPermitToken) => {
   return tokens.find(t => t.address.toLowerCase() === token.address.toLowerCase() && t.chainId === token.chainId)
 }
 
-export { addZeros, isTokenExists, splitSignatureToRSV, getTokenName, getDomain, createTypedDaiData, createTypedERC2612Data }
+const getPermitNonce = async (provider: Web3Provider, token: string, chainId: number): Promise<number> => {
+  const findToken = isTokenExists(DAI_TOKENS, { address: token, chainId })
+  const { noncesFn } = findToken || {}
+  const owner = await provider.getSigner().getAddress()
+
+  return call(provider, token, `${noncesFn || NONCES_FN}${addZeros(24)}${owner.slice(2)}`)
+}
+
+export { addZeros, isTokenExists, splitSignatureToRSV, getTokenName, getDomain, createTypedDaiData, createTypedERC2612Data, getPermitNonce }
