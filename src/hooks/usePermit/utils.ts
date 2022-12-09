@@ -23,9 +23,9 @@ const splitSignatureToRSV = (signature: string): TRSVResponse => {
 const addZeros = (numZeros: number) => ''.padEnd(numZeros, '0')
 
 const getTokenName = async (provider: any, address: string) => {
-  const hex = await (call(provider, address, NAME_FN) as any).substr(130)
+  const hex: string = await call(provider, address, NAME_FN)
   console.log({ hex })
-  return hexToUtf8(hex)
+  return hexToUtf8(hex.substr(130))
 }
 
 const getDomain = async (provider: any, permitToken: TPermitToken): Promise<TDomain> => {
