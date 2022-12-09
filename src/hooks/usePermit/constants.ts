@@ -3,7 +3,7 @@ import { NETWORK_IDS } from '@/constants'
 
 const MAX_UINT256 = '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
 
-const EIP712Domains = {
+const EIP712PermitDomain = {
   [NETWORK_IDS.Ethereum]: [
     { name: 'name', type: 'string' },
     { name: 'version', type: 'string' },
@@ -17,6 +17,32 @@ const EIP712Domains = {
     { name: 'verifyingContract', type: 'address' }
   ]
 }
+
+const EIP712Permit2Domain = [
+  { name: 'name', type: 'string' },
+  { name: 'chainId', type: 'uint256' },
+  { name: 'verifyingContract', type: 'address' }
+]
+
+const PermitSingleMessage = [
+  { name: 'owner', type: 'address' },
+  { name: 'spender', type: 'address' },
+  { name: 'value', type: 'uint256' },
+  { name: 'nonce', type: 'uint256' },
+  { name: 'deadline', type: 'uint256' }
+]
+
+const Permit2MessageDetails = [
+  { name: 'details', type: 'PermitDetails' },
+  { name: 'spender', type: 'address' },
+  { name: 'sigDeadline', type: 'uint256' }
+]
+
+const PermitSingle = [
+  { name: 'details', type: 'PermitDetails' },
+  { name: 'spender', type: 'address' },
+  { name: 'sigDeadline', type: 'uint256' }
+]
 
 const NONCES_FN = '0x7ecebe00'
 const NAME_FN = '0x06fdde03'
@@ -54,4 +80,4 @@ const SUPPORTED_TOKENS: TPermitTokens = {
   ERC2612: ERC2612_TOKENS
 }
 
-export { MAX_UINT256, EIP712Domains, NONCES_FN, NAME_FN, SUPPORTED_TOKENS, DAI_TOKENS, ERC2612_TOKENS }
+export { MAX_UINT256, EIP712PermitDomain, EIP712Permit2Domain, PermitMessage, NONCES_FN, NAME_FN, SUPPORTED_TOKENS, DAI_TOKENS, ERC2612_TOKENS }

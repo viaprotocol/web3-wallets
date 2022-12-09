@@ -3,27 +3,39 @@ import { BigNumber } from 'ethers/lib/ethers'
 import { hexZeroPad } from 'ethers/lib/utils'
 import { EIP712Domains, NONCES_FN, SUPPORTED_TOKENS } from './constants'
 import { call } from './rpc'
-import type { TDaiPermitMessage, TDomain, TERC2612PermitMessage, TPermitToken, TPermitTypes } from './types'
+import type { TDaiPermitMessage, TPermitDomain, TPermit2Domain, TERC2612PermitMessage, TPermitToken, TPermitTypes } from './types'
 import { NETWORK_IDS } from '@/constants'
 
 const addZeros = (numZeros: number) => ''.padEnd(numZeros, '0')
 
-const getDomain = (permitToken: TPermitToken): TDomain => {
+const getTokenName = async (provider: any, address: string) =>
+  hexToUtf8((await call(provider, address, NAME_FN)).substr(130))
+
+const getPermitDomain = async (provider: any, permitToken: TPermitToken): Promise<TPermitDomain> => {
   const { address, chainId, name, version } = permitToken
-  const domain: TDomain = {
+  const name = await getTokenName(provider, address)
+  
+  const domain: TPermitDomain = { 
     name,
     version: version || '1',
     verifyingContract: address
   }
-
+  
   if (chainId === NETWORK_IDS.Ethereum) {
     domain.chainId = chainId
   } else {
     domain.salt = hexZeroPad(BigNumber.from(chainId).toHexString(), 32)
   }
-
+  
   return domain
 }
+
+const getPermit2Domain = async (permitToken: TPermitToken): Promise<TPermit2Domain> => {
+  const { address, chainId } = permitToken
+  const domain: TPermitDomain = { name: "Permit2", chainId, verifyingContract: address }
+  return domain
+}
+
 
 const createTypedDaiData = (message: TDaiPermitMessage, domain: TDomain, chainId: number) => {
   if (!Object.keys(EIP712Domains).includes(chainId.toString())) {
@@ -50,7 +62,7 @@ const createTypedDaiData = (message: TDaiPermitMessage, domain: TDomain, chainId
   return typedData
 }
 
-const createTypedERC2612Data = (message: TERC2612PermitMessage, domain: TDomain, chainId: number) => {
+const createTypedPermitData = (message: TERC2612PermitMessage, domain: TPermitDomain, chainId: number) => {
   if (!Object.keys(EIP712Domains).includes(chainId.toString())) {
     throw new Error('ChainId not supported')
   }
@@ -58,13 +70,33 @@ const createTypedERC2612Data = (message: TERC2612PermitMessage, domain: TDomain,
   const typedData = {
     types: {
       // @ts-expect-error – Check type above
-      EIP712Domain: EIP712Domains[chainId]!,
+      EIP712Domain: EIP712PermitDomains[chainId]!,
       Permit: [
         { name: 'owner', type: 'address' },
         { name: 'spender', type: 'address' },
         { name: 'value', type: 'uint256' },
         { name: 'nonce', type: 'uint256' },
         { name: 'deadline', type: 'uint256' }
+      ]
+    },
+    primaryType: 'Permit',
+    domain,
+    message
+  }
+
+  return typedData
+}
+
+const createTypedPermit2Data = (message: TERC2612PermitMessage, domain: TPermit2Domain) => {
+  const typedData = {
+    types: {
+      EIP712Domain: EIP712Permit2Domain,
+      PermitSingle,
+      PermitDetails: [
+          { name: 'token', type: 'address' },
+          { name: 'amount', type: 'uint160' },
+          { name: 'expiration', type: 'uint48' },
+          { name: 'nonce', type: 'uint48' }
       ]
     },
     primaryType: 'Permit',
@@ -95,4 +127,4 @@ const getTokenKey = (token: TPermitToken) => {
   return entry[0] as TPermitTypes
 }
 
-export { addZeros, isTokenExists, getDomain, createTypedDaiData, createTypedERC2612Data, getPermitNonce, getTokenKey }
+export { addZeros, getTokenName, getPermitDomain, getPermit2Domain, createTypedDaiData, createTypedPermitData, createTypedPermit2Data, isTokenExists, getPermitNonce, getTokenKey }
