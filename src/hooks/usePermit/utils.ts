@@ -48,6 +48,7 @@ const getDomain = async (provider: any, permitToken: TPermitToken): Promise<TDom
   const name = await getTokenName(provider, address)
 
   const domain: TDomain = { name, version: '1', chainId, verifyingContract: address }
+  console.log({ domain })
   return domain
 }
 
