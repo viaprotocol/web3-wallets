@@ -23,10 +23,6 @@ const ERC2612_TOKENS: TPermitToken[] = [
     chainId: NETWORK_IDS.Polygon
   },
   {
-    address: '0x1f9840a85d5af5bf1d1762f925bdaddc4201f984', // UNI
-    chainId: NETWORK_IDS.Ethereum
-  },
-  {
     address: '0x111111111117dc0aa78b770fa6a738034120c302', // 1INCH
     chainId: NETWORK_IDS.Ethereum
   },
