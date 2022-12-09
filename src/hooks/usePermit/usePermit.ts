@@ -30,7 +30,7 @@ const usePermit = (options: TUsePermitOptions) => {
       owner,
       spender,
       value: MAX_UINT256,
-      nonce: await getPermitNonce(provider, permitToken!) + 1,
+      nonce: await getPermitNonce(provider, permitToken!),
       deadline: deadline || MAX_UINT256
     }
 

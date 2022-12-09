@@ -4,13 +4,27 @@ import { EIP712Domain, NAME_FN, NONCES_FN, SUPPORTED_TOKENS } from './constants'
 import { call } from './rpc'
 import type { TDaiPermitMessage, TDomain, TERC2612PermitMessage, TPermitToken, TPermitTypes, TRSVResponse } from './types'
 
-const hexToUtf8 = (hex: string) => {
-  const str = hex.replace(/^0x/, '')
-  const bytes = []
-  for (let i = 0; i < str.length; i += 2) {
-    bytes.push(parseInt(str.substring(i, i + 2), 16))
+const hexToUtf8 = function (hex: string) {
+  let str = ''
+  let code = 0
+  hex = hex.replace(/^0x/i, '')
+
+  // remove 00 padding from either side
+  hex = hex.replace(/^(?:00)*/, '')
+  hex = hex.split('').reverse().join('')
+  hex = hex.replace(/^(?:00)*/, '')
+  hex = hex.split('').reverse().join('')
+
+  const l = hex.length
+
+  for (let i = 0; i < l; i += 2) {
+    code = parseInt(hex.substr(i, 2), 16)
+    // if (code !== 0) {
+    str += String.fromCharCode(code)
+    // }
   }
-  return utf8.decode(String.fromCharCode(...bytes))
+
+  return utf8.decode(str)
 }
 
 const splitSignatureToRSV = (signature: string): TRSVResponse => {
@@ -24,7 +38,6 @@ const addZeros = (numZeros: number) => ''.padEnd(numZeros, '0')
 
 const getTokenName = async (provider: any, address: string) => {
   const hex: string = await call(provider, address, NAME_FN)
-  console.log({ hex })
   return hexToUtf8(hex.substr(130))
 }
 
