@@ -24,7 +24,15 @@ const EIP712Permit2Domain = [
   { name: 'verifyingContract', type: 'address' }
 ]
 
-const PermitSingleMessage = [
+const DaiPermitMessage = [
+  { name: 'holder', type: 'address' },
+  { name: 'spender', type: 'address' },
+  { name: 'nonce', type: 'uint256' },
+  { name: 'expiry', type: 'uint256' },
+  { name: 'allowed', type: 'bool' }
+]
+
+const PermitMessage = [
   { name: 'owner', type: 'address' },
   { name: 'spender', type: 'address' },
   { name: 'value', type: 'uint256' },
@@ -32,16 +40,17 @@ const PermitSingleMessage = [
   { name: 'deadline', type: 'uint256' }
 ]
 
-const Permit2MessageDetails = [
+const PermitSingleMessage = [
   { name: 'details', type: 'PermitDetails' },
   { name: 'spender', type: 'address' },
   { name: 'sigDeadline', type: 'uint256' }
 ]
 
-const PermitSingle = [
-  { name: 'details', type: 'PermitDetails' },
-  { name: 'spender', type: 'address' },
-  { name: 'sigDeadline', type: 'uint256' }
+const PermitSingleDetails = [
+  { name: 'token', type: 'address' },
+  { name: 'amount', type: 'uint160' },
+  { name: 'expiration', type: 'uint48' },
+  { name: 'nonce', type: 'uint48' }
 ]
 
 const NONCES_FN = '0x7ecebe00'
@@ -80,4 +89,4 @@ const SUPPORTED_TOKENS: TPermitTokens = {
   ERC2612: ERC2612_TOKENS
 }
 
-export { MAX_UINT256, EIP712PermitDomain, EIP712Permit2Domain, PermitMessage, NONCES_FN, NAME_FN, SUPPORTED_TOKENS, DAI_TOKENS, ERC2612_TOKENS }
+export { MAX_UINT256, EIP712PermitDomain, EIP712Permit2Domain, DaiPermitMessage, PermitMessage, PermitSingleMessage, PermitSingleDetails,  NONCES_FN, NAME_FN, SUPPORTED_TOKENS, DAI_TOKENS, ERC2612_TOKENS }

@@ -8,7 +8,7 @@ type TDaiPermitMessage = {
   allowed?: boolean
 }
 
-type TERC2612PermitMessage = {
+type TPermitMessage = {
   owner: string
   spender: string
   value: number | string
@@ -16,13 +16,13 @@ type TERC2612PermitMessage = {
   deadline: number | string
 }
 
-type TPermit2Message = {
-  details: TPermit2Detail
+type TPermitSingleMessage = {
+  details: TPermitSingleDetails
   spender: string
   sigDeadline: number | string
 }
 
-type TPermit2Detail = {
+type TPermitSingleDetails = {
   token: string,
   amount: number | string
   expiration: number | string
@@ -75,4 +75,4 @@ type TPermitTokens = {
   [key in TPermitTypes]: TPermitToken[]
 }
 
-export type { TDaiPermitMessage, TPermitToken, TERC2612PermitMessage, TPermitDomain, TPermit2Domain, TRSVResponse, TUsePermitOptions, TPermitTypes, TPermitTokens }
+export type { TDaiPermitMessage, TPermitToken, TPermitMessage, TPermitSingleMessage, TPermitSingleDetails, TPermitDomain, TPermit2Domain, TRSVResponse, TUsePermitOptions, TPermitTypes, TPermitTokens }

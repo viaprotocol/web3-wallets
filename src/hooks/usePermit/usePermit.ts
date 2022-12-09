@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react'
 
 import { MAX_UINT256, SUPPORTED_TOKENS } from './constants'
 import { signData } from './rpc'
-import type { TDaiPermitMessage, TERC2612PermitMessage, TUsePermitOptions } from './types'
+import type { TDaiPermitMessage, TPermitMessage, TUsePermitOptions } from './types'
 import { createTypedDaiData, createTypedPermitData, getPermitDomain, getPermitNonce, getTokenKey } from './utils'
 
 const usePermit = (options: TUsePermitOptions) => {
@@ -32,7 +32,7 @@ const usePermit = (options: TUsePermitOptions) => {
         return createTypedDaiData(message, domain, chainId)
       }
       case 'ERC2612': {
-        const message: TERC2612PermitMessage = {
+        const message: TPermitMessage = {
           owner,
           spender,
           value: MAX_UINT256,

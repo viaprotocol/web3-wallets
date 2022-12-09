@@ -1,9 +1,9 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 
-import { MAX_UINT256, SUPPORTED_TOKENS } from './constants'
+import { MAX_UINT256 } from './constants'
 import { signData } from './rpc'
-import type { TDaiPermitMessage, TERC2612PermitMessage, TUsePermitOptions, TPermitToken, TPermit2Message } from './types'
-import { createTypedDaiData, createTypedERC2612Data, getPermit2Domain, getPermitNonce, getTokenKey } from './utils'
+import type { TPermitSingleMessage, TPermitSingleDetails, TUsePermitOptions, TPermitToken } from './types'
+import { createTypedPermitSingleData, getPermit2Domain, getPermitNonce } from './utils'
 
 const usePermit2 = (options: TUsePermitOptions) => {
   const { provider, token, spender, owner, chainId, deadline } = options
@@ -13,40 +13,31 @@ const usePermit2 = (options: TUsePermitOptions) => {
     chainId: chainId
   }
 
-  const getPermit = useCallback(async () => {
-    const message: TPermit2Message = {
-        details: {
-            token,
-            amount: MAX_UINT256,
-            expiration: deadline || MAX_UINT256,
-            nonce: await getPermitNonce(provider, permitToken),
-        },
+  const getSinglePermitTypedData = useCallback(async () => {
+    const details: TPermitSingleDetails = {
+      token,
+      amount: MAX_UINT256,
+      expiration: deadline || MAX_UINT256,
+      nonce: await getPermitNonce(provider, permitToken),
+    }
+
+    const message: TPermitSingleMessage = {
+        details,
         spender,
         sigDeadline: deadline || MAX_UINT256
     }
 
     const domain = await getPermit2Domain(provider, permitToken!)
-    return createTypedERC2612Data(message, domain)
+    return createTypedPermitSingleData(message, domain)
   }, [provider, permitToken, spender, owner, deadline])
 
-  const getTypedData = useCallback(async () => {
-    switch (getTokenKey(permitToken!)) {
-      case 'DAI':
-        return getDaiPermit()
-      case 'ERC2612':
-        return getERC2612Permit()
-      default:
-        throw new Error('Token not supported')
-    }
-  }, [token, chainId, getDaiPermit, getERC2612Permit])
-
   const permit = useCallback(async () => {
-    const typedData = await getTypedData()
+    const typedData = await getSinglePermitTypedData()
 
     return signData(provider, owner, typedData)
-  }, [getTypedData, signData, provider, owner])
+  }, [getSinglePermitTypedData, signData, provider, owner])
 
-  return { permit, isSupportedToken: !!permitToken }
+  return { permit }
 }
 
-export { usePermit }
+export { usePermit2 }

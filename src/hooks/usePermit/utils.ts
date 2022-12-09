@@ -32,38 +32,13 @@ const getPermitDomain = async (provider: any, permitToken: TPermitToken): Promis
 
 const getPermit2Domain = async (permitToken: TPermitToken): Promise<TPermit2Domain> => {
   const { address, chainId } = permitToken
-  const domain: TPermitDomain = { name: "Permit2", chainId, verifyingContract: address }
+  const domain: TPermit2Domain = { name: "Permit2", chainId, verifyingContract: address }
   return domain
 }
 
 
-const createTypedDaiData = (message: TDaiPermitMessage, domain: TDomain, chainId: number) => {
-  if (!Object.keys(EIP712Domains).includes(chainId.toString())) {
-    throw new Error('ChainId not supported')
-  }
-
-  const typedData = {
-    types: {
-      // @ts-expect-error – Check type above
-      EIP712Domain: EIP712Domains[chainId]!,
-      Permit: [
-        { name: 'holder', type: 'address' },
-        { name: 'spender', type: 'address' },
-        { name: 'nonce', type: 'uint256' },
-        { name: 'expiry', type: 'uint256' },
-        { name: 'allowed', type: 'bool' }
-      ]
-    },
-    primaryType: 'Permit',
-    domain,
-    message
-  }
-
-  return typedData
-}
-
-const createTypedPermitData = (message: TERC2612PermitMessage, domain: TPermitDomain, chainId: number) => {
-  if (!Object.keys(EIP712Domains).includes(chainId.toString())) {
+const createTypedDaiData = (message: TDaiPermitMessage, domain: TPermitDomain, chainId: number) => {
+  if (!Object.keys(EIP712PermitDomains).includes(chainId.toString())) {
     throw new Error('ChainId not supported')
   }
 
@@ -71,13 +46,7 @@ const createTypedPermitData = (message: TERC2612PermitMessage, domain: TPermitDo
     types: {
       // @ts-expect-error – Check type above
       EIP712Domain: EIP712PermitDomains[chainId]!,
-      Permit: [
-        { name: 'owner', type: 'address' },
-        { name: 'spender', type: 'address' },
-        { name: 'value', type: 'uint256' },
-        { name: 'nonce', type: 'uint256' },
-        { name: 'deadline', type: 'uint256' }
-      ]
+      Permit: DaiPermitMessage
     },
     primaryType: 'Permit',
     domain,
@@ -87,19 +56,35 @@ const createTypedPermitData = (message: TERC2612PermitMessage, domain: TPermitDo
   return typedData
 }
 
-const createTypedPermit2Data = (message: TERC2612PermitMessage, domain: TPermit2Domain) => {
+const createTypedPermitData = (message: TPermitMessage, domain: TPermitDomain, chainId: number) => {
+  if (!Object.keys(EIP712PermitDomains).includes(chainId.toString())) {
+    throw new Error('ChainId not supported')
+  }
+
+  const typedData = {
+    types: {
+      // @ts-expect-error – Check type above
+      EIP712Domain: EIP712PermitDomains[chainId]!,
+      Permit: PermitMessage
+    },
+    primaryType: 'Permit',
+    domain,
+    message
+  }
+
+  return typedData
+}
+
+
+
+const createTypedPermitSingleData = (message: TPermitSingleMessage, domain: TPermit2Domain) => {
   const typedData = {
     types: {
       EIP712Domain: EIP712Permit2Domain,
-      PermitSingle,
-      PermitDetails: [
-          { name: 'token', type: 'address' },
-          { name: 'amount', type: 'uint160' },
-          { name: 'expiration', type: 'uint48' },
-          { name: 'nonce', type: 'uint48' }
-      ]
+      PermitSingle: PermitSingleMessage,
+      PermitDetails: PermitSingleDetails
     },
-    primaryType: 'Permit',
+    primaryType: 'Permit2',
     domain,
     message
   }
