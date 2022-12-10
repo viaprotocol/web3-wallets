@@ -89,4 +89,4 @@ const SUPPORTED_TOKENS: TPermitTokens = {
   ERC2612: ERC2612_TOKENS
 }
 
-export { MAX_UINT256, EIP712PermitDomain, EIP712Permit2Domain, DaiPermitMessage, PermitMessage, PermitSingleMessage, PermitSingleDetails,  NONCES_FN, NAME_FN, SUPPORTED_TOKENS, DAI_TOKENS, ERC2612_TOKENS }
+export { MAX_UINT256, EIP712PermitDomain, EIP712Permit2Domain, DaiPermitMessage, PermitMessage, PermitSingleMessage, PermitSingleDetails, NONCES_FN, NAME_FN, SUPPORTED_TOKENS, DAI_TOKENS, ERC2612_TOKENS }

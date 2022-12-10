@@ -32,7 +32,7 @@ const getPermitDomain = async (provider: any, permitToken: TPermitToken): Promis
 
 const getPermit2Domain = async (permitToken: TPermitToken): Promise<TPermit2Domain> => {
   const { address, chainId } = permitToken
-  const domain: TPermit2Domain = { name: "Permit2", chainId, verifyingContract: address }
+  const domain: TPermit2Domain = { name: 'Permit2', chainId, verifyingContract: address }
   return domain
 }
 
@@ -101,6 +101,12 @@ const getPermitNonce = async (provider: Web3Provider, token: TPermitToken): Prom
   const { address, noncesFn = NONCES_FN } = token
 
   return call(provider, address, `${noncesFn}${addZeros(24)}${owner.slice(2)}`)
+}
+
+const getPermit2Nonce = async (provider: Web3Provider, owner: string, token: string, spender: string): Promise<number> => {
+  const allowanceProvider = new AllowanceProvider(provider, PERMIT2_ADDRESS)
+  const allowance: AllowanceData = await allowanceProvider?.getAllowanceData(token, owner, spender)
+  return allowance?.nonce
 }
 
 const getTokenKey = (token: TPermitToken) => {

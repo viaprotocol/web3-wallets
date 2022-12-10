@@ -23,7 +23,7 @@ type TPermitSingleMessage = {
 }
 
 type TPermitSingleDetails = {
-  token: string,
+  token: string
   amount: number | string
   expiration: number | string
   nonce: number | string
