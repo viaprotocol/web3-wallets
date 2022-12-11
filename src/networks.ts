@@ -466,21 +466,7 @@ const networksRaw = /* #__PURE__ */ [
     currency_symbol: 'OSMO',
     currency_decimals: 6,
     is_testnet: false
-  },
-  // Sifchain
-  {
-    chain_id: -102,
-    name: 'Sifchain',
-    short_name: 'Sifchain',
-    logo_url: 'https://cdn.via.exchange/networks/Sifchain.svg',
-    explorer_url: 'https://atomscan.com/sifchain',
-    rpc_url: 'https://rpc.sifchain.finance/',
-    currency_name: 'urowan',
-    currency_symbol: 'ROWAN',
-    currency_decimals: 18,
-    is_testnet: false
-  },
-  // Astar
+  }, // Astar
   {
     chain_id: 592,
     name: 'Astar',
