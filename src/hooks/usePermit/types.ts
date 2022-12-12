@@ -47,6 +47,7 @@ type TPermitToken = {
   address: string
   chainId: number
   name: string
+  version?: string
   noncesFn?: string
   permitType?: TPermitTypes
 }
