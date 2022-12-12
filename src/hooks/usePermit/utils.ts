@@ -5,6 +5,7 @@ import { call } from './rpc'
 import type { TDaiPermitMessage, TDomain, TERC2612PermitMessage, TPermitToken, TPermitTypes, TRSVResponse } from './types'
 import { NETWORK_IDS } from '@/constants'
 import { BigNumber } from 'ethers/lib/ethers'
+import { hexZeroPad } from 'ethers/lib/utils'
 
 const hexToUtf8 = function (hex: string) {
   let str = ''
@@ -46,7 +47,7 @@ const getTokenName = async (provider: any, address: string) => {
 const getDomain = (permitToken: TPermitToken): TDomain => {
   const { address, chainId, name } = permitToken
 
-  const domain: TDomain = chainId === NETWORK_IDS.Ethereum ? { name, version: '1', chainId, verifyingContract: address } : { name, version: '1', verifyingContract: address, salt: BigNumber.from(chainId) }
+  const domain: TDomain = chainId === NETWORK_IDS.Ethereum ? { name, version: '1', chainId, verifyingContract: address } : { name, version: '1', verifyingContract: address, salt: hexZeroPad(BigNumber.from(chainId), 32) }
   console.log({ domain })
   return domain
 }

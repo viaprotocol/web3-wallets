@@ -20,7 +20,7 @@ type TDomain = {
   name: string
   version: string
   chainId?: number
-  salt?: number
+  salt?: string
   verifyingContract: string
 }
 
