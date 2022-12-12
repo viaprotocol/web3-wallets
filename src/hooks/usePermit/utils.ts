@@ -1,41 +1,12 @@
 import type { Web3Provider } from '@ethersproject/providers'
-import utf8 from 'utf8'
 import { BigNumber } from 'ethers/lib/ethers'
 import { hexZeroPad } from 'ethers/lib/utils'
-import { EIP712DomainEthereum, EIP712DomainPolygon, NAME_FN, NONCES_FN, SUPPORTED_TOKENS } from './constants'
+import { EIP712DomainEthereum, EIP712DomainPolygon, NONCES_FN, SUPPORTED_TOKENS } from './constants'
 import { call } from './rpc'
 import type { TDaiPermitMessage, TDomain, TERC2612PermitMessage, TPermitToken, TPermitTypes } from './types'
 import { NETWORK_IDS } from '@/constants'
 
-const hexToUtf8 = function (hex: string) {
-  let str = ''
-  let code = 0
-  hex = hex.replace(/^0x/i, '')
-
-  // remove 00 padding from either side
-  hex = hex.replace(/^(?:00)*/, '')
-  hex = hex.split('').reverse().join('')
-  hex = hex.replace(/^(?:00)*/, '')
-  hex = hex.split('').reverse().join('')
-
-  const l = hex.length
-
-  for (let i = 0; i < l; i += 2) {
-    code = parseInt(hex.substr(i, 2), 16)
-    // if (code !== 0) {
-    str += String.fromCharCode(code)
-    // }
-  }
-
-  return utf8.decode(str)
-}
-
 const addZeros = (numZeros: number) => ''.padEnd(numZeros, '0')
-
-const getTokenName = async (provider: any, address: string) => {
-  const hex: string = await call(provider, address, NAME_FN)
-  return hexToUtf8(hex.substr(130))
-}
 
 const getDomain = (permitToken: TPermitToken): TDomain => {
   const { address, chainId, name } = permitToken
@@ -105,4 +76,4 @@ const getTokenKey = (token: TPermitToken) => {
   return entry[0] as TPermitTypes
 }
 
-export { addZeros, isTokenExists, getTokenName, getDomain, createTypedDaiData, createTypedERC2612Data, getPermitNonce, getTokenKey }
+export { addZeros, isTokenExists, getDomain, createTypedDaiData, createTypedERC2612Data, getPermitNonce, getTokenKey }
