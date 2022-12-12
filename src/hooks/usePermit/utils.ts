@@ -1,7 +1,7 @@
 import type { Web3Provider } from '@ethersproject/providers'
 import { BigNumber } from 'ethers/lib/ethers'
 import { hexZeroPad } from 'ethers/lib/utils'
-import { EIP712DomainEthereum, EIP712DomainPolygon, NONCES_FN, SUPPORTED_TOKENS } from './constants'
+import { EIP712Domains, NONCES_FN, SUPPORTED_TOKENS } from './constants'
 import { call } from './rpc'
 import type { TDaiPermitMessage, TDomain, TERC2612PermitMessage, TPermitToken, TPermitTypes } from './types'
 import { NETWORK_IDS } from '@/constants'
@@ -16,9 +16,14 @@ const getDomain = (permitToken: TPermitToken): TDomain => {
 }
 
 const createTypedDaiData = (message: TDaiPermitMessage, domain: TDomain, chainId: number) => {
+  if (!Object.keys(EIP712Domains).includes(chainId.toString())) {
+    throw new Error('ChainId not supported')
+  }
+
   const typedData = {
     types: {
-      EIP712Domain: chainId === NETWORK_IDS.Ethereum ? EIP712DomainEthereum : EIP712DomainPolygon,
+      // @ts-expect-error – Check type above
+      EIP712Domain: EIP712Domains[chainId]!,
       Permit: [
         { name: 'holder', type: 'address' },
         { name: 'spender', type: 'address' },
@@ -36,9 +41,14 @@ const createTypedDaiData = (message: TDaiPermitMessage, domain: TDomain, chainId
 }
 
 const createTypedERC2612Data = (message: TERC2612PermitMessage, domain: TDomain, chainId: number) => {
+  if (!Object.keys(EIP712Domains).includes(chainId.toString())) {
+    throw new Error('ChainId not supported')
+  }
+
   const typedData = {
     types: {
-      EIP712Domain: chainId === NETWORK_IDS.Ethereum ? EIP712DomainEthereum : EIP712DomainPolygon,
+      // @ts-expect-error – Check type above
+      EIP712Domain: EIP712Domains[chainId]!,
       Permit: [
         { name: 'owner', type: 'address' },
         { name: 'spender', type: 'address' },

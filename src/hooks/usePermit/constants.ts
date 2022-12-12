@@ -3,19 +3,20 @@ import { NETWORK_IDS } from '@/constants'
 
 const MAX_UINT256 = '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
 
-const EIP712DomainEthereum = [
-  { name: 'name', type: 'string' },
-  { name: 'version', type: 'string' },
-  { name: 'verifyingContract', type: 'address' },
-  { name: 'chainId', type: 'uint256' }
-]
-
-const EIP712DomainPolygon = [
-  { name: 'name', type: 'string' },
-  { name: 'version', type: 'string' },
-  { name: 'salt', type: 'bytes32' },
-  { name: 'verifyingContract', type: 'address' }
-]
+const EIP712Domains = {
+  [NETWORK_IDS.Ethereum]: [
+    { name: 'name', type: 'string' },
+    { name: 'version', type: 'string' },
+    { name: 'verifyingContract', type: 'address' },
+    { name: 'chainId', type: 'uint256' }
+  ],
+  [NETWORK_IDS.Polygon]: [
+    { name: 'name', type: 'string' },
+    { name: 'version', type: 'string' },
+    { name: 'salt', type: 'bytes32' },
+    { name: 'verifyingContract', type: 'address' }
+  ]
+}
 
 const NONCES_FN = '0x7ecebe00'
 const NAME_FN = '0x06fdde03'
@@ -52,4 +53,4 @@ const SUPPORTED_TOKENS: TPermitTokens = {
   ERC2612: ERC2612_TOKENS
 }
 
-export { MAX_UINT256, EIP712DomainEthereum, EIP712DomainPolygon, NONCES_FN, NAME_FN, SUPPORTED_TOKENS, DAI_TOKENS, ERC2612_TOKENS }
+export { MAX_UINT256, EIP712Domains, NONCES_FN, NAME_FN, SUPPORTED_TOKENS, DAI_TOKENS, ERC2612_TOKENS }
