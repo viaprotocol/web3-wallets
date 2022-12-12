@@ -47,7 +47,7 @@ const getTokenName = async (provider: any, address: string) => {
 const getDomain = (permitToken: TPermitToken): TDomain => {
   const { address, chainId, name } = permitToken
 
-  const domain: TDomain = chainId === NETWORK_IDS.Ethereum ? { name, version: '1', chainId, verifyingContract: address } : { name, version: '1', verifyingContract: address, salt: hexZeroPad(BigNumber.from(chainId), 32) }
+  const domain: TDomain = chainId === NETWORK_IDS.Ethereum ? { name, version: '1', chainId, verifyingContract: address } : { name, version: '1', verifyingContract: address, salt: hexZeroPad(BigNumber.from(chainId).toHexString(), 32) }
   console.log({ domain })
   return domain
 }
