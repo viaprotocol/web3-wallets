@@ -42,7 +42,7 @@ const getTokenName = async (provider: any, address: string) => {
   return hexToUtf8(hex.substr(130))
 }
 
-const getDomain = async (provider: any, permitToken: TPermitToken): Promise<TDomain> => {
+const getDomain = (permitToken: TPermitToken): TDomain => {
   const { address, chainId, name } = permitToken
 
   const domain: TDomain = chainId === NETWORK_IDS.Ethereum ? { name, version: '1', chainId, verifyingContract: address } : { name, version: '1', verifyingContract: address, salt: chainId }

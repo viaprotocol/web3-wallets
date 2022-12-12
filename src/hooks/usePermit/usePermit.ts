@@ -21,7 +21,7 @@ const usePermit = (options: TUsePermitOptions) => {
       allowed: true
     }
 
-    const domain = await getDomain(provider, permitToken!)
+    const domain = getDomain(permitToken!)
     return createTypedDaiData(message, domain, chainId)
   }, [provider, spender, owner, permitToken, deadline])
 
@@ -34,7 +34,7 @@ const usePermit = (options: TUsePermitOptions) => {
       deadline: deadline || MAX_UINT256
     }
 
-    const domain = await getDomain(provider, permitToken!)
+    const domain = getDomain(permitToken!)
     return createTypedERC2612Data(message, domain, chainId)
   }, [provider, permitToken, spender, owner, deadline])
 
