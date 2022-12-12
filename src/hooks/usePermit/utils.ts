@@ -1,11 +1,11 @@
 import type { Web3Provider } from '@ethersproject/providers'
 import utf8 from 'utf8'
-import { EIP712DomainEthereum, EIP712DomainPolygon, NAME_FN, NONCES_FN, SUPPORTED_TOKENS } from './constants'
-import { call } from './rpc'
-import type { TDaiPermitMessage, TDomain, TERC2612PermitMessage, TPermitToken, TPermitTypes, TRSVResponse } from './types'
-import { NETWORK_IDS } from '@/constants'
 import { BigNumber } from 'ethers/lib/ethers'
 import { hexZeroPad } from 'ethers/lib/utils'
+import { EIP712DomainEthereum, EIP712DomainPolygon, NAME_FN, NONCES_FN, SUPPORTED_TOKENS } from './constants'
+import { call } from './rpc'
+import type { TDaiPermitMessage, TDomain, TERC2612PermitMessage, TPermitToken, TPermitTypes } from './types'
+import { NETWORK_IDS } from '@/constants'
 
 const hexToUtf8 = function (hex: string) {
   let str = ''
@@ -28,13 +28,6 @@ const hexToUtf8 = function (hex: string) {
   }
 
   return utf8.decode(str)
-}
-
-const splitSignatureToRSV = (signature: string): TRSVResponse => {
-  const r = `0x${signature.substring(2).substring(0, 64)}`
-  const s = `0x${signature.substring(2).substring(64, 128)}`
-  const v = parseInt(signature.substring(2).substring(128, 130), 16)
-  return { r, s, v }
 }
 
 const addZeros = (numZeros: number) => ''.padEnd(numZeros, '0')
@@ -112,4 +105,4 @@ const getTokenKey = (token: TPermitToken) => {
   return entry[0] as TPermitTypes
 }
 
-export { addZeros, isTokenExists, splitSignatureToRSV, getTokenName, getDomain, createTypedDaiData, createTypedERC2612Data, getPermitNonce, getTokenKey }
+export { addZeros, isTokenExists, getTokenName, getDomain, createTypedDaiData, createTypedERC2612Data, getPermitNonce, getTokenKey }

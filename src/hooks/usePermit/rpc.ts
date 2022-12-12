@@ -1,6 +1,6 @@
 import type { Web3Provider } from '@ethersproject/providers'
+import { splitSignature } from 'ethers/lib/utils'
 import type { TRSVResponse } from './types'
-import { splitSignatureToRSV } from './utils'
 
 const call = (provider: Web3Provider, to: string, data: string) => provider.send('eth_call', [{
   to,
@@ -18,7 +18,7 @@ const signData = async (provider: Web3Provider, fromAddress: string, typeData: a
   const { EIP712Domain: _unused, ...types } = typeData.types
   const rawSignature = await signer._signTypedData(typeData.domain, types, typeData.message)
 
-  return splitSignatureToRSV(rawSignature)
+  return splitSignature(rawSignature)
 }
 
 export { call, signData }
