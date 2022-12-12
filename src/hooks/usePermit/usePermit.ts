@@ -22,7 +22,7 @@ const usePermit = (options: TUsePermitOptions) => {
     }
 
     const domain = await getDomain(provider, permitToken!)
-    return createTypedDaiData(message, domain)
+    return createTypedDaiData(message, domain, chainId)
   }, [provider, spender, owner, permitToken, deadline])
 
   const getERC2612Permit = useCallback(async () => {
@@ -35,7 +35,7 @@ const usePermit = (options: TUsePermitOptions) => {
     }
 
     const domain = await getDomain(provider, permitToken!)
-    return createTypedERC2612Data(message, domain)
+    return createTypedERC2612Data(message, domain, chainId)
   }, [provider, permitToken, spender, owner, deadline])
 
   const getTypedData = useCallback(async () => {

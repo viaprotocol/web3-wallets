@@ -1,8 +1,9 @@
 import type { Web3Provider } from '@ethersproject/providers'
 import utf8 from 'utf8'
-import { EIP712Domain, NAME_FN, NONCES_FN, SUPPORTED_TOKENS } from './constants'
+import { EIP712DomainEthereum, EIP712DomainPolygon, NAME_FN, NONCES_FN, SUPPORTED_TOKENS } from './constants'
 import { call } from './rpc'
 import type { TDaiPermitMessage, TDomain, TERC2612PermitMessage, TPermitToken, TPermitTypes, TRSVResponse } from './types'
+import { NETWORK_IDS } from '@/constants'
 
 const hexToUtf8 = function (hex: string) {
   let str = ''
@@ -42,20 +43,17 @@ const getTokenName = async (provider: any, address: string) => {
 }
 
 const getDomain = async (provider: any, permitToken: TPermitToken): Promise<TDomain> => {
-  const { address, chainId } = permitToken
+  const { address, chainId, name } = permitToken
 
-  console.log({ provider })
-  const name = await getTokenName(provider, address)
-
-  const domain: TDomain = { name, version: '1', chainId, verifyingContract: address }
+  const domain: TDomain = chainId === NETWORK_IDS.Ethereum ? { name, version: '1', chainId, verifyingContract: address } : { name, version: '1', verifyingContract: address, salt: chainId }
   console.log({ domain })
   return domain
 }
 
-const createTypedDaiData = (message: TDaiPermitMessage, domain: TDomain) => {
+const createTypedDaiData = (message: TDaiPermitMessage, domain: TDomain, chainId: number) => {
   const typedData = {
     types: {
-      EIP712Domain,
+      EIP712Domain: chainId === NETWORK_IDS.Ethereum ? EIP712DomainEthereum : EIP712DomainPolygon,
       Permit: [
         { name: 'holder', type: 'address' },
         { name: 'spender', type: 'address' },
@@ -72,10 +70,10 @@ const createTypedDaiData = (message: TDaiPermitMessage, domain: TDomain) => {
   return typedData
 }
 
-const createTypedERC2612Data = (message: TERC2612PermitMessage, domain: TDomain) => {
+const createTypedERC2612Data = (message: TERC2612PermitMessage, domain: TDomain, chainId: number) => {
   const typedData = {
     types: {
-      EIP712Domain,
+      EIP712Domain: chainId === NETWORK_IDS.Ethereum ? EIP712DomainEthereum : EIP712DomainPolygon,
       Permit: [
         { name: 'owner', type: 'address' },
         { name: 'spender', type: 'address' },
