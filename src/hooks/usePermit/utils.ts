@@ -80,10 +80,10 @@ const isTokenExists = (tokens: TPermitToken[], token: TPermitToken) => {
 }
 
 const getPermitNonce = async (provider: Web3Provider, token: TPermitToken): Promise<number> => {
-  const { address, noncesFn } = token
   const owner = await provider.getSigner().getAddress()
+  const { address, noncesFn = NONCES_FN } = token
 
-  return call(provider, address, `${noncesFn || NONCES_FN}${addZeros(24)}${owner.slice(2)}`)
+  return call(provider, address, `${noncesFn}${addZeros(24)}${owner.slice(2)}`)
 }
 
 const getTokenKey = (token: TPermitToken) => {
