@@ -10,8 +10,18 @@ const addZeros = (numZeros: number) => ''.padEnd(numZeros, '0')
 
 const getDomain = (permitToken: TPermitToken): TDomain => {
   const { address, chainId, name, version } = permitToken
+  const domain: TDomain = {
+    name,
+    version: version || '1',
+    verifyingContract: address
+  }
 
-  const domain: TDomain = chainId === NETWORK_IDS.Ethereum ? { name, version: version ?? '1', chainId, verifyingContract: address } : { name, version: '1', verifyingContract: address, salt: hexZeroPad(BigNumber.from(chainId).toHexString(), 32) }
+  if (chainId === NETWORK_IDS.Ethereum) {
+    domain.chainId = chainId
+  } else {
+    domain.salt = hexZeroPad(BigNumber.from(chainId).toHexString(), 32)
+  }
+
   return domain
 }
 
