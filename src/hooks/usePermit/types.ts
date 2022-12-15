@@ -19,7 +19,8 @@ type TERC2612PermitMessage = {
 type TDomain = {
   name: string
   version: string
-  chainId: number
+  chainId?: number
+  salt?: string
   verifyingContract: string
 }
 
@@ -45,6 +46,8 @@ type TPermitTypes = typeof PERMIT_TYPES[number]
 type TPermitToken = {
   address: string
   chainId: number
+  name: string
+  version?: string
   noncesFn?: string
   permitType?: TPermitTypes
 }

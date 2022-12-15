@@ -1,43 +1,39 @@
 import type { Web3Provider } from '@ethersproject/providers'
-import utf8 from 'utf8'
-import { EIP712Domain, NAME_FN, NONCES_FN, SUPPORTED_TOKENS } from './constants'
+import { BigNumber } from 'ethers/lib/ethers'
+import { hexZeroPad } from 'ethers/lib/utils'
+import { EIP712Domains, NONCES_FN, SUPPORTED_TOKENS } from './constants'
 import { call } from './rpc'
-import type { TDaiPermitMessage, TDomain, TERC2612PermitMessage, TPermitToken, TPermitTypes, TRSVResponse } from './types'
-
-const hexToUtf8 = (hex: string) => {
-  const str = hex.replace(/^0x/, '')
-  const bytes = []
-  for (let i = 0; i < str.length; i += 2) {
-    bytes.push(parseInt(str.substring(i, i + 2), 16))
-  }
-  return utf8.decode(String.fromCharCode(...bytes))
-}
-
-const splitSignatureToRSV = (signature: string): TRSVResponse => {
-  const r = `0x${signature.substring(2).substring(0, 64)}`
-  const s = `0x${signature.substring(2).substring(64, 128)}`
-  const v = parseInt(signature.substring(2).substring(128, 130), 16)
-  return { r, s, v }
-}
+import type { TDaiPermitMessage, TDomain, TERC2612PermitMessage, TPermitToken, TPermitTypes } from './types'
+import { NETWORK_IDS } from '@/constants'
 
 const addZeros = (numZeros: number) => ''.padEnd(numZeros, '0')
 
-const getTokenName = async (provider: any, address: string) =>
-  hexToUtf8((await call(provider, address, NAME_FN)).substr(130))
+const getDomain = (permitToken: TPermitToken): TDomain => {
+  const { address, chainId, name, version } = permitToken
+  const domain: TDomain = {
+    name,
+    version: version || '1',
+    verifyingContract: address
+  }
 
-const getDomain = async (provider: any, permitToken: TPermitToken): Promise<TDomain> => {
-  const { address, chainId } = permitToken
+  if (chainId === NETWORK_IDS.Ethereum) {
+    domain.chainId = chainId
+  } else {
+    domain.salt = hexZeroPad(BigNumber.from(chainId).toHexString(), 32)
+  }
 
-  const name = await getTokenName(provider, address)
-
-  const domain: TDomain = { name, version: '1', chainId, verifyingContract: address }
   return domain
 }
 
-const createTypedDaiData = (message: TDaiPermitMessage, domain: TDomain) => {
+const createTypedDaiData = (message: TDaiPermitMessage, domain: TDomain, chainId: number) => {
+  if (!Object.keys(EIP712Domains).includes(chainId.toString())) {
+    throw new Error('ChainId not supported')
+  }
+
   const typedData = {
     types: {
-      EIP712Domain,
+      // @ts-expect-error – Check type above
+      EIP712Domain: EIP712Domains[chainId]!,
       Permit: [
         { name: 'holder', type: 'address' },
         { name: 'spender', type: 'address' },
@@ -54,10 +50,15 @@ const createTypedDaiData = (message: TDaiPermitMessage, domain: TDomain) => {
   return typedData
 }
 
-const createTypedERC2612Data = (message: TERC2612PermitMessage, domain: TDomain) => {
+const createTypedERC2612Data = (message: TERC2612PermitMessage, domain: TDomain, chainId: number) => {
+  if (!Object.keys(EIP712Domains).includes(chainId.toString())) {
+    throw new Error('ChainId not supported')
+  }
+
   const typedData = {
     types: {
-      EIP712Domain,
+      // @ts-expect-error – Check type above
+      EIP712Domain: EIP712Domains[chainId]!,
       Permit: [
         { name: 'owner', type: 'address' },
         { name: 'spender', type: 'address' },
@@ -79,10 +80,10 @@ const isTokenExists = (tokens: TPermitToken[], token: TPermitToken) => {
 }
 
 const getPermitNonce = async (provider: Web3Provider, token: TPermitToken): Promise<number> => {
-  const { address, noncesFn } = token
   const owner = await provider.getSigner().getAddress()
+  const { address, noncesFn = NONCES_FN } = token
 
-  return call(provider, address, `${noncesFn || NONCES_FN}${addZeros(24)}${owner.slice(2)}`)
+  return call(provider, address, `${noncesFn}${addZeros(24)}${owner.slice(2)}`)
 }
 
 const getTokenKey = (token: TPermitToken) => {
@@ -94,4 +95,4 @@ const getTokenKey = (token: TPermitToken) => {
   return entry[0] as TPermitTypes
 }
 
-export { addZeros, isTokenExists, splitSignatureToRSV, getTokenName, getDomain, createTypedDaiData, createTypedERC2612Data, getPermitNonce, getTokenKey }
+export { addZeros, isTokenExists, getDomain, createTypedDaiData, createTypedERC2612Data, getPermitNonce, getTokenKey }
