@@ -1,41 +1,38 @@
 import type { Web3Provider } from '@ethersproject/providers'
+import type { AllowanceData } from '@uniswap/permit2-sdk'
+import { AllowanceProvider, PERMIT2_ADDRESS } from '@uniswap/permit2-sdk'
 import { BigNumber } from 'ethers/lib/ethers'
 import { hexZeroPad } from 'ethers/lib/utils'
-import { EIP712Domains, NONCES_FN, SUPPORTED_TOKENS } from './constants'
+import { DaiPermitMessage, EIP712Permit2Domain, EIP712PermitDomains, NONCES_FN, PermitMessage, PermitSingleDetails, PermitSingleMessage, SUPPORTED_TOKENS } from './constants'
 import { call } from './rpc'
-import type { TDaiPermitMessage, TPermitDomain, TPermit2Domain, TERC2612PermitMessage, TPermitToken, TPermitTypes } from './types'
+import type { TDaiPermitMessage, TPermit2Domain, TPermitDomain, TPermitMessage, TPermitSingleMessage, TPermitToken, TPermitTypes } from './types'
 import { NETWORK_IDS } from '@/constants'
 
 const addZeros = (numZeros: number) => ''.padEnd(numZeros, '0')
 
-const getTokenName = async (provider: any, address: string) =>
-  hexToUtf8((await call(provider, address, NAME_FN)).substr(130))
-
-const getPermitDomain = async (provider: any, permitToken: TPermitToken): Promise<TPermitDomain> => {
+const getPermitDomain = async (permitToken: TPermitToken): Promise<TPermitDomain> => {
   const { address, chainId, name, version } = permitToken
-  const name = await getTokenName(provider, address)
-  
-  const domain: TPermitDomain = { 
+
+  const domain: TPermitDomain = {
     name,
     version: version || '1',
     verifyingContract: address
   }
-  
+
   if (chainId === NETWORK_IDS.Ethereum) {
     domain.chainId = chainId
   } else {
     domain.salt = hexZeroPad(BigNumber.from(chainId).toHexString(), 32)
   }
-  
+
   return domain
 }
 
 const getPermit2Domain = async (permitToken: TPermitToken): Promise<TPermit2Domain> => {
-  const { address, chainId } = permitToken
-  const domain: TPermit2Domain = { name: 'Permit2', chainId, verifyingContract: address }
+  const { address, chainId, name } = permitToken
+  const domain: TPermit2Domain = { name, chainId, verifyingContract: address }
   return domain
 }
-
 
 const createTypedDaiData = (message: TDaiPermitMessage, domain: TPermitDomain, chainId: number) => {
   if (!Object.keys(EIP712PermitDomains).includes(chainId.toString())) {
@@ -74,8 +71,6 @@ const createTypedPermitData = (message: TPermitMessage, domain: TPermitDomain, c
 
   return typedData
 }
-
-
 
 const createTypedPermitSingleData = (message: TPermitSingleMessage, domain: TPermit2Domain) => {
   const typedData = {
@@ -118,4 +113,4 @@ const getTokenKey = (token: TPermitToken) => {
   return entry[0] as TPermitTypes
 }
 
-export { addZeros, getTokenName, getPermitDomain, getPermit2Domain, createTypedDaiData, createTypedPermitData, createTypedPermit2Data, isTokenExists, getPermitNonce, getTokenKey }
+export { addZeros, getPermitDomain, getPermit2Domain, createTypedDaiData, createTypedPermitData, createTypedPermitSingleData, getPermit2Nonce, isTokenExists, getPermitNonce, getTokenKey }

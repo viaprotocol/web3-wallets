@@ -3,7 +3,7 @@ import { NETWORK_IDS } from '@/constants'
 
 const MAX_UINT256 = '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
 
-const EIP712PermitDomain = {
+const EIP712PermitDomains = {
   [NETWORK_IDS.Ethereum]: [
     { name: 'name', type: 'string' },
     { name: 'version', type: 'string' },
@@ -89,4 +89,4 @@ const SUPPORTED_TOKENS: TPermitTokens = {
   ERC2612: ERC2612_TOKENS
 }
 
-export { MAX_UINT256, EIP712PermitDomain, EIP712Permit2Domain, DaiPermitMessage, PermitMessage, PermitSingleMessage, PermitSingleDetails, NONCES_FN, NAME_FN, SUPPORTED_TOKENS, DAI_TOKENS, ERC2612_TOKENS }
+export { MAX_UINT256, EIP712PermitDomains, EIP712Permit2Domain, DaiPermitMessage, PermitMessage, PermitSingleMessage, PermitSingleDetails, NONCES_FN, NAME_FN, SUPPORTED_TOKENS, DAI_TOKENS, ERC2612_TOKENS }

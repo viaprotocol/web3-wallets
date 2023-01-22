@@ -18,7 +18,7 @@ const usePermit = (options: TUsePermitOptions) => {
 
   const getTypedData = useCallback(async () => {
     const permitNonce = await getPermitNonce(provider, permitToken!)
-    const domain = getPermitDomain(provider, permitToken!)
+    const domain = await getPermitDomain(permitToken!)
 
     switch (getTokenKey(permitToken!)) {
       case 'DAI': {
@@ -28,7 +28,7 @@ const usePermit = (options: TUsePermitOptions) => {
           nonce: permitNonce,
           expiry: deadline || MAX_UINT256,
           allowed: true
-      	}
+        }
         return createTypedDaiData(message, domain, chainId)
       }
       case 'ERC2612': {

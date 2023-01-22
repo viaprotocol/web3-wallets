@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 
 import { MAX_UINT256 } from './constants'
 import { signData } from './rpc'
-import type { TPermitSingleDetails, TPermitSingleMessage, TUsePermitOptions } from './types'
+import type { TPermitSingleDetails, TPermitSingleMessage, TPermitToken, TUsePermitOptions } from './types'
 import { createTypedPermitSingleData, getPermit2Domain, getPermit2Nonce } from './utils'
 
 const usePermit2 = (options: TUsePermitOptions) => {
@@ -22,7 +22,13 @@ const usePermit2 = (options: TUsePermitOptions) => {
       sigDeadline: deadline || MAX_UINT256
     }
 
-    const domain = await getPermit2Domain(chainId)
+    const permitToken: TPermitToken = {
+      address: token,
+      chainId,
+      name: 'Permit2'
+    }
+
+    const domain = await getPermit2Domain(permitToken)
     return createTypedPermitSingleData(message, domain)
   }, [provider, spender, deadline])
 
