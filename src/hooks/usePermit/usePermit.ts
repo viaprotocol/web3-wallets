@@ -2,8 +2,8 @@ import { useCallback, useMemo } from 'react'
 
 import { MAX_UINT256, SUPPORTED_TOKENS } from './constants'
 import { signData } from './rpc'
-import type { TDaiPermitMessage, TERC2612PermitMessage, TUsePermitOptions } from './types'
-import { createTypedDaiData, createTypedERC2612Data, getDomain, getPermitNonce, getTokenKey } from './utils'
+import type { TDaiPermitMessage, TPermitMessage, TUsePermitOptions } from './types'
+import { createTypedDaiData, createTypedPermitData, getPermitDomain, getPermitNonce, getTokenKey } from './utils'
 
 const usePermit = (options: TUsePermitOptions) => {
   const { provider, token, spender, owner, chainId, deadline } = options
@@ -18,7 +18,7 @@ const usePermit = (options: TUsePermitOptions) => {
 
   const getTypedData = useCallback(async () => {
     const permitNonce = await getPermitNonce(provider, permitToken!)
-    const domain = getDomain(permitToken!)
+    const domain = await getPermitDomain(permitToken!)
 
     switch (getTokenKey(permitToken!)) {
       case 'DAI': {
@@ -32,14 +32,14 @@ const usePermit = (options: TUsePermitOptions) => {
         return createTypedDaiData(message, domain, chainId)
       }
       case 'ERC2612': {
-        const message: TERC2612PermitMessage = {
+        const message: TPermitMessage = {
           owner,
           spender,
           value: MAX_UINT256,
           nonce: permitNonce,
           deadline: deadline || MAX_UINT256
         }
-        return createTypedERC2612Data(message, domain, chainId)
+        return createTypedPermitData(message, domain, chainId)
       }
       default:
         throw new Error('Token not supported')
