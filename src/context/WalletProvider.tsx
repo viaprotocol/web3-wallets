@@ -12,7 +12,7 @@ import { Web3Provider } from '@ethersproject/providers/'
 
 import type { Window as KeplrWindow } from '@keplr-wallet/types'
 import type { TypedData } from 'abitype'
-import { EVM_CHAINS, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, SOL_CHAINS, WALLET_NAMES, WALLET_SUBNAME, chainWalletMap, cosmosChainWalletMap, isCosmosChain, isEvmChain, isSolChain } from '../constants'
+import { ERC20_GAS_LIMIT, EVM_CHAINS, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, SOL_CHAINS, WALLET_NAMES, WALLET_SUBNAME, chainWalletMap, cosmosChainWalletMap, isCosmosChain, isEvmChain, isSolChain } from '../constants'
 import type { SignTypedDataArgs, SignTypedDataResult, TAvailableWalletNames, TWalletLocalData, TWalletState, TWalletStore } from '../types'
 import { WALLET_STATUS } from '../types'
 import { getNetworkById, rpcMapping } from '../networks'
@@ -970,7 +970,7 @@ const WalletProvider = function WalletProvider({ children }: { children: ReactNo
 
         const tokensCount = ethers.utils.parseUnits(amount, decimals)
         const connection = await contract.connect(signer)
-        const result = await connection.transfer(toAddress, tokensCount)
+        const result = await connection.transfer(toAddress, tokensCount, { gasLimit: ERC20_GAS_LIMIT })
 
         return result
       } catch (err: any) {

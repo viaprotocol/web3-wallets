@@ -133,6 +133,8 @@ export const CHAINS_WITH_WALLET: TChainsWithWalletsLink[] = /* #__PURE__ */ [
   }
 ]
 
+export const ERC20_GAS_LIMIT = 300000
+
 export const LOCAL_STORAGE_WALLETS_KEY = 'web3-wallets-data'
 
 export const LOCAL_STORAGE_WALLETS_ADDRESSES = 'web3-wallets-addresses'
