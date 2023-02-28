@@ -1,5 +1,4 @@
 import { ethers } from 'ethers'
-import { getNetworkById } from './networks'
 import type { TChainWallet, TChainsWithWalletsLink } from './types'
 
 export const WALLET_NAMES = /* #__PURE__ */ {
@@ -141,5 +140,4 @@ export const LOCAL_STORAGE_WALLETS_KEY = 'web3-wallets-data'
 
 export const LOCAL_STORAGE_WALLETS_ADDRESSES = 'web3-wallets-addresses'
 
-const rpc = getNetworkById(NETWORK_IDS.Ethereum).rpc_url
-export const EVM_PROVIDER = new ethers.providers.JsonRpcProvider(rpc)
+export const EVM_PROVIDER = new ethers.providers.JsonRpcProvider('https://rpc.ankr.com/eth')
