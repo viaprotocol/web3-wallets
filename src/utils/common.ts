@@ -5,6 +5,7 @@ import {
   COSMOS_CHAINS,
   EVM_BASE_TOKEN_ADDRESS,
   EVM_ENS_POSTFIX,
+  EVM_PROVIDER,
   NETWORK_IDS,
   SOLANA_BASE_TOKEN_ADDRESS,
   SOLANA_ENS_POSTFIX,
@@ -33,9 +34,7 @@ export const isValidAddress = async (chainId: number, address: string) => {
   if (isEvmChain(chainId)) {
     // Chain ID > 0 === EVM-like network
     if (address.slice(-4) === EVM_ENS_POSTFIX) {
-      const rpc = getNetworkById(NETWORK_IDS.Ethereum).rpc_url
-      const provider = new ethers.providers.JsonRpcProvider(rpc)
-      const result = await provider.resolveName(address)
+      const result = await EVM_PROVIDER.resolveName(address)
       return !!result
     }
     return ethers.utils.isAddress(address)
@@ -146,10 +145,7 @@ export const parseAddressFromEns = async (input: string) => {
   }
 
   if (input.slice(-4) === EVM_ENS_POSTFIX) {
-    const rpc = getNetworkById(NETWORK_IDS.Ethereum).rpc_url
-    const { ethers } = await import('ethers')
-    const provider = new ethers.providers.JsonRpcProvider(rpc)
-    return provider.resolveName(input) as Promise<string>
+    return EVM_PROVIDER.resolveName(input) as Promise<string>
   }
   return input
 }

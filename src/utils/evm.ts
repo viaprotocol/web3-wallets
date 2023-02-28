@@ -1,12 +1,10 @@
 import { ethers } from 'ethers'
 
-import { EVM_NON_CONTRACT_ADDRESS_CODE, NETWORK_IDS, isEvmChain } from '@/constants'
+import { EVM_NON_CONTRACT_ADDRESS_CODE, EVM_PROVIDER, isEvmChain } from '@/constants'
 import { getNetworkById } from '@/networks'
 
 export const getDomainAddress = async (address: string) => {
-  const rpc = getNetworkById(NETWORK_IDS.Ethereum).rpc_url
-  const provider = new ethers.providers.JsonRpcProvider(rpc)
-  return provider.lookupAddress(address)
+  return EVM_PROVIDER.lookupAddress(address)
 }
 
 export const detectNewTxFromAddress: (address: string, provider: ethers.providers.Web3Provider) => Promise<string> = (address, provider) => {
