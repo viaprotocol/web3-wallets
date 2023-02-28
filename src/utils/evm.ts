@@ -4,6 +4,7 @@ import { EVM_NON_CONTRACT_ADDRESS_CODE, EVM_PROVIDER, isEvmChain } from '@/const
 import { getNetworkById } from '@/networks'
 
 export const getDomainAddress = async (address: string) => {
+  console.log('[getDomainAddress]', address)
   return EVM_PROVIDER.lookupAddress(address)
 }
 
@@ -27,5 +28,6 @@ export const isEvmContract = async (chainId: number, address: string) => {
   const { rpc_url: rpc } = getNetworkById(chainId)
   const provider = new ethers.providers.JsonRpcProvider(rpc)
   const addressCode = await provider.getCode(address)
+  console.log('[isEvmContract]')
   return addressCode !== EVM_NON_CONTRACT_ADDRESS_CODE
 }

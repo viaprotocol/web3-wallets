@@ -35,6 +35,7 @@ export const isValidAddress = async (chainId: number, address: string) => {
     // Chain ID > 0 === EVM-like network
     if (address.slice(-4) === EVM_ENS_POSTFIX) {
       const result = await EVM_PROVIDER.resolveName(address)
+      console.log('[isValidAddress]', address)
       return !!result
     }
     return ethers.utils.isAddress(address)
@@ -145,6 +146,7 @@ export const parseAddressFromEns = async (input: string) => {
   }
 
   if (input.slice(-4) === EVM_ENS_POSTFIX) {
+    console.log('[parseAddressFromEns]', input)
     return EVM_PROVIDER.resolveName(input) as Promise<string>
   }
   return input
