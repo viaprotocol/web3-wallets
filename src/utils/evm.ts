@@ -2,10 +2,18 @@ import { ethers } from 'ethers'
 
 import { EVM_NON_CONTRACT_ADDRESS_CODE, EVM_PROVIDER, isEvmChain } from '@/constants'
 import { getNetworkById } from '@/networks'
+import { queryClient } from '@/context/QueryProvider'
 
 export const getDomainAddress = async (address: string) => {
-  console.log('[getDomainAddress]', address)
-  return EVM_PROVIDER.lookupAddress(address)
+  const cachedResult = queryClient.getQueryData<string | null>(['ensName', address])
+  if (cachedResult) {
+    return cachedResult
+  }
+
+  const result = await EVM_PROVIDER.lookupAddress(address)
+  queryClient.setQueryData(['ensName', address], result)
+
+  return result
 }
 
 export const detectNewTxFromAddress: (address: string, provider: ethers.providers.Web3Provider) => Promise<string> = (address, provider) => {
