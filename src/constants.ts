@@ -140,4 +140,5 @@ export const LOCAL_STORAGE_WALLETS_KEY = 'web3-wallets-data'
 
 export const LOCAL_STORAGE_WALLETS_ADDRESSES = 'web3-wallets-addresses'
 
-export const EVM_PROVIDER = new ethers.providers.JsonRpcProvider('https://rpc.ankr.com/eth')
+export const ETHEREUM_RPC = 'https://rpc.ankr.com/eth'
+export const ETHEREUM_PROVIDER = new ethers.providers.JsonRpcProvider(ETHEREUM_RPC)

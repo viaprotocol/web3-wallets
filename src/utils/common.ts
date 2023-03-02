@@ -3,9 +3,9 @@ import isMobile from 'ismobilejs'
 import {
   CHAINS_WITH_WALLET,
   COSMOS_CHAINS,
+  ETHEREUM_PROVIDER,
   EVM_BASE_TOKEN_ADDRESS,
   EVM_ENS_POSTFIX,
-  EVM_PROVIDER,
   NETWORK_IDS,
   SOLANA_BASE_TOKEN_ADDRESS,
   SOLANA_ENS_POSTFIX,
@@ -34,7 +34,7 @@ export const isValidAddress = async (chainId: number, address: string) => {
   if (isEvmChain(chainId)) {
     // Chain ID > 0 === EVM-like network
     if (address.slice(-4) === EVM_ENS_POSTFIX) {
-      const result = await EVM_PROVIDER.resolveName(address)
+      const result = await ETHEREUM_PROVIDER.resolveName(address)
       console.log('[isValidAddress]', address)
       return !!result
     }
@@ -147,7 +147,7 @@ export const parseAddressFromEns = async (input: string) => {
 
   if (input.slice(-4) === EVM_ENS_POSTFIX) {
     console.log('[parseAddressFromEns]', input)
-    return EVM_PROVIDER.resolveName(input) as Promise<string>
+    return ETHEREUM_PROVIDER.resolveName(input) as Promise<string>
   }
   return input
 }

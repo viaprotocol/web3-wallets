@@ -1,6 +1,6 @@
 import { ethers } from 'ethers'
 
-import { EVM_NON_CONTRACT_ADDRESS_CODE, EVM_PROVIDER, isEvmChain } from '@/constants'
+import { ETHEREUM_PROVIDER, EVM_NON_CONTRACT_ADDRESS_CODE, isEvmChain } from '@/constants'
 import { getNetworkById } from '@/networks'
 import { queryClient } from '@/context/QueryProvider'
 
@@ -10,7 +10,7 @@ export const getDomainAddress = async (address: string) => {
     return cachedResult
   }
 
-  const result = await EVM_PROVIDER.lookupAddress(address)
+  const result = await ETHEREUM_PROVIDER.lookupAddress(address)
   queryClient.setQueryData(['ensName', address], result)
 
   return result
