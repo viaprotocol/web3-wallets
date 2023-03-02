@@ -138,6 +138,12 @@ const WalletProvider = function WalletProvider({ children }: { children: ReactNo
       return false
     }
 
+    // If already connected to the same wallet, just return
+    if (state.isConnected && state.name === 'MetaMask') {
+      console.log('[Wallet] Already connected...')
+      return true
+    }
+
     const ethereum: any = window.ethereum
 
     updateWalletState('MetaMask', { status: WALLET_STATUS.LOADING })

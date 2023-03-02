@@ -1,12 +1,19 @@
 import { ethers } from 'ethers'
 
-import { EVM_NON_CONTRACT_ADDRESS_CODE, NETWORK_IDS, isEvmChain } from '@/constants'
+import { ETHEREUM_PROVIDER, EVM_NON_CONTRACT_ADDRESS_CODE, isEvmChain } from '@/constants'
 import { getNetworkById } from '@/networks'
+import { queryClient } from '@/context/QueryProvider'
 
 export const getDomainAddress = async (address: string) => {
-  const rpc = getNetworkById(NETWORK_IDS.Ethereum).rpc_url
-  const provider = new ethers.providers.JsonRpcProvider(rpc)
-  return provider.lookupAddress(address)
+  const cachedResult = queryClient.getQueryData<string | null>(['ensName', address])
+  if (cachedResult) {
+    return cachedResult
+  }
+
+  const result = await ETHEREUM_PROVIDER.lookupAddress(address)
+  queryClient.setQueryData(['ensName', address], result)
+
+  return result
 }
 
 export const detectNewTxFromAddress: (address: string, provider: ethers.providers.Web3Provider) => Promise<string> = (address, provider) => {
@@ -29,5 +36,6 @@ export const isEvmContract = async (chainId: number, address: string) => {
   const { rpc_url: rpc } = getNetworkById(chainId)
   const provider = new ethers.providers.JsonRpcProvider(rpc)
   const addressCode = await provider.getCode(address)
+  console.log('[isEvmContract]')
   return addressCode !== EVM_NON_CONTRACT_ADDRESS_CODE
 }
