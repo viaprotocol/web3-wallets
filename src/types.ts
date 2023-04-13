@@ -5,7 +5,7 @@ import type { Keplr } from '@keplr-wallet/types'
 import type { MetaMaskInpageProvider } from '@metamask/providers'
 import type { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom'
 import type { Connection, Signer, Transaction } from '@solana/web3.js'
-import type WalletConnectProvider from '@walletconnect/web3-provider'
+import type EthereumProvider from '@walletconnect/ethereum-provider'
 import type { Narrow, TypedData, TypedDataDomain, TypedDataToPrimitiveTypes } from 'abitype'
 import type { BigNumber, ethers } from 'ethers'
 import type { CosmosTransaction } from 'rango-sdk/lib'
@@ -55,7 +55,7 @@ type TWalletStateDefault = {
   isConnected: boolean
   status: WalletStatusEnum
   subName: null | string
-  walletProvider: WalletConnectProvider | MetaMaskInpageProvider | CoinbaseWalletProvider | SafeAppProvider | null
+  walletProvider: EthereumProvider | MetaMaskInpageProvider | CoinbaseWalletProvider | SafeAppProvider | null
   connection: Connection | null
   chainId: null | number
   address: string | null

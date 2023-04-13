@@ -9,7 +9,6 @@ import {
   NETWORK_IDS,
   SOLANA_BASE_TOKEN_ADDRESS,
   SOLANA_ENS_POSTFIX,
-  WALLET_SUBNAME,
   isEvmChain
 } from '../constants'
 import type { TChainWallet, TConnectedWallet, TWalletState, TWalletsTypeList } from '../types'
@@ -167,13 +166,6 @@ export const goMetamask = () => {
 export const goPhantom = () => openLink('https://chrome.google.com/webstore/detail/phantom/bfnaelmomeimhlpmgjnjophhpkkoljpa')
 
 export const goKeplr = () => openLink('https://chrome.google.com/webstore/detail/keplr/dmkamcknogkgcdfhhbddcghachkejeap')
-
-export const mapRawWalletSubName = (subName: string) => {
-  if (subName.toLowerCase().includes('gnosis safe') || subName.toLowerCase() === 'safe') {
-    return WALLET_SUBNAME.Safe
-  }
-  return subName
-}
 
 export const getActiveWallets = (walletState: TWalletState, wallets: TWalletsTypeList[]) => {
   return wallets.find(

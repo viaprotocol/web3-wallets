@@ -26,7 +26,7 @@ import { getBTCConnectedWallets } from '@/utils/btc'
 import { XDeFi } from '@/provider'
 import type { BTClikeTransaction } from '@/provider/xDeFi/types'
 import { ERRCODE, ERROR_MESSAGE, RejectRequestError } from '@/errors'
-import { getActiveWalletName, getAddresesInfo, goKeplr, goMetamask, goPhantom, inIframe, mapRawWalletSubName, normalizeChainId, shortenAddress } from '@/utils/common'
+import { getActiveWalletName, getAddresesInfo, goKeplr, goMetamask, goPhantom, inIframe, normalizeChainId, shortenAddress } from '@/utils/common'
 import { executeCosmosTransaction, getCosmosConnectedWallets } from '@/utils/cosmos'
 import { detectNewTxFromAddress, getDomainAddress } from '@/utils/evm'
 import { getCluster, parseEnsFromSolanaAddress } from '@/utils/solana'
@@ -274,20 +274,23 @@ const WalletProvider = function WalletProvider({ children }: { children: ReactNo
     return true
   }
 
-  const connectWC = async (chainId: number): Promise<boolean> => {
+  const connectWC = async (chainId: number, projectId: string): Promise<boolean> => {
     updateWalletState('WalletConnect', { status: WALLET_STATUS.LOADING })
 
     const wcChainId = isEvmChain(chainId) ? chainId : 1
 
     try {
-      const WalletConnectProvider = await import('@walletconnect/web3-provider').then(m => m.default)
-      const walletConnectProvider = new WalletConnectProvider({
-        rpc: rpcMapping,
-        chainId: wcChainId
+      const { EthereumProvider } = await import('@walletconnect/ethereum-provider')
+
+      const provider = await EthereumProvider.init({
+        projectId,
+        showQrModal: true,
+        chains: Object.keys(rpcMapping).map(chainId => Number(chainId))
       })
 
-      await walletConnectProvider.enable()
-      const web3Provider = new Web3Provider(walletConnectProvider, 'any')
+      await provider.enable()
+
+      const web3Provider = new Web3Provider(provider, 'any')
 
       const {
         chainId: walletChainId,
@@ -296,24 +299,20 @@ const WalletProvider = function WalletProvider({ children }: { children: ReactNo
         addressDomain
       } = await fetchEvmWalletInfo(web3Provider)
 
-      const rawSubName = walletConnectProvider.walletMeta?.name
-      const subName = rawSubName ? mapRawWalletSubName(rawSubName) : null
-
-      walletConnectProvider.on('disconnect', (code: number, reason: string) => {
-        console.log('WalletConnectProvider disconnected', code, reason)
+      provider.on('disconnect', ({ code, message }) => {
+        console.log('provider disconnected', code, message)
         disconnect() // todo: only clear state (without duplicate code and disconnect events)
       })
-      walletConnectProvider.on('chainChanged', evmChainChangeHandler)
-      walletConnectProvider.on('accountsChanged', evmAccountChangeHandler)
+      provider.on('chainChanged', evmChainChangeHandler)
+      provider.on('accountsChanged', evmAccountChangeHandler)
 
       addWalletAddress({ [address]: EVM_CHAINS })
       updateWalletState('WalletConnect', {
         isConnected: true,
         status: WALLET_STATUS.READY,
         name: WALLET_NAMES.WalletConnect,
-        subName,
         provider: web3Provider,
-        walletProvider: walletConnectProvider,
+        walletProvider: provider,
         chainId: walletChainId,
         address,
         addressShort,
@@ -325,7 +324,6 @@ const WalletProvider = function WalletProvider({ children }: { children: ReactNo
         LOCAL_STORAGE_WALLETS_KEY,
         JSON.stringify({
           name: WALLET_NAMES.WalletConnect,
-          subName,
           chainId: wcChainId,
           address: addressDomain || addressShort
         })
@@ -522,7 +520,7 @@ const WalletProvider = function WalletProvider({ children }: { children: ReactNo
     }
   }
 
-  const connect = async ({ name, chainId }: { name: string; chainId: number }): Promise<boolean> => {
+  const connect = async ({ name, chainId, projectId }: { name: string; chainId: number; projectId?: string }): Promise<boolean> => {
     console.log('[Wallet] connect()', name, chainId)
     if (!(Object.values(WALLET_NAMES) as string[]).includes(name)) {
       console.error(`[Wallet] Unknown wallet name: ${name}`)
@@ -548,8 +546,12 @@ const WalletProvider = function WalletProvider({ children }: { children: ReactNo
     }
 
     if (name === WALLET_NAMES.WalletConnect) {
+      if (!projectId) {
+        throw new Error('WalletConnect projectId is required')
+      }
+
       updateActiveWalletName('WalletConnect')
-      return connectWC(chainId)
+      return connectWC(chainId, projectId)
     }
 
     if (name === WALLET_NAMES.xDefi) {
@@ -659,6 +661,7 @@ const WalletProvider = function WalletProvider({ children }: { children: ReactNo
 
     if (isEvmWallet(state)) {
       if (state.walletProvider) {
+        // @ts-expect-error-next-line WalletConnect Provider
         state.walletProvider.removeAllListeners()
         // @ts-expect-error-next-line WalletConnect Provider
         if (state.walletProvider?.disconnect) {
