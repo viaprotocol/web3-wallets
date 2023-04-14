@@ -104,7 +104,7 @@ type TWalletLocalData = {
 
 type TWallet = {
   restore: () => Promise<boolean>
-  connect: ({ name, chainId }: { name: any; chainId: any }) => Promise<boolean>
+  connect: ({ name, chainId, projectId }: { name: string; chainId: number; projectId?: string }) => Promise<boolean>
   changeNetwork: (chainId: number) => Promise<boolean>
   sendTx: (
     transaction: TransactionRequest | Transaction | CosmosTransaction | BTClikeTransaction,
