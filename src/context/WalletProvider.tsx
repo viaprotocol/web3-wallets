@@ -965,7 +965,7 @@ const WalletProvider = function WalletProvider({ children }: { children: ReactNo
             network
           ])
         } else {
-          throw new Error('[Wallet] changeEvmNetwork error: can`t addEthereumChain', err)
+          throw new Error('[Wallet] changeEvmNetwork error: can`t addEthereumChain')
         }
       }
     } else {
