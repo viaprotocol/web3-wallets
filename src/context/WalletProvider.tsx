@@ -953,10 +953,13 @@ const WalletProvider = function WalletProvider({ children }: { children: ReactNo
 
     if (isEvmWallet(state, chainId)) {
       const provider = state.provider
-
+      // eslint-disable-next-line no-debugger, no-restricted-syntax
+      debugger
       try {
         await provider.send('wallet_switchEthereumChain', [{ chainId: network.chainId }])
       } catch (err: any) {
+        // eslint-disable-next-line no-debugger, no-restricted-syntax
+        debugger
         if (err.code === 4902) {
           await provider.send('wallet_addEthereumChain', [
             network
