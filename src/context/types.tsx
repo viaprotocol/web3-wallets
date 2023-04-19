@@ -16,4 +16,23 @@ type TErc20SendTokenOptions = {
   toAddress: string
 }
 
-export type { TXDeFiWeb3Provider, TErc20SendTokenOptions }
+type NativeCurrency = {
+  name: string
+  symbol: string
+  decimals: number
+}
+
+type NetworkData = {
+  chainId: string
+  chainName: string
+  nativeCurrency: NativeCurrency
+  rpcUrls: string[]
+  blockExplorerUrls: string[]
+}
+
+type TChangeEvmNetworkOptions = {
+  chainId: number
+  network: NetworkData
+}
+
+export type { NativeCurrency, NetworkData, TChangeEvmNetworkOptions, TXDeFiWeb3Provider, TErc20SendTokenOptions }

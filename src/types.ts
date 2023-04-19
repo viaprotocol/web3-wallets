@@ -10,7 +10,7 @@ import type { Narrow, TypedData, TypedDataDomain, TypedDataToPrimitiveTypes } fr
 import type { BigNumber, ethers } from 'ethers'
 import type { CosmosTransaction } from 'rango-sdk/lib'
 import type { AVAILABLE_WALLETS_GROUPS_CONFIG, BTC_CHAINS, BTC_WALLETS_CONFIG, COSMOS_CHAINS, COSMOS_WALLETS_CONFIG, EVM_WALLETS_CONFIG, SOL_WALLETS_CONFIG, WALLET_NAMES } from './constants'
-import type { TErc20SendTokenOptions } from './context'
+import type { TChangeEvmNetworkOptions, TErc20SendTokenOptions } from './context'
 import type { XDeFi } from './provider'
 import type { BTClikeTransaction } from './provider/xDeFi/types'
 
@@ -126,6 +126,7 @@ type TWallet = {
   walletAddressesHistory: TWalletAddressesHistory
   walletState: TWalletState
   erc20SendToken: (options: TErc20SendTokenOptions) => Promise<void>
+  changeEvmNetwork: (options: TChangeEvmNetworkOptions) => Promise<void>
 } & TWalletStore
 
 type TWalletValues = typeof WALLET_NAMES[keyof typeof WALLET_NAMES]
