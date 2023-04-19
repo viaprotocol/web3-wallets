@@ -962,11 +962,11 @@ const WalletProvider = function WalletProvider({ children }: { children: ReactNo
             network
           ])
         } else {
-          throw new Error('[Wallet] changeEvmNetwork error: wallet is not supported')
+          throw new Error('[Wallet] changeEvmNetwork error: can`t addEthereumChain', err)
         }
       }
     } else {
-      throw new Error('[Wallet] changeEvmNetwork error: wallet is not supported')
+      throw new Error(`[Wallet] changeEvmNetwork error: wallet with ${chainId} is not supported`)
     }
   }
 
