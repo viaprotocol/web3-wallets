@@ -50,6 +50,7 @@ export const NETWORK_IDS = /* #__PURE__ */ {
   Cronos: 25,
   Boba: 288,
   Celo: 42220,
+  ZkSync: 324,
   Solana: -1,
   SolanaTestnet: -1001,
   TON: -3,
