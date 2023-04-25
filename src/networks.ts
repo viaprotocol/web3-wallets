@@ -160,7 +160,7 @@ const networksRaw = /* #__PURE__ */ [
     chain_id: 324,
     name: 'zkSync Era',
     short_name: 'zkSync',
-    logo_url: 'https://app.1inch.io/assets/images/network-logos/zksync-era.svg',
+    logo_url: 'https://cdn.via.exchange/networks/zkSync.svg',
     explorer_url: 'https://explorer.zksync.io',
     rpc_url: 'https://mainnet.era.zksync.io/',
     currency_name: 'Ethereum',
