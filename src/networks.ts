@@ -157,6 +157,18 @@ const networksRaw = /* #__PURE__ */ [
     is_testnet: false
   },
   {
+    chain_id: 324,
+    name: 'zkSync Era',
+    short_name: 'zkSync',
+    logo_url: 'https://cdn.via.exchange/networks/zkSync.svg',
+    explorer_url: 'https://explorer.zksync.io',
+    rpc_url: 'https://mainnet.era.zksync.io/',
+    currency_name: 'Ethereum',
+    currency_symbol: 'ETH',
+    currency_decimals: 18,
+    is_testnet: false
+  },
+  {
     chain_id: 4002,
     name: 'Fantom Testnet',
     short_name: 'Fantom Testnet',
