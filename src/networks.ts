@@ -1,3 +1,4 @@
+import type { TransactionConfig } from '@gnosis.pm/safe-apps-sdk'
 import Web3 from 'web3'
 import { NETWORK_IDS } from './constants'
 
@@ -620,7 +621,7 @@ export const getNetworkById = (chainId: string | number) => {
   throw new Error(`Unknown chainId ${chainId}`)
 }
 
-export const estimateGas = async (chainId: number, fromAddress: string, toAddress: string, data: string) => {
+export const estimateGas = async (chainId: number, tx: TransactionConfig) => {
   const rpcUrl = rpcMapping[chainId]
 
   if (!rpcUrl) {
@@ -629,14 +630,8 @@ export const estimateGas = async (chainId: number, fromAddress: string, toAddres
 
   const web3 = new Web3(rpcUrl)
 
-  const transaction = {
-    from: fromAddress,
-    to: toAddress,
-    data
-  }
-
   try {
-    const gasEstimate = await web3.eth.estimateGas(transaction)
+    const gasEstimate = await web3.eth.estimateGas(tx)
     return gasEstimate
   } catch (error) {
     console.error(`An error occurred while estimating gas: ${error}`)
