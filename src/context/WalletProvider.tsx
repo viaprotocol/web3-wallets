@@ -6,7 +6,7 @@ import type { ExternalProvider, TransactionRequest } from '@ethersproject/provid
 import type { Signer, Transaction } from '@solana/web3.js'
 import type { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom'
 import type { CosmosTransaction } from 'rango-sdk/lib'
-import type { BigNumber, TypedDataField } from 'ethers'
+import type { TypedDataField } from 'ethers'
 import { ethers } from 'ethers'
 import { Web3Provider } from '@ethersproject/providers/'
 
