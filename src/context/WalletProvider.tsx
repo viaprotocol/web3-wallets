@@ -895,11 +895,11 @@ const WalletProvider = function WalletProvider({ children }: { children: ReactNo
     }
   }
 
-  const estimateGas = async (data: TransactionRequest): Promise<BigNumber | undefined> => {
-    if (state.provider && 'estimateGas' in state.provider) {
-      return state.provider.estimateGas(data)
-    }
-  }
+  // const estimateGas = async (data: TransactionRequest): Promise<BigNumber | undefined> => {
+  //   if (state.provider && 'estimateGas' in state.provider) {
+  //     return state.provider.estimateGas(data)
+  //   }
+  // }
 
   const fetchEvmWalletInfo = async (provider: Web3Provider) => {
     const address = await provider.getSigner().getAddress()
