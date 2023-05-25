@@ -6,7 +6,7 @@ import type { ExternalProvider, TransactionRequest } from '@ethersproject/provid
 import type { Signer, Transaction } from '@solana/web3.js'
 import type { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom'
 import type { CosmosTransaction } from 'rango-sdk/lib'
-import type { BigNumber, TypedDataField } from 'ethers'
+import type { TypedDataField } from 'ethers'
 import { ethers } from 'ethers'
 import { Web3Provider } from '@ethersproject/providers/'
 
@@ -895,12 +895,6 @@ const WalletProvider = function WalletProvider({ children }: { children: ReactNo
     }
   }
 
-  const estimateGas = async (data: TransactionRequest): Promise<BigNumber | undefined> => {
-    if (state.provider && 'estimateGas' in state.provider) {
-      return state.provider.estimateGas(data)
-    }
-  }
-
   const fetchEvmWalletInfo = async (provider: Web3Provider) => {
     const address = await provider.getSigner().getAddress()
 
@@ -1062,7 +1056,6 @@ const WalletProvider = function WalletProvider({ children }: { children: ReactNo
     addressDomain: state.addressDomain,
     balance: state.balance,
     connection: state.connection,
-    estimateGas,
     provider: state.provider,
     walletProvider: state.walletProvider,
     waitForTransaction,
@@ -1078,7 +1071,7 @@ const WalletProvider = function WalletProvider({ children }: { children: ReactNo
     getNonce,
     walletState,
     erc20SendToken
-  }), [state, walletAddressesHistory, estimateGas, waitForTransaction, getTransaction, restore, connect, changeNetwork, sendTx, disconnect, walletState])
+  }), [state, walletAddressesHistory, waitForTransaction, getTransaction, restore, connect, changeNetwork, sendTx, disconnect, walletState])
 
   return (
     <WalletContext.Provider

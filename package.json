@@ -1,6 +1,6 @@
 {
   "name": "@viaprotocol/web3-wallets",
-  "version": "1.1.10-rc.0",
+  "version": "1.1.10-rc.4",
   "private": false,
   "description": "Universal interface for web3 wallets",
   "author": "Via Protocol (https://via.exchange)",
@@ -101,7 +101,8 @@
     "ethers": "5.7.2",
     "ismobilejs": "^1.1.1",
     "long": "^5.2.0",
-    "rango-sdk": "^0.0.5"
+    "rango-sdk": "^0.0.5",
+    "web3": "^1.10.0"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^0.25.1",
