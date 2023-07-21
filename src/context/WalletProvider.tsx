@@ -12,7 +12,7 @@ import { Web3Provider } from '@ethersproject/providers/'
 
 import type { Window as KeplrWindow } from '@keplr-wallet/types'
 import type { TypedData } from 'abitype'
-import { ERC20_GAS_LIMIT, EVM_CHAINS, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, SOL_CHAINS, WALLET_NAMES, WALLET_SUBNAME, chainWalletMap, cosmosChainWalletMap, isCosmosChain, isEvmChain, isSolChain } from '../constants'
+import { ERC20_GAS_LIMIT, EVM_CHAINS, LOCAL_STORAGE_WALLETS_KEY, NETWORK_IDS, SOL_CHAINS, WALLET_NAMES, WALLET_SUBNAME, chainWalletMap, cosmosChainWalletMap, isCosmosChain, isEvmChain, isSolChain, WALLET_CONNECT_PROJECT_ID } from '../constants'
 import type { SignTypedDataArgs, SignTypedDataResult, TAvailableWalletNames, TWalletLocalData, TWalletState, TWalletStore } from '../types'
 import { WALLET_STATUS } from '../types'
 import { getNetworkById, rpcMapping } from '../networks'
@@ -280,14 +280,18 @@ const WalletProvider = function WalletProvider({ children }: { children: ReactNo
     const wcChainId = isEvmChain(chainId) ? chainId : 1
 
     try {
-      const WalletConnectProvider = await import('@walletconnect/web3-provider').then(m => m.default)
-      const walletConnectProvider = new WalletConnectProvider({
-        rpc: rpcMapping,
-        chainId: wcChainId
+      const WalletConnectPackage = await import('@walletconnect/ethereum-provider')
+      const { EthereumProvider } = WalletConnectPackage
+
+      const ethereumProvider = await EthereumProvider.init({
+        projectId: WALLET_CONNECT_PROJECT_ID,
+        chains: EVM_CHAINS as any,
+        showQrModal: false
       })
 
-      await walletConnectProvider.enable()
-      const web3Provider = new Web3Provider(walletConnectProvider, 'any')
+      await ethereumProvider.connect()
+
+      const web3Provider = new Web3Provider(ethereumProvider, 'any')
 
       const {
         chainId: walletChainId,
@@ -296,15 +300,16 @@ const WalletProvider = function WalletProvider({ children }: { children: ReactNo
         addressDomain
       } = await fetchEvmWalletInfo(web3Provider)
 
-      const rawSubName = walletConnectProvider.walletMeta?.name
+      const rawSubName = ethereumProvider.namespace
       const subName = rawSubName ? mapRawWalletSubName(rawSubName) : null
 
-      walletConnectProvider.on('disconnect', (code: number, reason: string) => {
-        console.log('WalletConnectProvider disconnected', code, reason)
+      ethereumProvider.on('disconnect', (args) => {
+        const { code, message } = args
+        console.log('WalletConnectProvider disconnected', code, message)
         disconnect() // todo: only clear state (without duplicate code and disconnect events)
       })
-      walletConnectProvider.on('chainChanged', evmChainChangeHandler)
-      walletConnectProvider.on('accountsChanged', evmAccountChangeHandler)
+      ethereumProvider.on('chainChanged', evmChainChangeHandler)
+      ethereumProvider.on('accountsChanged', evmAccountChangeHandler)
 
       addWalletAddress({ [address]: EVM_CHAINS })
       updateWalletState('WalletConnect', {
@@ -313,7 +318,7 @@ const WalletProvider = function WalletProvider({ children }: { children: ReactNo
         name: WALLET_NAMES.WalletConnect,
         subName,
         provider: web3Provider,
-        walletProvider: walletConnectProvider,
+        walletProvider: ethereumProvider,
         chainId: walletChainId,
         address,
         addressShort,

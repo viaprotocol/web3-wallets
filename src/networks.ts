@@ -621,6 +621,24 @@ export const getNetworkById = (chainId: string | number) => {
   throw new Error(`Unknown chainId ${chainId}`)
 }
 
+export const getEnsName = async (chainId: number, address: string) => {
+  const rpcUrl = rpcMapping[chainId]
+
+  if (!rpcUrl) {
+    return null
+  }
+
+  const web3 = new Web3(rpcUrl)
+
+  try {
+    const ensName = await web3.eth.ens.reverse(address).name()
+    return ensName
+  } catch (error) {
+    console.error(`An error occurred while getting ENS name: ${error}`)
+    throw error
+  }
+}
+
 export const estimateGas = async (chainId: number, tx: TransactionConfig) => {
   const rpcUrl = rpcMapping[chainId]
 
