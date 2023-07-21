@@ -143,3 +143,5 @@ export const LOCAL_STORAGE_WALLETS_ADDRESSES = 'web3-wallets-addresses'
 
 export const ETHEREUM_RPC = 'https://rpc.ankr.com/eth'
 export const ETHEREUM_PROVIDER = new ethers.providers.JsonRpcProvider(ETHEREUM_RPC)
+
+export const WALLET_CONNECT_PROJECT_ID = '54dd66871a82656abe39efdc6ef381b2'
