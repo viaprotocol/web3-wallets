@@ -664,7 +664,11 @@ const WalletProvider = function WalletProvider({ children }: { children: ReactNo
 
     if (isEvmWallet(state)) {
       if (state.walletProvider) {
-        state.walletProvider.removeAllListeners()
+        // @ts-expect-error-next-line WalletConnect Provider
+        if (state.walletProvider.removeAllListeners) {
+          // @ts-expect-error-next-line WalletConnect Provider
+          state.walletProvider.removeAllListeners()
+        }
         // @ts-expect-error-next-line WalletConnect Provider
         if (state.walletProvider?.disconnect) {
           // @ts-expect-error-next-line WalletConnect Provider
