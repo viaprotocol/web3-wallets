@@ -581,6 +581,58 @@ const networksRaw = /* #__PURE__ */ [
     currency_symbol: 'CUBE',
     currency_decimals: 18,
     is_testnet: false
+  },
+  // Mantle
+  {
+    chain_id: NETWORK_IDS.Mantle,
+    name: 'Mantle',
+    short_name: 'mantle',
+    logo_url: 'https://cdn.via.exchange/networks/mantle.svg',
+    explorer_url: 'https://explorer.mantle.xyz/',
+    rpc_url: 'https://rpc.mantle.xyz',
+    currency_name: 'Mantle',
+    currency_symbol: 'MNT',
+    currency_decimals: 18,
+    is_testnet: false
+  },
+  // Base
+  {
+    chain_id: NETWORK_IDS.Base,
+    name: 'Base',
+    short_name: 'base',
+    logo_url: 'https://cdn.via.exchange/networks/base.svg',
+    explorer_url: 'https://basescan.org/',
+    rpc_url: 'https://mainnet.base.org',
+    currency_name: 'Base',
+    currency_symbol: 'ETH',
+    currency_decimals: 18,
+    is_testnet: false
+  },
+  // zkEVM
+  {
+    chain_id: NETWORK_IDS.zkEVM,
+    name: 'zkEVM',
+    short_name: 'zkevm',
+    logo_url: 'https://cdn.via.exchange/networks/zkevm.svg',
+    explorer_url: 'https://zkevm.polygonscan.com/',
+    rpc_url: 'https://zkevm-rpc.com/',
+    currency_name: 'ETH',
+    currency_symbol: 'ETH',
+    currency_decimals: 18,
+    is_testnet: false
+  },
+  // Linea
+  {
+    chain_id: NETWORK_IDS.Linea,
+    name: 'Linea',
+    short_name: 'linea',
+    logo_url: 'https://cdn.via.exchange/networks/linea.svg',
+    explorer_url: 'https://explorer.linea.build/',
+    rpc_url: 'https://linea-mainnet.infura.io/v3',
+    currency_name: 'ETH',
+    currency_symbol: 'ETH',
+    currency_decimals: 18,
+    is_testnet: false
   }
 ]
 
